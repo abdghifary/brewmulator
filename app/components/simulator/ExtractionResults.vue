@@ -2,24 +2,41 @@
   <div class="extraction-results">
     <div class="grid grid-cols-2 gap-4">
       <UCard>
-        <div class="text-sm text-gray-500">Extraction Yield</div>
-        <div class="text-2xl font-bold">{{ store.extractionYield.toFixed(2) }}%</div>
-      </UCard>
-
-      <UCard>
-        <div class="text-sm text-gray-500">TDS</div>
-        <div class="text-2xl font-bold">{{ store.tds.toFixed(2) }}%</div>
-      </UCard>
-
-      <UCard>
-        <div class="text-sm text-gray-500">Beverage Weight</div>
-        <div class="text-2xl font-bold">{{ store.beverageWeight.toFixed(0) }}g</div>
-      </UCard>
-
-      <UCard>
-        <div class="text-sm text-gray-500">Zone</div>
+        <div class="text-sm text-gray-500">
+          Extraction Yield
+        </div>
         <div class="text-2xl font-bold">
-          <UBadge :color="zoneColor" variant="solid">
+          {{ store.extractionYield.toFixed(2) }}%
+        </div>
+      </UCard>
+
+      <UCard>
+        <div class="text-sm text-gray-500">
+          TDS
+        </div>
+        <div class="text-2xl font-bold">
+          {{ store.tds.toFixed(2) }}%
+        </div>
+      </UCard>
+
+      <UCard>
+        <div class="text-sm text-gray-500">
+          Beverage Weight
+        </div>
+        <div class="text-2xl font-bold">
+          {{ store.beverageWeight.toFixed(0) }}g
+        </div>
+      </UCard>
+
+      <UCard>
+        <div class="text-sm text-gray-500">
+          Zone
+        </div>
+        <div class="text-2xl font-bold">
+          <UBadge
+            :color="zoneColor"
+            variant="solid"
+          >
             {{ zoneName }}
           </UBadge>
         </div>

@@ -23,14 +23,14 @@ export function calculateRateConstant(
   const tempK = temp + 273.15
   const arrhenius = Math.exp(-E_A / (R * tempK))
   const grindFactor = (600.0 * 600.0) / (grind * grind)
-  
+
   let methodModifier: f64 = 1.0
   if (method === 2) {
     methodModifier = 2.5
   } else if (method === 1 || method === 4) {
     methodModifier = 0.85
   }
-  
+
   return A * arrhenius * grindFactor * roast * methodModifier
 }
 
@@ -52,10 +52,10 @@ export function calculateExtractionYield(
 ): f64 {
   const k = calculateRateConstant(temp, grind, roast, method)
   const extractionYield = E_MAX * (1.0 - Math.exp(-k * time))
-  
+
   if (extractionYield < 0.0) return 0.0
   if (extractionYield > E_MAX) return E_MAX
-  
+
   return extractionYield
 }
 

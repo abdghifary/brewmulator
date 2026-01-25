@@ -14,7 +14,7 @@
         Target Zone
       </div>
     </div>
-    
+
     <!-- Current Time Marker -->
     <div
       class="absolute w-0.5 bg-primary-500 pointer-events-none z-20 transition-all duration-75"
@@ -32,17 +32,63 @@
       preserveAspectRatio="none"
     >
       <defs>
-        <linearGradient id="curveGradient" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="var(--color-primary-500)" stop-opacity="0.3" />
-          <stop offset="100%" stop-color="var(--color-primary-500)" stop-opacity="0.05" />
+        <linearGradient
+          id="curveGradient"
+          x1="0"
+          x2="0"
+          y1="0"
+          y2="1"
+        >
+          <stop
+            offset="0%"
+            stop-color="var(--color-primary-500)"
+            stop-opacity="0.3"
+          />
+          <stop
+            offset="100%"
+            stop-color="var(--color-primary-500)"
+            stop-opacity="0.05"
+          />
         </linearGradient>
       </defs>
-      
+
       <!-- Grid lines (optional, adds context) -->
-      <line x1="0" y1="0" x2="100" y2="0" stroke="currentColor" stroke-opacity="0.05" vector-effect="non-scaling-stroke" />
-      <line x1="0" y1="25" x2="100" y2="25" stroke="currentColor" stroke-opacity="0.05" vector-effect="non-scaling-stroke" />
-      <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" stroke-opacity="0.05" vector-effect="non-scaling-stroke" />
-      <line x1="0" y1="75" x2="100" y2="75" stroke="currentColor" stroke-opacity="0.05" vector-effect="non-scaling-stroke" />
+      <line
+        x1="0"
+        y1="0"
+        x2="100"
+        y2="0"
+        stroke="currentColor"
+        stroke-opacity="0.05"
+        vector-effect="non-scaling-stroke"
+      />
+      <line
+        x1="0"
+        y1="25"
+        x2="100"
+        y2="25"
+        stroke="currentColor"
+        stroke-opacity="0.05"
+        vector-effect="non-scaling-stroke"
+      />
+      <line
+        x1="0"
+        y1="50"
+        x2="100"
+        y2="50"
+        stroke="currentColor"
+        stroke-opacity="0.05"
+        vector-effect="non-scaling-stroke"
+      />
+      <line
+        x1="0"
+        y1="75"
+        x2="100"
+        y2="75"
+        stroke="currentColor"
+        stroke-opacity="0.05"
+        vector-effect="non-scaling-stroke"
+      />
 
       <path
         v-if="pathD"
@@ -101,7 +147,7 @@ const pathD = computed(() => {
   if (!store.extractionCurve.length || maxTime.value <= 0) return ''
 
   // Build the points string
-  const points = store.extractionCurve.map(p => {
+  const points = store.extractionCurve.map((p) => {
     // Clamp values to ensure they stay within bounds
     const x = Math.max(0, Math.min(100, (p.time / maxTime.value) * 100))
     const y = Math.max(0, Math.min(100, yScale(p.yield)))
@@ -110,7 +156,7 @@ const pathD = computed(() => {
 
   const lastPoint = points[points.length - 1]
   if (!lastPoint) return ''
-  
+
   const [lastX] = lastPoint.split(',')
 
   // Construct the area path:
@@ -118,7 +164,7 @@ const pathD = computed(() => {
   // 2. Line to first point (0,0 typically) and all subsequent points
   // 3. Line to current X projection on bottom axis (lastX, 100)
   // 4. Close path (Z) implies line back to start
-  
+
   return `M 0,100 L ${points.join(' L ')} L ${lastX},100 Z`
 })
 </script>

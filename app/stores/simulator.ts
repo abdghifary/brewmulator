@@ -104,7 +104,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
   const brewTime = ref(180)
   const coffeeGrams = ref(18)
   const waterGrams = ref(288)
-  
+
   const extractionCurve = ref<ExtractionPoint[]>([])
 
   const initialize = async () => {
@@ -132,11 +132,11 @@ export const useSimulatorStore = defineStore('simulator', () => {
     const absorptionRate = method.value === 'espresso' ? 1.2 : 2.0
     const absorbed = coffeeGrams.value * absorptionRate
     const waterMass = Math.max(0, waterGrams.value - absorbed)
-    
+
     // Add dissolved solids to beverage weight (mass conservation)
     // extractionYield is in percent (0-28)
     const solubles = (extractionYield.value / 100.0) * coffeeGrams.value
-    
+
     return waterMass + solubles
   })
 
@@ -238,7 +238,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     coffeeGrams,
     waterGrams,
     extractionCurve,
-    
+
     brewRatio,
     beverageWeight,
     extractionYield,
@@ -248,7 +248,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     coffeeMax,
     waterMin,
     waterMax,
-    
+
     initialize,
     setPreset,
     debouncedCompute,

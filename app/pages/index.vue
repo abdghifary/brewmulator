@@ -3,7 +3,8 @@
     <div class="max-w-7xl mx-auto space-y-8">
       <div class="text-center">
         <h1 class="text-4xl font-bold">
-Coffee Extraction Simulator</h1>
+          Coffee Extraction Simulator
+        </h1>
         <p class="text-gray-500 mt-2">
           Visualize extraction kinetics in real-time using physics-based modeling
         </p>
@@ -15,14 +16,18 @@ Coffee Extraction Simulator</h1>
         <div class="space-y-6">
           <UCard>
             <template #header>
-              <h2 class="text-xl font-semibold">Brew Parameters</h2>
+              <h2 class="text-xl font-semibold">
+                Brew Parameters
+              </h2>
             </template>
             <SimulatorBrewParameters />
           </UCard>
 
           <UCard>
             <template #header>
-              <h2 class="text-xl font-semibold">Dose Parameters</h2>
+              <h2 class="text-xl font-semibold">
+                Dose Parameters
+              </h2>
             </template>
             <SimulatorDoseParameters />
           </UCard>
@@ -31,14 +36,18 @@ Coffee Extraction Simulator</h1>
         <div class="space-y-6">
           <UCard>
             <template #header>
-              <h2 class="text-xl font-semibold">Extraction Curve</h2>
+              <h2 class="text-xl font-semibold">
+                Extraction Curve
+              </h2>
             </template>
             <SimulatorExtractionChart />
           </UCard>
 
           <UCard>
             <template #header>
-              <h2 class="text-xl font-semibold">Results</h2>
+              <h2 class="text-xl font-semibold">
+                Results
+              </h2>
             </template>
             <SimulatorExtractionResults />
           </UCard>
