@@ -66,7 +66,7 @@ export const presetDefaults: Record<BrewMethod, {
     roastLevel: 'medium',
     brewTime: 25,
     coffeeGrams: 18,
-    waterGrams: 36,
+    waterGrams: 54, // Adjusted for ~36g yield (1:2 ratio)
     maxTime: 60,
     tempRange: [80, 100]
   },
@@ -126,8 +126,18 @@ export const useSimulatorStore = defineStore('simulator', () => {
   })
 
   const beverageWeight = computed(() => {
-    const absorbed = coffeeGrams.value * 2
-    return Math.max(0, waterGrams.value - absorbed)
+    // Absorption rate depends on brew method:
+    // Espresso: ~1.2x (high pressure, lower retention)
+    // Others: ~2.0x (standard drip/immersion retention)
+    const absorptionRate = method.value === 'espresso' ? 1.2 : 2.0
+    const absorbed = coffeeGrams.value * absorptionRate
+    const waterMass = Math.max(0, waterGrams.value - absorbed)
+    
+    // Add dissolved solids to beverage weight (mass conservation)
+    // extractionYield is in percent (0-28)
+    const solubles = (extractionYield.value / 100.0) * coffeeGrams.value
+    
+    return waterMass + solubles
   })
 
   const extractionYield = computed(() => {
@@ -156,6 +166,25 @@ export const useSimulatorStore = defineStore('simulator', () => {
       extractionYield.value,
       methodToNumber(method.value)
     )
+  })
+
+  const coffeeMin = computed(() => {
+    return method.value === 'espresso' ? 7 : 10
+  })
+
+  const coffeeMax = computed(() => {
+    if (method.value === 'espresso') return 30
+    if (method.value === 'coldBrew') return 100
+    return 60
+  })
+
+  const waterMin = computed(() => {
+    return method.value === 'espresso' ? 10 : 100
+  })
+
+  const waterMax = computed(() => {
+    if (method.value === 'espresso') return 150
+    return method.value === 'coldBrew' ? 1500 : 1000
   })
 
   const computeCurve = () => {
@@ -215,6 +244,10 @@ export const useSimulatorStore = defineStore('simulator', () => {
     extractionYield,
     tds,
     extractionZone,
+    coffeeMin,
+    coffeeMax,
+    waterMin,
+    waterMax,
     
     initialize,
     setPreset,

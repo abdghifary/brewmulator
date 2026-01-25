@@ -3,8 +3,8 @@
     <UFormField :label="`Coffee: ${store.coffeeGrams}g`">
       <USlider
         v-model="store.coffeeGrams"
-        :min="10"
-        :max="50"
+        :min="store.coffeeMin"
+        :max="store.coffeeMax"
         :step="0.5"
         @update:model-value="store.debouncedCompute"
       />
@@ -13,9 +13,9 @@
     <UFormField :label="`Water: ${store.waterGrams}g`">
       <USlider
         v-model="store.waterGrams"
-        :min="100"
-        :max="1000"
-        :step="10"
+        :min="store.waterMin"
+        :max="store.waterMax"
+        :step="1"
         @update:model-value="store.debouncedCompute"
       />
     </UFormField>
