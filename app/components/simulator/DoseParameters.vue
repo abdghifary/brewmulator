@@ -1,8 +1,8 @@
 <template>
   <div class="dose-parameters space-y-4">
-    <UFormField :label="`Coffee: ${store.coffeeGrams}g`">
+    <UFormField :label="`Coffee: ${store.recipe.coffeeGrams}g`">
       <USlider
-        v-model="store.coffeeGrams"
+        v-model="store.recipe.coffeeGrams"
         :min="store.coffeeMin"
         :max="store.coffeeMax"
         :step="0.5"
@@ -10,9 +10,9 @@
       />
     </UFormField>
 
-    <UFormField :label="`Water: ${store.waterGrams}g`">
+    <UFormField :label="`Water: ${store.recipe.waterGrams}g`">
       <USlider
-        v-model="store.waterGrams"
+        v-model="store.recipe.waterGrams"
         :min="store.waterMin"
         :max="store.waterMax"
         :step="1"
@@ -28,5 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSimulatorStore } from '~/stores/simulator'
+
 const store = useSimulatorStore()
 </script>

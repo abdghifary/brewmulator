@@ -4,8 +4,8 @@
       <UButton
         v-for="preset in presets"
         :key="preset.id"
-        :variant="store.method === preset.id ? 'solid' : 'outline'"
-        :color="store.method === preset.id ? 'primary' : 'neutral'"
+        :variant="store.recipe.method === preset.id ? 'solid' : 'outline'"
+        :color="store.recipe.method === preset.id ? 'primary' : 'neutral'"
         :icon="preset.icon"
         @click="store.setPreset(preset.id)"
       >
@@ -16,6 +16,8 @@
 </template>
 
 <script setup lang="ts">
+import { useSimulatorStore } from '~/stores/simulator'
+
 const store = useSimulatorStore()
 
 const presets = [
