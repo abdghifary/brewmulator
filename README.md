@@ -10,7 +10,7 @@ Physics-based coffee extraction simulator using WebAssembly and Nuxt UI.
 
 ## Setup
 
-Make sure to install the dependencies:
+Make sure to install the dependencies. This will automatically build the WebAssembly physics engine:
 
 ```bash
 pnpm install
@@ -24,9 +24,12 @@ Start the development server on `http://localhost:3000`:
 pnpm dev
 ```
 
+> [!TIP]
+> Saving `.ts` files in the `assembly/` directory will automatically recompile the WASM module and trigger a full page reload.
+
 ## Production
 
-Build the application for production:
+The production build pipeline first compiles the AssemblyScript source to WebAssembly, then builds the Nuxt application:
 
 ```bash
 pnpm build
