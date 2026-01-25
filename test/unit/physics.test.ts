@@ -34,7 +34,7 @@ describe('Physics Engine - Extraction Kinetics', () => {
       const roast = 1.0
       const method = 2
 
-      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
+      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 36.0, 18.0)
 
       expect(result).toBeGreaterThanOrEqual(18)
       expect(result).toBeLessThanOrEqual(21)
