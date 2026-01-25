@@ -147,7 +147,9 @@ export const useSimulatorStore = defineStore('simulator', () => {
       temperature.value,
       grindSize.value,
       roastToNumber(roastLevel.value),
-      methodToNumber(method.value)
+      methodToNumber(method.value),
+      waterGrams.value,
+      coffeeGrams.value
     )
   })
 
@@ -205,7 +207,9 @@ export const useSimulatorStore = defineStore('simulator', () => {
         temperature.value,
         grindSize.value,
         roastToNumber(roastLevel.value),
-        methodToNumber(method.value)
+        methodToNumber(method.value),
+        waterGrams.value,
+        coffeeGrams.value
       )
       points.push({ time: t, yield: y })
     }
