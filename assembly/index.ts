@@ -26,7 +26,7 @@ export function calculateRateConstant(
 
   let methodModifier: f64 = 1.0
   if (method === 2) {
-    methodModifier = 2.5
+    methodModifier = 7.0
   } else if (method === 1 || method === 4) {
     methodModifier = 0.85
   }
@@ -55,7 +55,7 @@ export function calculateExtractionYield(
   coffeeGrams: f64
 ): f64 {
   // Constants
-  const ALPHA: f64 = 2.0 // Solubility coefficient
+  const ALPHA: f64 = 1.1 // Solubility coefficient (Lower = Higher max extraction at tight ratios)
 
   const k = calculateRateConstant(temp, grind, roast, method)
 
@@ -100,9 +100,23 @@ export function calculateTDS(
  * @returns Zone: 0 = under-extracted, 1 = sweet spot, 2 = over-extracted
  */
 export function getExtractionZone(extractionYield: f64, method: i32): i32 {
-  if (extractionYield < 18.0) {
+  // Default range (V60, French Press, Aeropress): 18-22%
+  let minYield: f64 = 18.0
+  let maxYield: f64 = 22.0
+
+  if (method === 2) {
+    // Espresso: Broader, often higher range (17-23%)
+    minYield = 17.0
+    maxYield = 23.0
+  } else if (method === 4) {
+    // Cold Brew: Often lower due to temperature (16-20%)
+    minYield = 16.0
+    maxYield = 20.0
+  }
+
+  if (extractionYield < minYield) {
     return 0
-  } else if (extractionYield <= 22.0) {
+  } else if (extractionYield <= maxYield) {
     return 1
   } else {
     return 2

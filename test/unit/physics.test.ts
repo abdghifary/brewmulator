@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let wasmModule: any
 
 beforeAll(async () => {
