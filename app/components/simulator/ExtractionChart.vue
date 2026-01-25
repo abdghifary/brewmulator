@@ -19,7 +19,7 @@
     <div
       class="absolute w-0.5 bg-primary-500 pointer-events-none z-20 transition-all duration-75"
       :style="{
-        left: `${(store.brewTime / maxTime) * 100}%`,
+        left: `${(store.recipe.brewTime / maxTime) * 100}%`,
         top: 0,
         bottom: 0
       }"
@@ -119,11 +119,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { presetDefaults } from '~/stores/simulator'
+import { useSimulatorStore } from '~/stores/simulator'
+import { presetDefaults } from '~/stores/simulator/constants'
 
 const store = useSimulatorStore()
 
-const maxTime = computed(() => presetDefaults[store.method].maxTime)
+const maxTime = computed(() => presetDefaults[store.recipe.method].maxTime)
 
 function yScale(yieldValue: number): number {
   const min = 0
@@ -132,11 +133,11 @@ function yScale(yieldValue: number): number {
 }
 
 function formatTime(seconds: number): string {
-  if (store.method === 'coldBrew') {
+  if (store.recipe.method === 'coldBrew') {
     const hours = Math.floor(seconds / 3600)
     return `${hours}h`
   }
-  if (store.method === 'espresso') {
+  if (store.recipe.method === 'espresso') {
     return `${Math.round(seconds)}s`
   }
   const mins = Math.floor(seconds / 60)

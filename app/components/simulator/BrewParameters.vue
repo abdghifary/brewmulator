@@ -1,8 +1,8 @@
 <template>
   <div class="brew-parameters space-y-4">
-    <UFormField :label="`Temperature: ${store.temperature}°C`">
+    <UFormField :label="`Temperature: ${store.recipe.temperature}°C`">
       <USlider
-        v-model="store.temperature"
+        v-model="store.recipe.temperature"
         :min="currentPreset.tempRange[0]"
         :max="currentPreset.tempRange[1]"
         :step="1"
@@ -10,12 +10,12 @@
       />
     </UFormField>
 
-    <UFormField :label="`Grind Size: ${store.grindSize}μm`">
+    <UFormField :label="`Grind Size: ${store.recipe.grindSize}μm`">
       <USlider
-        v-model="store.grindSize"
-        :min="200"
-        :max="1400"
-        :step="50"
+        v-model="store.recipe.grindSize"
+        :min="grindMin"
+        :max="grindMax"
+        :step="grindStep"
         @update:model-value="store.debouncedCompute"
       />
     </UFormField>
@@ -25,8 +25,8 @@
         <UButton
           v-for="roast in roastLevels"
           :key="roast"
-          :variant="store.roastLevel === roast ? 'solid' : 'outline'"
-          :color="store.roastLevel === roast ? 'primary' : 'neutral'"
+          :variant="store.recipe.roastLevel === roast ? 'solid' : 'outline'"
+          :color="store.recipe.roastLevel === roast ? 'primary' : 'neutral'"
           @click="setRoast(roast)"
         >
           {{ roast.charAt(0).toUpperCase() + roast.slice(1) }}
@@ -34,12 +34,12 @@
       </div>
     </UFormField>
 
-    <UFormField :label="`Brew Time: ${formatTime(store.brewTime)}`">
+    <UFormField :label="`Brew Time: ${formatTime(store.recipe.brewTime)}`">
       <USlider
-        v-model="store.brewTime"
+        v-model="store.recipe.brewTime"
         :min="0"
         :max="currentPreset.maxTime"
-        :step="store.method === 'espresso' ? 1 : store.method === 'coldBrew' ? 3600 : 10"
+        :step="store.recipe.method === 'espresso' ? 1 : store.recipe.method === 'coldBrew' ? 3600 : 10"
         @update:model-value="store.debouncedCompute"
       />
     </UFormField>
@@ -48,26 +48,31 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { presetDefaults } from '~/stores/simulator'
+import { useSimulatorStore } from '~/stores/simulator'
+import { presetDefaults } from '~/stores/simulator/constants'
 
 type RoastLevel = 'light' | 'medium' | 'dark'
 
 const store = useSimulatorStore()
 const roastLevels: RoastLevel[] = ['light', 'medium', 'dark']
 
-const currentPreset = computed(() => presetDefaults[store.method])
+const currentPreset = computed(() => presetDefaults[store.recipe.method])
+
+const grindMin = computed(() => store.recipe.method === 'espresso' ? 50 : 200)
+const grindMax = computed(() => 1500)
+const grindStep = computed(() => store.recipe.method === 'espresso' ? 10 : 50)
 
 function setRoast(roast: RoastLevel) {
-  store.roastLevel = roast
+  store.recipe.roastLevel = roast
   store.debouncedCompute()
 }
 
 function formatTime(seconds: number): string {
-  if (store.method === 'coldBrew') {
+  if (store.recipe.method === 'coldBrew') {
     const hours = Math.floor(seconds / 3600)
     return `${hours}h`
   }
-  if (store.method === 'espresso') {
+  if (store.recipe.method === 'espresso') {
     return `${seconds}s`
   }
   const mins = Math.floor(seconds / 60)
