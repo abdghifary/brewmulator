@@ -35,12 +35,14 @@ export function calculateRateConstant(
 }
 
 /**
- * Calculate extraction yield percentage using Spiro & Selwood kinetics model
+ * Calculate extraction yield percentage using Reversible Kinetics (Nernst-Brunner)
  * @param time - Brew time in seconds
  * @param temp - Temperature in Celsius
  * @param grind - Grind size in microns
  * @param roast - Roast level (0.8 = light, 1.0 = medium, 1.2 = dark)
  * @param method - Brew method (0 = v60, 1 = french press, 2 = espresso, 3 = aeropress, 4 = cold brew)
+ * @param waterGrams - Total water weight in grams
+ * @param coffeeGrams - Coffee dose in grams
  * @returns Extraction yield as percentage (0-28%)
  */
 export function calculateExtractionYield(
@@ -48,10 +50,26 @@ export function calculateExtractionYield(
   temp: f64,
   grind: f64,
   roast: f64,
-  method: i32
+  method: i32,
+  waterGrams: f64,
+  coffeeGrams: f64
 ): f64 {
+  // Constants
+  const ALPHA: f64 = 2.0 // Solubility coefficient
+
   const k = calculateRateConstant(temp, grind, roast, method)
-  const extractionYield = E_MAX * (1.0 - Math.exp(-k * time))
+
+  // Edge cases
+  if (coffeeGrams <= 0.0) return E_MAX
+  if (waterGrams <= 0.0) return 0.0
+
+  // Reversible Kinetics (Nernst-Brunner / Saturation)
+  const ratio = waterGrams / coffeeGrams
+  const invRatio = ALPHA / ratio
+  const yieldEq = E_MAX / (1.0 + invRatio)
+  const kObs = k * (1.0 + invRatio)
+
+  const extractionYield = yieldEq * (1.0 - Math.exp(-kObs * time))
 
   if (extractionYield < 0.0) return 0.0
   if (extractionYield > E_MAX) return E_MAX
