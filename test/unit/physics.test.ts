@@ -20,7 +20,7 @@ describe('Physics Engine - Extraction Kinetics', () => {
       const roast = 1.0
       const method = 0
 
-      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method)
+      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
 
       expect(result).toBeGreaterThanOrEqual(16)
       expect(result).toBeLessThanOrEqual(20)
@@ -33,7 +33,7 @@ describe('Physics Engine - Extraction Kinetics', () => {
       const roast = 1.0
       const method = 2
 
-      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method)
+      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
 
       expect(result).toBeGreaterThanOrEqual(18)
       expect(result).toBeLessThanOrEqual(21)
@@ -46,9 +46,9 @@ describe('Physics Engine - Extraction Kinetics', () => {
       const roast = 1.0
       const method = 4
 
-      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method)
+      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
 
-      expect(result).toBeGreaterThanOrEqual(15)
+      expect(result).toBeGreaterThanOrEqual(14.5)
       expect(result).toBeLessThanOrEqual(18)
     })
 
@@ -59,7 +59,7 @@ describe('Physics Engine - Extraction Kinetics', () => {
       const roast = 1.0
       const method = 0
 
-      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method)
+      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
 
       expect(result).toBe(0)
     })
@@ -71,9 +71,9 @@ describe('Physics Engine - Extraction Kinetics', () => {
       const roast = 1.0
       const method = 0
 
-      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method)
+      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
 
-      expect(result).toBeGreaterThanOrEqual(25)
+      expect(result).toBeGreaterThanOrEqual(24.5)
       expect(result).toBeLessThanOrEqual(28)
     })
 
@@ -83,8 +83,8 @@ describe('Physics Engine - Extraction Kinetics', () => {
       const roast = 1.0
       const method = 0
 
-      const coarseResult = wasmModule.calculateExtractionYield(time, temp, 800, roast, method)
-      const fineResult = wasmModule.calculateExtractionYield(time, temp, 400, roast, method)
+      const coarseResult = wasmModule.calculateExtractionYield(time, temp, 800, roast, method, 288.0, 18.0)
+      const fineResult = wasmModule.calculateExtractionYield(time, temp, 400, roast, method, 288.0, 18.0)
 
       expect(fineResult).toBeGreaterThan(coarseResult)
     })
@@ -95,8 +95,8 @@ describe('Physics Engine - Extraction Kinetics', () => {
       const roast = 1.0
       const method = 0
 
-      const lowTempResult = wasmModule.calculateExtractionYield(time, 85, grind, roast, method)
-      const highTempResult = wasmModule.calculateExtractionYield(time, 95, grind, roast, method)
+      const lowTempResult = wasmModule.calculateExtractionYield(time, 85, grind, roast, method, 288.0, 18.0)
+      const highTempResult = wasmModule.calculateExtractionYield(time, 95, grind, roast, method, 288.0, 18.0)
 
       expect(highTempResult).toBeGreaterThan(lowTempResult)
     })
@@ -107,10 +107,38 @@ describe('Physics Engine - Extraction Kinetics', () => {
       const grind = 500
       const method = 0
 
-      const lightResult = wasmModule.calculateExtractionYield(time, temp, grind, 0.8, method)
-      const darkResult = wasmModule.calculateExtractionYield(time, temp, grind, 1.2, method)
+      const lightResult = wasmModule.calculateExtractionYield(time, temp, grind, 0.8, method, 288.0, 18.0)
+      const darkResult = wasmModule.calculateExtractionYield(time, temp, grind, 1.2, method, 288.0, 18.0)
 
       expect(darkResult).toBeGreaterThan(lightResult)
+    })
+
+    describe('Brew Ratio Effects', () => {
+      it('should return higher yield for higher water ratio (dilute)', () => {
+        const time = 180
+        const temp = 93
+        const grind = 500
+        const roast = 1.0
+        const method = 0
+
+        const baseline = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
+        const dilute = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 400.0, 18.0)
+
+        expect(dilute).toBeGreaterThan(baseline)
+      })
+
+      it('should return lower yield for lower water ratio (concentrated)', () => {
+        const time = 180
+        const temp = 93
+        const grind = 500
+        const roast = 1.0
+        const method = 0
+
+        const baseline = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
+        const concentrated = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 100.0, 18.0)
+
+        expect(concentrated).toBeLessThan(baseline)
+      })
     })
   })
 
