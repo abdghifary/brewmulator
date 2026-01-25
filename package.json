@@ -3,9 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
     "dev": "nuxt dev",
+    "build": "pnpm run asbuild:release && nuxt build",
     "preview": "nuxt preview",
+    "start": "node .output/server/index.mjs",
+    "prepare": "pnpm run asbuild:release",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
@@ -14,10 +16,9 @@
     "test:coverage": "vitest --coverage",
     "test:unit": "vitest --project unit",
     "test:nuxt": "vitest --project nuxt",
-    "asbuild:debug": "asc assembly/index.ts --target debug",
+    "asbuild": "pnpm run asbuild:release",
     "asbuild:release": "asc assembly/index.ts --target release",
-    "asbuild": "pnpm run asbuild:debug && pnpm run asbuild:release",
-    "start": "npx serve ."
+    "asbuild:debug": "asc assembly/index.ts --target debug"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.82",
