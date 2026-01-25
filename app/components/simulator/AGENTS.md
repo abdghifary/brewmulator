@@ -1,5 +1,9 @@
 # SIMULATOR COMPONENTS KNOWLEDGE BASE
 
+**Generated:** 2026-01-25
+**Domain:** UI/Visualization
+**Parent Context:** [../../AGENTS.md](../../AGENTS.md)
+
 ## OVERVIEW
 Core UI domain for the coffee extraction simulator, providing specialized visualization and parameter control widgets.
 
