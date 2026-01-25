@@ -29,3 +29,6 @@ coverage/
 # Sisyphus & OpenCode
 .sisyphus/
 .opencode/
+
+# WASM Builds
+build/
