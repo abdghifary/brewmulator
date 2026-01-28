@@ -15,7 +15,7 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 │   ├── pages/            # App routes
 │   └── stores/           # Pinia stores (WASM bridge)
 ├── assembly/             # Physics engine (AssemblyScript)
-├── build/                # Compiled WASM & JS glue (committed)
+├── build/                # Compiled WASM & JS glue (gitignored, built on install)
 ├── test/                 # Vitest suites (unit & nuxt)
 └── nuxt.config.ts        # Framework config
 ```
