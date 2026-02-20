@@ -1,4 +1,71 @@
-import type { BrewMethod, RoastLevel, BrewPreset } from './types'
+import type { BrewMethod, RoastLevel, BrewPreset, V60RecipeTemplate, PourSchedule } from './types'
+
+export const T_AMBIENT = 22        // °C, ambient temperature
+export const H_COOL = 0.005        // /s, Newton cooling coefficient
+export const K_DEGAS = 0.03        // /s, CO2 degassing rate
+export const BLOOM_INHIBITION = 0.6 // initial rate reduction during bloom
+export const MAX_POUR_STEPS = 10   // max pour steps per schedule
+
+export const v60Templates: V60RecipeTemplate[] = [
+  {
+    name: 'Tetsu Kasuya 4:6',
+    coffeeGrams: 20,
+    totalWater: 300,
+    pourSchedule: [
+      { startTime: 0,   waterGrams: 60, temperature: 93, isBloom: true, label: 'Bloom' },
+      { startTime: 45,  waterGrams: 60, temperature: 93, label: 'Pour 2' },
+      { startTime: 90,  waterGrams: 60, temperature: 93, label: 'Pour 3' },
+      { startTime: 135, waterGrams: 60, temperature: 93, label: 'Pour 4' },
+      { startTime: 180, waterGrams: 60, temperature: 93, label: 'Pour 5' },
+    ],
+    description: 'Tetsu Kasuya 4:6 method — 5 equal pours at 45s intervals',
+  },
+  {
+    name: 'James Hoffmann',
+    coffeeGrams: 30,
+    totalWater: 500,
+    pourSchedule: [
+      { startTime: 0,  waterGrams: 60,  temperature: 95, isBloom: true, label: 'Bloom' },
+      { startTime: 45, waterGrams: 240, temperature: 95, label: 'Main pour' },
+      { startTime: 75, waterGrams: 200, temperature: 95, label: 'Top-off' },
+    ],
+    description: 'James Hoffmann Ultimate V60 — bloom + single large pour + top-off',
+  },
+  {
+    name: 'Scott Rao',
+    coffeeGrams: 22,
+    totalWater: 360,
+    pourSchedule: [
+      { startTime: 0,  waterGrams: 66,  temperature: 94, isBloom: true, label: 'Bloom' },
+      { startTime: 45, waterGrams: 134, temperature: 94, label: 'Main pour' },
+      { startTime: 75, waterGrams: 160, temperature: 94, label: 'Final pour' },
+    ],
+    description: 'Scott Rao method — 3x dose bloom, then two pours with Rao spin',
+  },
+  {
+    name: 'Lance Hedrick',
+    coffeeGrams: 15,
+    totalWater: 250,
+    pourSchedule: [
+      { startTime: 0,  waterGrams: 45,  temperature: 93, isBloom: true, label: 'Bloom' },
+      { startTime: 40, waterGrams: 205, temperature: 93, label: 'Single pour' },
+    ],
+    description: 'Lance Hedrick 1-pour method — bloom then single continuous pour',
+  },
+  {
+    name: 'Matt Winton',
+    coffeeGrams: 20,
+    totalWater: 300,
+    pourSchedule: [
+      { startTime: 0,   waterGrams: 60, temperature: 93, isBloom: true, label: 'Bloom' },
+      { startTime: 45,  waterGrams: 60, temperature: 88, label: 'Pour 2' },
+      { startTime: 90,  waterGrams: 60, temperature: 88, label: 'Pour 3' },
+      { startTime: 135, waterGrams: 60, temperature: 88, label: 'Pour 4' },
+      { startTime: 180, waterGrams: 60, temperature: 88, label: 'Pour 5' },
+    ],
+    description: 'Matt Winton method — 5 pours with temperature stepping (93°C bloom → 88°C)',
+  },
+]
 
 export const methodToNumber = (method: BrewMethod): number => {
   const map: Record<BrewMethod, number> = {
