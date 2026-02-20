@@ -1,14 +1,22 @@
 import { computed, type Ref } from 'vue'
-import type { BrewRecipe, WasmModule } from '../types'
+import type { BrewRecipe, ExtractionPoint, WasmModule } from '../types'
 import { methodToNumber, roastToNumber } from '../constants'
 
-export function useBrewMath(recipe: Ref<BrewRecipe>, wasmModule: Ref<WasmModule | null>) {
+export function useBrewMath(
+  recipe: Ref<BrewRecipe>,
+  wasmModule: Ref<WasmModule | null>,
+  hasPourSchedule: Ref<boolean>,
+  extractionCurve: Ref<ExtractionPoint[]>,
+) {
   const brewRatio = computed(() => {
     if (recipe.value.coffeeGrams === 0) return 0
     return recipe.value.waterGrams / recipe.value.coffeeGrams
   })
 
   const extractionYield = computed(() => {
+    if (hasPourSchedule.value && extractionCurve.value.length > 0) {
+      return extractionCurve.value[extractionCurve.value.length - 1]!.yield
+    }
     if (!wasmModule.value) return 0
     return wasmModule.value.calculateExtractionYield(
       recipe.value.brewTime,
