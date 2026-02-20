@@ -38,7 +38,9 @@
         :min="0"
         :max="currentPreset.maxTime"
         :step="store.recipe.method === 'espresso' ? 1 : store.recipe.method === 'coldBrew' ? 3600 : 10"
+        :disabled="store.hasPourSchedule"
       />
+      <p v-if="store.hasPourSchedule" class="text-xs text-gray-400 mt-1">Brew time is set by pour schedule</p>
     </UFormField>
   </div>
 </template>
