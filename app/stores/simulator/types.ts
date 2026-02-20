@@ -14,6 +14,7 @@ export interface BrewRecipe {
   brewTime: number
   coffeeGrams: number
   waterGrams: number
+  pourSchedule?: PourSchedule
 }
 
 export interface BrewPreset {
@@ -25,6 +26,24 @@ export interface BrewPreset {
   waterGrams: number
   maxTime: number
   tempRange: [number, number]
+}
+
+export interface PourStep {
+  startTime: number        // seconds from brew start
+  waterGrams: number       // grams of water in this pour
+  temperature?: number     // °C, optional (uses recipe.temperature if omitted)
+  isBloom?: boolean        // true for the first bloom pour
+  label?: string           // optional display label
+}
+
+export type PourSchedule = PourStep[]
+
+export interface V60RecipeTemplate {
+  name: string
+  coffeeGrams: number
+  totalWater: number
+  pourSchedule: PourSchedule
+  description?: string
 }
 
 export interface WasmModule {
@@ -46,4 +65,12 @@ export interface WasmModule {
     extractionYield: number,
     method: number
   ): number
+  calculateRateConstant(
+    temp: number,
+    grind: number,
+    roast: number,
+    method: number
+  ): number
+  readonly E_MAX: number
+  readonly ALPHA: number
 }
