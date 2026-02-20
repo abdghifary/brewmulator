@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
-import type { BrewMethod, BrewRecipe, ExtractionPoint, WasmModule } from './types'
-import { presetDefaults, methodToNumber, roastToNumber } from './constants'
+import { ref, computed, watch } from 'vue'
+import type { BrewMethod, BrewRecipe, ExtractionPoint, WasmModule, PourStep, PourSchedule } from './types'
+import { presetDefaults, methodToNumber, roastToNumber, v60Templates, MAX_POUR_STEPS } from './constants'
 import { useBrewMath } from './composables/useBrewMath'
 import { useBrewLimits } from './composables/useBrewLimits'
 
@@ -26,6 +26,9 @@ export const useSimulatorStore = defineStore('simulator', () => {
   })
 
   const extractionCurve = ref<ExtractionPoint[]>([])
+  const pourSchedule = ref<PourSchedule>([])
+
+  const hasPourSchedule = computed(() => recipe.value.method === 'v60' && pourSchedule.value.length > 0)
 
   // Domain Composables
   const { brewRatio, beverageWeight, extractionYield, tds, extractionZone } = useBrewMath(recipe, wasmModule)
@@ -71,6 +74,8 @@ export const useSimulatorStore = defineStore('simulator', () => {
     computeCurve()
   }, { deep: true })
 
+  watch(pourSchedule, () => computeCurve(), { deep: true })
+
   const initialize = async () => {
     try {
       const module = await import('../../../build/release.js')
@@ -85,6 +90,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
   }
 
   const setPreset = (newMethod: BrewMethod) => {
+    if (recipe.value.method === 'v60' && newMethod !== 'v60') clearPourSchedule()
     const preset = presetDefaults[newMethod]
     recipe.value = {
       method: newMethod,
@@ -99,6 +105,49 @@ export const useSimulatorStore = defineStore('simulator', () => {
     computeCurve()
   }
 
+  function addPourStep(step: PourStep): void {
+    if (pourSchedule.value.length >= MAX_POUR_STEPS) return
+    pourSchedule.value.push(step)
+    pourSchedule.value.sort((a, b) => a.startTime - b.startTime)
+    _recalculatePourTotals()
+  }
+
+  function removePourStep(index: number): void {
+    pourSchedule.value.splice(index, 1)
+    _recalculatePourTotals()
+  }
+
+  function updatePourStep(index: number, step: PourStep): void {
+    pourSchedule.value[index] = step
+    pourSchedule.value.sort((a, b) => a.startTime - b.startTime)
+    _recalculatePourTotals()
+  }
+
+  function loadTemplate(templateIndex: number): void {
+    const template = v60Templates[templateIndex]
+    if (!template) return
+    pourSchedule.value = [...template.pourSchedule]
+    recipe.value.coffeeGrams = template.coffeeGrams
+    recipe.value.waterGrams = template.totalWater
+    if (template.pourSchedule[0]?.temperature) {
+      recipe.value.temperature = template.pourSchedule[0].temperature
+    }
+  }
+
+  function clearPourSchedule(): void {
+    pourSchedule.value = []
+    const defaults = presetDefaults[recipe.value.method]
+    recipe.value.waterGrams = defaults.waterGrams
+    recipe.value.brewTime = defaults.brewTime
+  }
+
+  function _recalculatePourTotals(): void {
+    if (pourSchedule.value.length === 0) return
+    recipe.value.waterGrams = pourSchedule.value.reduce((sum, s) => sum + s.waterGrams, 0)
+    const lastPour = pourSchedule.value[pourSchedule.value.length - 1]
+    if (lastPour) recipe.value.brewTime = lastPour.startTime + 45
+  }
+
   return {
     // Infrastructure
     isLoading,
@@ -108,12 +157,19 @@ export const useSimulatorStore = defineStore('simulator', () => {
     // State
     recipe,
     extractionCurve,
+    pourSchedule,
 
     // Actions
     setPreset,
     computeCurve,
+    addPourStep,
+    removePourStep,
+    updatePourStep,
+    loadTemplate,
+    clearPourSchedule,
 
     // Computed
+    hasPourSchedule,
     brewRatio,
     beverageWeight,
     extractionYield,
