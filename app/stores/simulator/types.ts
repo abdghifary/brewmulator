@@ -29,11 +29,11 @@ export interface BrewPreset {
 }
 
 export interface PourStep {
-  startTime: number        // seconds from brew start
-  waterGrams: number       // grams of water in this pour
-  temperature?: number     // °C, optional (uses recipe.temperature if omitted)
-  isBloom?: boolean        // true for the first bloom pour
-  label?: string           // optional display label
+  startTime: number // seconds from brew start
+  waterGrams: number // grams of water in this pour
+  temperature?: number // °C, optional (uses recipe.temperature if omitted)
+  isBloom?: boolean // true for the first bloom pour
+  label?: string // optional display label
 }
 
 export type PourSchedule = PourStep[]
