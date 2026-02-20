@@ -5,7 +5,7 @@
 **Parent Context:** [../../AGENTS.md](../../AGENTS.md)
 
 ## OVERVIEW
-The Simulator Store acts as the **mandatory bridge** between the Vue frontend and the AssemblyScript physics engine. It handles WASM loading, state management, and debounced calculations.
+The Simulator Store acts as the **mandatory bridge** between the Vue frontend and the AssemblyScript physics engine. It handles WASM loading, state management, and reactive curve computation.
 
 ## STRUCTURE
 ```
@@ -22,13 +22,12 @@ The Simulator Store acts as the **mandatory bridge** between the Vue frontend an
 | **WASM Loading** | `initialize()` | `index.ts` |
 | **Physics Loop** | `computeCurve()` | `index.ts` |
 | **State Definition** | `SimulatorState` | `types.ts` |
-| **Input Debounce** | `debouncedCompute` | `index.ts` |
 | **Presets** | `setPreset()` | `index.ts` |
 
 ## CONVENTIONS
 - **Single Source of Truth**: All simulation state (`recipe`, `extractionCurve`) lives here.
 - **Async Initialization**: `initialize()` must complete before any physics calculation. Use `isLoading`.
-- **Debouncing**: User input triggers `debouncedCompute` (150ms) to avoid blocking the main thread with excessive WASM calls.
+- **Reactivity**: A deep watcher on `recipe` automatically calls `computeCurve()` on any change. Components do NOT need to trigger recomputation manually — just mutate the recipe.
 - **Composables**: Complex logic (e.g., brew limits) is extracted to `composables/` to keep the store clean.
 
 ## ANTI-PATTERNS

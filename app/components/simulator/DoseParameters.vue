@@ -6,7 +6,6 @@
         :min="store.coffeeMin"
         :max="store.coffeeMax"
         :step="0.5"
-        @update:model-value="store.debouncedCompute"
       />
     </UFormField>
 
@@ -16,7 +15,6 @@
         :min="store.waterMin"
         :max="store.waterMax"
         :step="1"
-        @update:model-value="store.debouncedCompute"
       />
     </UFormField>
 

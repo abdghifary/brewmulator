@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
 import type { BrewMethod, BrewRecipe, ExtractionPoint, WasmModule } from './types'
 import { presetDefaults, methodToNumber, roastToNumber } from './constants'
 import { useBrewMath } from './composables/useBrewMath'
@@ -67,11 +66,9 @@ export const useSimulatorStore = defineStore('simulator', () => {
     extractionCurve.value = points
   }
 
-  const debouncedCompute = useDebounceFn(computeCurve, 150)
-
   // Watch for deep changes in recipe to trigger re-computation
   watch(recipe, () => {
-    debouncedCompute()
+    computeCurve()
   }, { deep: true })
 
   const initialize = async () => {
@@ -115,7 +112,6 @@ export const useSimulatorStore = defineStore('simulator', () => {
     // Actions
     setPreset,
     computeCurve,
-    debouncedCompute, // Exposed for manual triggering if needed
 
     // Computed
     brewRatio,

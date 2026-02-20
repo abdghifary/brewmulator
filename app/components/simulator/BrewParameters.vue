@@ -6,7 +6,6 @@
         :min="currentPreset.tempRange[0]"
         :max="currentPreset.tempRange[1]"
         :step="1"
-        @update:model-value="store.debouncedCompute"
       />
     </UFormField>
 
@@ -16,7 +15,6 @@
         :min="grindMin"
         :max="grindMax"
         :step="grindStep"
-        @update:model-value="store.debouncedCompute"
       />
     </UFormField>
 
@@ -40,7 +38,6 @@
         :min="0"
         :max="currentPreset.maxTime"
         :step="store.recipe.method === 'espresso' ? 1 : store.recipe.method === 'coldBrew' ? 3600 : 10"
-        @update:model-value="store.debouncedCompute"
       />
     </UFormField>
   </div>
@@ -64,7 +61,6 @@ const grindStep = computed(() => store.recipe.method === 'espresso' ? 10 : 50)
 
 function setRoast(roast: RoastLevel) {
   store.recipe.roastLevel = roast
-  store.debouncedCompute()
 }
 
 function formatTime(seconds: number): string {
