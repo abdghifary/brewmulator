@@ -34,13 +34,13 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 |--------|------|----------|------|
 | `useSimulatorStore` | Store | `app/stores/simulator/index.ts` | Main state & WASM bridge |
 | `calculateExtractionYield` | Function | `assembly/index.ts` | Core physics calculation |
-| `ExtractionChart` | Component | `app/components/simulator/` | SVG visualization |
+| `ExtractionChart` | Component | `app/components/simulator/` | ApexCharts visualization |
 
 ## CONVENTIONS
 - **Nuxt 4**: Source files live in `app/`, not root.
 - **WASM Bridge**: NEVER call WASM directly from components. Use `app/stores/simulator` actions.
 - **Component Naming**: Domain components use prefix (e.g., `SimulatorExtractionChart`).
-- **Debouncing**: Expensive calculations (curve generation) are debounced (150ms).
+- **Reactivity**: Recipe changes automatically trigger `computeCurve()` via a deep watcher — no manual calls needed from components.
 - **Testing**: Unit tests in `test/unit/` run in Node. (UI tests in `test/nuxt/` are configured but directory is currently missing).
 
 ## COMMANDS

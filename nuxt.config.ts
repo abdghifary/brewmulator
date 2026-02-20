@@ -18,6 +18,10 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  build: {
+    transpile: ['vue3-apexcharts']
+  },
+
   routeRules: {
     '/': { prerender: true }
   },

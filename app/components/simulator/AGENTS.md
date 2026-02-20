@@ -8,21 +8,21 @@
 Core UI domain for the coffee extraction simulator, providing specialized visualization and parameter control widgets.
 
 ## STRUCTURE
-- `ExtractionChart.vue`: Real-time SVG visualization of the extraction yield curve.
+- `ExtractionChart.vue`: Real-time ApexCharts area chart visualization of the extraction yield curve (client-only rendered).
 - `ExtractionResults.vue`: Displays numeric metrics (EY, TDS, Weight) with color-coded feedback.
 - `DoseParameters.vue`: Input controls for coffee mass and water volume.
 - `BrewParameters.vue`: Controls for brew method-specific variables (temperature, pressure).
 - `PresetSelector.vue`: Quick selection of brew methods (Espresso, V60, Cold Brew).
 
 ## WHERE TO LOOK
-- **Chart Logic**: `ExtractionChart.vue` handles SVG path generation from `store.extractionCurve`.
+- **Chart Logic**: `ExtractionChart.vue` renders `store.extractionCurve` via ApexCharts (wrapped in `<ClientOnly>` for SSR safety).
 - **Parameter Inputs**: `DoseParameters.vue` and `BrewParameters.vue` for user control.
 - **Visual Feedback**: `ExtractionResults.vue` for target zone and extraction status.
 
 ## CONVENTIONS
 - **Naming**: Components are automatically prefixed with `Simulator` via Nuxt 4 folder discovery.
 - **State Binding**: Components MUST bind directly to `useSimulatorStore()` for global reactivity.
-- **Reactivity**: Use `store.debouncedCompute` on input changes to prevent physics engine overhead.
+- **Reactivity**: Components mutate `store.recipe` directly — a deep watcher in the store automatically triggers `computeCurve()`. No manual recompute calls needed.
 - **Styling**: Leverages Nuxt UI (`UCard`, `USlider`, `UFormField`) for consistent look and feel.
 
 ## ANTI-PATTERNS
