@@ -42,6 +42,25 @@ function formatTime(seconds: number): string {
   return `${mins}m`
 }
 
+const pourAnnotations = computed(() => {
+  if (!store.hasPourSchedule) return []
+  return store.pourSchedule.map((step, i) => ({
+    x: step.startTime,
+    borderColor: '#3b82f6',
+    strokeDashArray: 4,
+    opacity: 0.6,
+    label: {
+      text: step.label || `Pour ${i + 1}`,
+      orientation: 'vertical',
+      style: {
+        color: '#3b82f6',
+        background: 'transparent',
+        fontSize: '10px'
+      }
+    }
+  }))
+})
+
 const chartOptions = computed(() => ({
   chart: {
     type: 'area',
@@ -125,18 +144,21 @@ const chartOptions = computed(() => ({
         }
       }
     }],
-    xaxis: [{
-      x: store.recipe.brewTime,
-      borderColor: '#22c55e',
-      strokeDashArray: 0,
-      opacity: 0.8,
-      label: {
-        text: '',
-        style: {
-          background: 'transparent'
+    xaxis: [
+      {
+        x: store.recipe.brewTime,
+        borderColor: '#22c55e',
+        strokeDashArray: 0,
+        opacity: 0.8,
+        label: {
+          text: '',
+          style: {
+            background: 'transparent'
+          }
         }
-      }
-    }]
+      },
+      ...pourAnnotations.value
+    ]
   },
   grid: {
     borderColor: isDark.value ? '#1e293b' : '#e2e8f0',
