@@ -1,5 +1,8 @@
 <template>
-  <div v-if="store.recipe.method === 'v60'" class="pour-schedule">
+  <div
+    v-if="store.recipe.method === 'v60'"
+    class="pour-schedule"
+  >
     <!-- Template Selector -->
     <div class="flex flex-wrap gap-2 mb-4">
       <UButton
@@ -21,9 +24,19 @@
         class="flex items-center gap-2 p-2 border border-gray-200 dark:border-gray-800 rounded-md"
       >
         <!-- Bloom badge -->
-        <UBadge v-if="step.isBloom" color="warning" variant="subtle" size="sm">Bloom</UBadge>
-        <span v-else class="text-xs text-gray-500 font-medium">Pour {{ index + 1 }}</span>
-        
+        <UBadge
+          v-if="step.isBloom"
+          color="warning"
+          variant="subtle"
+          size="sm"
+        >
+          Bloom
+        </UBadge>
+        <span
+          v-else
+          class="text-xs text-gray-500 font-medium"
+        >Pour {{ index + 1 }}</span>
+
         <!-- Start time -->
         <UFormField label="Time (s)">
           <UInput
@@ -34,7 +47,7 @@
             @update:model-value="onUpdateStep(index, 'startTime', Number($event))"
           />
         </UFormField>
-        
+
         <!-- Water grams -->
         <UFormField label="Water (g)">
           <UInput
@@ -45,7 +58,7 @@
             @update:model-value="onUpdateStep(index, 'waterGrams', Number($event))"
           />
         </UFormField>
-        
+
         <!-- Temperature (optional) -->
         <UFormField label="Temp (°C)">
           <UInput
@@ -56,7 +69,7 @@
             @update:model-value="onUpdateStep(index, 'temperature', Number($event))"
           />
         </UFormField>
-        
+
         <!-- Remove button -->
         <UButton
           v-if="store.pourSchedule.length > 1"
@@ -81,9 +94,12 @@
         Add Pour
       </UButton>
     </div>
-    
+
     <!-- Summary footer -->
-    <div v-if="store.pourSchedule.length > 0" class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 text-sm text-gray-500 dark:text-gray-400 space-y-1">
+    <div
+      v-if="store.pourSchedule.length > 0"
+      class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 text-sm text-gray-500 dark:text-gray-400 space-y-1"
+    >
       <div class="flex justify-between">
         <span>Total water:</span>
         <span class="font-medium text-gray-900 dark:text-gray-100">{{ totalWater }}g</span>
@@ -97,9 +113,12 @@
         <span class="font-medium text-gray-900 dark:text-gray-100">{{ brewTimeDisplay }}</span>
       </div>
     </div>
-    
+
     <!-- Empty state -->
-    <div v-else class="mt-4 text-sm text-gray-400 italic">
+    <div
+      v-else
+      class="mt-4 text-sm text-gray-400 italic"
+    >
       Select a template above or add pour steps manually.
     </div>
   </div>

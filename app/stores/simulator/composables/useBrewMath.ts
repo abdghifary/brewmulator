@@ -6,7 +6,7 @@ export function useBrewMath(
   recipe: Ref<BrewRecipe>,
   wasmModule: Ref<WasmModule | null>,
   hasPourSchedule: Ref<boolean>,
-  extractionCurve: Ref<ExtractionPoint[]>,
+  extractionCurve: Ref<ExtractionPoint[]>
 ) {
   const brewRatio = computed(() => {
     if (recipe.value.coffeeGrams === 0) return 0

@@ -24,7 +24,7 @@ function makeParams(overrides: Partial<PiecewiseCurveParams> = {}): PiecewiseCur
     maxTime: 180,
     numPoints: 101,
     wasmModule: wasmModule as WasmModule,
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -41,7 +41,7 @@ describe('Piecewise Extraction Engine', () => {
     const params = makeParams({
       pourSchedule: [{ startTime: 0, waterGrams: 288, temperature: 93 }],
       maxTime: shortTime,
-      numPoints: 101,
+      numPoints: 101
     })
     const curve = computePiecewiseCurve(params)
 
@@ -65,17 +65,17 @@ describe('Piecewise Extraction Engine', () => {
     const twoPour = computePiecewiseCurve(makeParams({
       pourSchedule: [
         { startTime: 0, waterGrams: 50, temperature: 93, isBloom: true },
-        { startTime: 45, waterGrams: 238, temperature: 93 },
+        { startTime: 45, waterGrams: 238, temperature: 93 }
       ],
       maxTime: 180,
-      numPoints: 101,
+      numPoints: 101
     }))
 
     // Single-shot: 288g at t=0
     const singleShot = computePiecewiseCurve(makeParams({
       pourSchedule: [{ startTime: 0, waterGrams: 288, temperature: 93 }],
       maxTime: 180,
-      numPoints: 101,
+      numPoints: 101
     }))
 
     // At ~t=30 (mid-bloom), find closest point
@@ -89,19 +89,19 @@ describe('Piecewise Extraction Engine', () => {
     const withBloom = computePiecewiseCurve(makeParams({
       pourSchedule: [
         { startTime: 0, waterGrams: 50, temperature: 93, isBloom: true },
-        { startTime: 45, waterGrams: 238, temperature: 93 },
+        { startTime: 45, waterGrams: 238, temperature: 93 }
       ],
       maxTime: 180,
-      numPoints: 101,
+      numPoints: 101
     }))
 
     const withoutBloom = computePiecewiseCurve(makeParams({
       pourSchedule: [
         { startTime: 0, waterGrams: 50, temperature: 93, isBloom: false },
-        { startTime: 45, waterGrams: 238, temperature: 93 },
+        { startTime: 45, waterGrams: 238, temperature: 93 }
       ],
       maxTime: 180,
-      numPoints: 101,
+      numPoints: 101
     }))
 
     // At ~t=15, bloom inhibition should reduce yield
@@ -119,11 +119,11 @@ describe('Piecewise Extraction Engine', () => {
         { startTime: 45, waterGrams: 60, temperature: 93 },
         { startTime: 90, waterGrams: 60, temperature: 93 },
         { startTime: 135, waterGrams: 60, temperature: 93 },
-        { startTime: 180, waterGrams: 60, temperature: 93 },
+        { startTime: 180, waterGrams: 60, temperature: 93 }
       ],
       coffeeGrams: 20,
       maxTime: 240,
-      numPoints: 121,
+      numPoints: 121
     }))
 
     for (let i = 1; i < curve.length; i++) {
@@ -135,13 +135,13 @@ describe('Piecewise Extraction Engine', () => {
     const hot = computePiecewiseCurve(makeParams({
       pourSchedule: [{ startTime: 0, waterGrams: 288, temperature: 93 }],
       maxTime: 120,
-      numPoints: 61,
+      numPoints: 61
     }))
 
     const cool = computePiecewiseCurve(makeParams({
       pourSchedule: [{ startTime: 0, waterGrams: 288, temperature: 80 }],
       maxTime: 120,
-      numPoints: 61,
+      numPoints: 61
     }))
 
     const hotAt120 = hot[hot.length - 1]
