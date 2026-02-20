@@ -1,7 +1,8 @@
 // Coffee Extraction Physics Engine
 // Based on Spiro & Selwood Pseudo-First Order Kinetics Model
 
-const E_MAX: f64 = 28.0
+export const E_MAX: f64 = 28.0
+export const ALPHA: f64 = 1.1
 const A: f64 = 5e4
 const E_A: f64 = 50000.0
 const R: f64 = 8.314
@@ -54,9 +55,6 @@ export function calculateExtractionYield(
   waterGrams: f64,
   coffeeGrams: f64
 ): f64 {
-  // Constants
-  const ALPHA: f64 = 1.1 // Solubility coefficient (Lower = Higher max extraction at tight ratios)
-
   const k = calculateRateConstant(temp, grind, roast, method)
 
   // Edge cases
