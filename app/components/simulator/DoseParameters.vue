@@ -15,7 +15,9 @@
         :min="store.waterMin"
         :max="store.waterMax"
         :step="1"
+        :disabled="store.hasPourSchedule"
       />
+      <p v-if="store.hasPourSchedule" class="text-xs text-gray-400 mt-1">Water is set by pour schedule</p>
     </UFormField>
 
     <div class="space-y-1 text-sm text-gray-500">
