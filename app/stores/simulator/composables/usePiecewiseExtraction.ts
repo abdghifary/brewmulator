@@ -55,8 +55,8 @@ export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionP
       k *= fCo2
     }
 
-    const eMax = wasmModule.E_MAX as unknown as number
-    const alpha = wasmModule.ALPHA as unknown as number
+    const eMax = wasmModule.E_MAX.value
+    const alpha = wasmModule.ALPHA.value
     const yieldEq = eMax / (1 + alpha / ratio)
     const kObs = k * (1 + alpha / ratio)
 

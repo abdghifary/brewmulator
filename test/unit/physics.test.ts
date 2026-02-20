@@ -287,7 +287,7 @@ describe('Physics Engine - Extraction Kinetics', () => {
 
       // Calculate equilibrium yield using the piecewise formula
       const ratio = 288.0 / 18.0 // 1:16 brew ratio
-      const yieldEq = wasmModule.E_MAX / (1 + wasmModule.ALPHA / ratio)
+      const yieldEq = wasmModule.E_MAX.value / (1 + wasmModule.ALPHA.value / ratio)
 
       const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
 
