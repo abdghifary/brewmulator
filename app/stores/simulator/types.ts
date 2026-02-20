@@ -71,6 +71,6 @@ export interface WasmModule {
     roast: number,
     method: number
   ): number
-  readonly E_MAX: number
-  readonly ALPHA: number
+  readonly E_MAX: { readonly value: number }
+  readonly ALPHA: { readonly value: number }
 }
