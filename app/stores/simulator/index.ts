@@ -4,6 +4,7 @@ import type { BrewMethod, BrewRecipe, ExtractionPoint, WasmModule, PourStep, Pou
 import { presetDefaults, methodToNumber, roastToNumber, v60Templates, MAX_POUR_STEPS } from './constants'
 import { useBrewMath } from './composables/useBrewMath'
 import { useBrewLimits } from './composables/useBrewLimits'
+import { computePiecewiseCurve } from './composables/usePiecewiseExtraction'
 
 export * from './types'
 export * from './constants'
@@ -31,7 +32,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
   const hasPourSchedule = computed(() => recipe.value.method === 'v60' && pourSchedule.value.length > 0)
 
   // Domain Composables
-  const { brewRatio, beverageWeight, extractionYield, tds, extractionZone } = useBrewMath(recipe, wasmModule)
+  const { brewRatio, beverageWeight, extractionYield, tds, extractionZone } = useBrewMath(recipe, wasmModule, hasPourSchedule, extractionCurve)
   const limits = useBrewLimits(recipe)
 
   // Actions
@@ -41,6 +42,22 @@ export const useSimulatorStore = defineStore('simulator', () => {
       return
     }
 
+    // Piecewise path for V60 with pour schedule
+    if (hasPourSchedule.value) {
+      extractionCurve.value = computePiecewiseCurve({
+        pourSchedule: pourSchedule.value,
+        coffeeGrams: recipe.value.coffeeGrams,
+        grindSize: recipe.value.grindSize,
+        roastLevel: roastToNumber(recipe.value.roastLevel),
+        method: methodToNumber(recipe.value.method),
+        maxTime: presetDefaults[recipe.value.method].maxTime,
+        numPoints: 101,
+        wasmModule: wasmModule.value,
+      })
+      return
+    }
+
+    // Legacy path — single-pour methods
     const { method, temperature, grindSize, roastLevel, waterGrams, coffeeGrams } = recipe.value
     const preset = presetDefaults[method]
     const maxTime = preset.maxTime
