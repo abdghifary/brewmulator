@@ -52,7 +52,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
         method: methodToNumber(recipe.value.method),
         maxTime: presetDefaults[recipe.value.method].maxTime,
         numPoints: 101,
-        wasmModule: wasmModule.value,
+        wasmModule: wasmModule.value
       })
       return
     }

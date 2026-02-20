@@ -24,6 +24,15 @@
             <SimulatorBrewParameters />
           </UCard>
 
+          <UCard v-if="store.recipe.method === 'v60'">
+            <template #header>
+              <h2 class="text-xl font-semibold">
+                Pour Schedule
+              </h2>
+            </template>
+            <SimulatorPourSchedule />
+          </UCard>
+
           <UCard>
             <template #header>
               <h2 class="text-xl font-semibold">
