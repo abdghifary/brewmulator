@@ -267,4 +267,32 @@ describe('Physics Engine - Extraction Kinetics', () => {
       expect(result).toBe(1)
     })
   })
+
+  describe('WASM Constant Exports', () => {
+    it('exports E_MAX as a global constant', () => {
+      expect(wasmModule.E_MAX.value).toBe(28.0)
+    })
+
+    it('exports ALPHA as a global constant', () => {
+      expect(wasmModule.ALPHA.value).toBe(1.1)
+    })
+
+    it('E_MAX and ALPHA are consistent with extraction yield', () => {
+      // Use very high time to approach equilibrium
+      const time = 10000
+      const temp = 93
+      const grind = 500
+      const roast = 1.0
+      const method = 0
+
+      // Calculate equilibrium yield using the piecewise formula
+      const ratio = 288.0 / 18.0 // 1:16 brew ratio
+      const yieldEq = wasmModule.E_MAX / (1 + wasmModule.ALPHA / ratio)
+
+      const result = wasmModule.calculateExtractionYield(time, temp, grind, roast, method, 288.0, 18.0)
+
+      // Result should be within 0.1 of the equilibrium value
+      expect(result).toBeCloseTo(yieldEq, 1)
+    })
+  })
 })
