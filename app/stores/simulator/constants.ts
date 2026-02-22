@@ -12,11 +12,11 @@ export const v60Templates: V60RecipeTemplate[] = [
     coffeeGrams: 20,
     totalWater: 300,
     pourSchedule: [
-      { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true, label: 'Bloom' },
-      { startTime: 45, waterGrams: 60, temperature: 93, label: 'Pour 2' },
-      { startTime: 90, waterGrams: 60, temperature: 93, label: 'Pour 3' },
-      { startTime: 135, waterGrams: 60, temperature: 93, label: 'Pour 4' },
-      { startTime: 180, waterGrams: 60, temperature: 93, label: 'Pour 5' }
+      { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
+      { startTime: 45, waterGrams: 60, label: 'Pour 2' },
+      { startTime: 90, waterGrams: 60, label: 'Pour 3' },
+      { startTime: 135, waterGrams: 60, label: 'Pour 4' },
+      { startTime: 180, waterGrams: 60, label: 'Pour 5' }
     ],
     description: 'Tetsu Kasuya 4:6 method — 5 equal pours at 45s intervals'
   },
@@ -25,9 +25,9 @@ export const v60Templates: V60RecipeTemplate[] = [
     coffeeGrams: 30,
     totalWater: 500,
     pourSchedule: [
-      { startTime: 0, waterGrams: 60, temperature: 95, isBloom: true, label: 'Bloom' },
-      { startTime: 45, waterGrams: 240, temperature: 95, label: 'Main pour' },
-      { startTime: 75, waterGrams: 200, temperature: 95, label: 'Top-off' }
+      { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
+      { startTime: 45, waterGrams: 240, label: 'Main pour' },
+      { startTime: 75, waterGrams: 200, label: 'Top-off' }
     ],
     description: 'James Hoffmann Ultimate V60 — bloom + single large pour + top-off'
   },
@@ -36,9 +36,9 @@ export const v60Templates: V60RecipeTemplate[] = [
     coffeeGrams: 22,
     totalWater: 360,
     pourSchedule: [
-      { startTime: 0, waterGrams: 66, temperature: 94, isBloom: true, label: 'Bloom' },
-      { startTime: 45, waterGrams: 134, temperature: 94, label: 'Main pour' },
-      { startTime: 75, waterGrams: 160, temperature: 94, label: 'Final pour' }
+      { startTime: 0, waterGrams: 66, isBloom: true, label: 'Bloom' },
+      { startTime: 45, waterGrams: 134, label: 'Main pour' },
+      { startTime: 75, waterGrams: 160, label: 'Final pour' }
     ],
     description: 'Scott Rao method — 3x dose bloom, then two pours with Rao spin'
   },
@@ -48,8 +48,8 @@ export const v60Templates: V60RecipeTemplate[] = [
     totalWater: 250,
     grindSize: 400,
     pourSchedule: [
-      { startTime: 0, waterGrams: 45, temperature: 93, isBloom: true, label: 'Bloom' },
-      { startTime: 40, waterGrams: 205, temperature: 93, label: 'Single pour' }
+      { startTime: 0, waterGrams: 45, isBloom: true, label: 'Bloom' },
+      { startTime: 40, waterGrams: 205, label: 'Single pour' }
     ],
     description: 'Lance Hedrick 1-pour method — bloom then single continuous pour'
   },
@@ -58,7 +58,7 @@ export const v60Templates: V60RecipeTemplate[] = [
     coffeeGrams: 20,
     totalWater: 300,
     pourSchedule: [
-      { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true, label: 'Bloom' },
+      { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 60, temperature: 88, label: 'Pour 2' },
       { startTime: 90, waterGrams: 60, temperature: 88, label: 'Pour 3' },
       { startTime: 135, waterGrams: 60, temperature: 88, label: 'Pour 4' },
