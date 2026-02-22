@@ -10,10 +10,11 @@ export interface PiecewiseCurveParams {
   maxTime: number
   numPoints: number
   wasmModule: WasmModule
+  globalTemp: number
 }
 
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {
-  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method, maxTime, numPoints, wasmModule } = params
+  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method, maxTime, numPoints, wasmModule, globalTemp } = params
 
   if (pourSchedule.length === 0) return []
 
@@ -44,7 +45,7 @@ export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionP
     const ratio = cumulativeWater / coffeeGrams
 
     const lastPour = activePours[activePours.length - 1]!
-    const lastPourTemp = lastPour.temperature ?? 93
+    const lastPourTemp = lastPour.temperature ?? globalTemp
     const currentTemp = T_AMBIENT + (lastPourTemp - T_AMBIENT) * Math.exp(-H_COOL * (t - lastPour.startTime))
 
     let k = wasmModule.calculateRateConstant(currentTemp, grindSize, roastLevel, method)

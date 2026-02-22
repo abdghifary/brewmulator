@@ -52,7 +52,8 @@ export const useSimulatorStore = defineStore('simulator', () => {
         method: methodToNumber(recipe.value.method),
         maxTime: presetDefaults[recipe.value.method].maxTime,
         numPoints: 101,
-        wasmModule: wasmModule.value
+        wasmModule: wasmModule.value,
+        globalTemp: recipe.value.temperature
       })
       return
     }
@@ -147,8 +148,9 @@ export const useSimulatorStore = defineStore('simulator', () => {
     recipe.value.coffeeGrams = template.coffeeGrams
     recipe.value.waterGrams = template.totalWater
     recipe.value.grindSize = template.grindSize ?? recipe.value.grindSize
-    if (template.pourSchedule[0]?.temperature) {
-      recipe.value.temperature = template.pourSchedule[0].temperature
+    const firstTemp = template.pourSchedule[0]?.temperature
+    if (firstTemp !== undefined) {
+      recipe.value.temperature = firstTemp
     }
   }
 

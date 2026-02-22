@@ -59,16 +59,40 @@
           />
         </UFormField>
 
-        <!-- Temperature (optional) -->
-        <UFormField label="Temp (°C)">
-          <UInput
-            type="number"
-            :model-value="step.temperature ?? store.recipe.temperature"
-            size="sm"
-            class="w-20"
-            @update:model-value="onUpdateStep(index, 'temperature', Number($event))"
-          />
-        </UFormField>
+        <!-- Temperature override per step -->
+        <div class="flex items-center gap-1">
+          <template v-if="step.temperature !== undefined">
+            <UFormField label="Temp (°C)">
+              <UInput
+                type="number"
+                :model-value="step.temperature"
+                size="sm"
+                class="w-20"
+                @update:model-value="onUpdateStep(index, 'temperature', Number($event))"
+              />
+            </UFormField>
+            <UButton
+              icon="i-lucide-x"
+              size="xs"
+              color="neutral"
+              variant="ghost"
+              title="Use kettle temperature"
+              @click="onClearTemp(index)"
+            />
+          </template>
+          <template v-else>
+            <span class="text-xs text-gray-400">{{ store.recipe.temperature }}°C</span>
+            <UButton
+              size="xs"
+              color="neutral"
+              variant="ghost"
+              title="Override temperature for this pour"
+              @click="onSetTempOverride(index)"
+            >
+              Override
+            </UButton>
+          </template>
+        </div>
 
         <!-- Remove button -->
         <UButton
@@ -147,6 +171,19 @@ function onAddStep() {
   const lastPour = store.pourSchedule[store.pourSchedule.length - 1]
   const nextTime = lastPour ? lastPour.startTime + 45 : 0
   store.addPourStep({ startTime: nextTime, waterGrams: 60, isBloom: false })
+}
+
+function onClearTemp(index: number) {
+  const step = store.pourSchedule[index]
+  if (!step) return
+  const { temperature: _, ...rest } = step
+  store.updatePourStep(index, rest as PourStep)
+}
+
+function onSetTempOverride(index: number) {
+  const step = store.pourSchedule[index]
+  if (!step) return
+  store.updatePourStep(index, { ...step, temperature: store.recipe.temperature })
 }
 
 const totalWater = computed(() => store.pourSchedule.reduce((sum, s) => sum + s.waterGrams, 0))
