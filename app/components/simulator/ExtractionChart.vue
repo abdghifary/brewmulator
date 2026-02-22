@@ -126,15 +126,15 @@ const chartOptions = computed(() => ({
   },
   annotations: {
     yaxis: [{
-      y: 18,
-      y2: 22,
+      y: store.hasPourSchedule ? 14 : 18,
+      y2: store.hasPourSchedule ? 20 : 22,
       fillColor: '#22c55e',
       opacity: 0.1,
       borderColor: 'transparent',
       label: {
         text: 'Target Zone',
         position: 'front',
-        offsetX: -10,
+        offsetX: 8,
         style: {
           color: '#16a34a',
           background: 'transparent',
