@@ -1,5 +1,5 @@
 <template>
-  <div class="extraction-chart h-[300px] w-full">
+  <div class="extraction-chart h-[300px] w-full relative">
     <ClientOnly>
       <apexchart
         type="area"
@@ -11,6 +11,16 @@
         <div class="h-[300px] w-full bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800 animate-pulse" />
       </template>
     </ClientOnly>
+    <!-- Empty state hint: V60 selected but no pour schedule configured yet -->
+    <div
+      v-if="store.recipe.method === 'v60' && !store.hasPourSchedule"
+      class="absolute inset-0 flex items-end justify-center pb-8 pointer-events-none"
+    >
+      <div class="bg-gray-900/80 dark:bg-gray-800/90 text-gray-100 text-sm px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm">
+        <span>☕</span>
+        <span>Select a template or add a pour step to see the multi-pour curve</span>
+      </div>
+    </div>
   </div>
 </template>
 
