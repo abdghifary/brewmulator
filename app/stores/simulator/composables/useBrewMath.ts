@@ -55,11 +55,6 @@ export function useBrewMath(
 
   const extractionZone = computed(() => {
     if (!wasmModule.value) return 0
-    if (hasPourSchedule.value) {
-      if (extractionYield.value < 14) return 0
-      if (extractionYield.value <= 20) return 1
-      return 2
-    }
     return wasmModule.value.getExtractionZone(
       extractionYield.value,
       methodToNumber(recipe.value.method)

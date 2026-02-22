@@ -126,8 +126,8 @@ const chartOptions = computed(() => ({
   },
   annotations: {
     yaxis: [{
-      y: store.hasPourSchedule ? 14 : 18,
-      y2: store.hasPourSchedule ? 20 : 22,
+      y: 18,
+      y2: 22,
       fillColor: '#22c55e',
       opacity: 0.1,
       borderColor: 'transparent',

@@ -146,6 +146,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     pourSchedule.value = [...template.pourSchedule]
     recipe.value.coffeeGrams = template.coffeeGrams
     recipe.value.waterGrams = template.totalWater
+    recipe.value.grindSize = template.grindSize ?? recipe.value.grindSize
     if (template.pourSchedule[0]?.temperature) {
       recipe.value.temperature = template.pourSchedule[0].temperature
     }
