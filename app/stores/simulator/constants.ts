@@ -1,7 +1,7 @@
 import type { BrewMethod, RoastLevel, BrewPreset, V60RecipeTemplate } from './types'
 
 export const T_AMBIENT = 22 // °C, ambient temperature
-export const H_COOL = 0.005 // /s, Newton cooling coefficient
+export const H_COOL = 0.001 // /s, Newton cooling coefficient (~4°C/min, realistic for V60)
 export const K_DEGAS = 0.03 // /s, CO2 degassing rate
 export const BLOOM_INHIBITION = 0.6 // initial rate reduction during bloom
 export const MAX_POUR_STEPS = 10 // max pour steps per schedule
@@ -46,6 +46,7 @@ export const v60Templates: V60RecipeTemplate[] = [
     name: 'Lance Hedrick',
     coffeeGrams: 15,
     totalWater: 250,
+    grindSize: 400,
     pourSchedule: [
       { startTime: 0, waterGrams: 45, temperature: 93, isBloom: true, label: 'Bloom' },
       { startTime: 40, waterGrams: 205, temperature: 93, label: 'Single pour' }
