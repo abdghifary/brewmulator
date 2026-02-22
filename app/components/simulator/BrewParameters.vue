@@ -6,7 +6,14 @@
         :min="currentPreset.tempRange[0]"
         :max="currentPreset.tempRange[1]"
         :step="1"
+        :disabled="store.hasPourSchedule"
       />
+      <p
+        v-if="store.hasPourSchedule"
+        class="text-xs text-gray-400 mt-1"
+      >
+        Kettle temperature is set by pour schedule
+      </p>
     </UFormField>
 
     <UFormField :label="`Grind Size: ${store.recipe.grindSize}μm`">
