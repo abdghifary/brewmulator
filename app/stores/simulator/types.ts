@@ -42,6 +42,7 @@ export interface V60RecipeTemplate {
   name: string
   coffeeGrams: number
   totalWater: number
+  grindSize?: number
   pourSchedule: PourSchedule
   description?: string
 }
