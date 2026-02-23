@@ -132,6 +132,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
   }
 
   function removePourStep(index: number): void {
+    if (pourSchedule.value[index]?.isBloom) return
     pourSchedule.value.splice(index, 1)
     _recalculatePourTotals()
   }
