@@ -33,7 +33,9 @@ const store = useSimulatorStore()
 const colorMode = useColorMode()
 
 const isDark = computed(() => colorMode.value === 'dark')
-const maxTime = computed(() => presetDefaults[store.recipe.method].maxTime)
+const maxTime = computed(() =>
+  store.hasPourSchedule ? store.recipe.brewTime : presetDefaults[store.recipe.method].maxTime
+)
 
 const series = computed(() => [{
   name: 'Extraction Yield',
@@ -62,10 +64,14 @@ const pourAnnotations = computed(() => {
     label: {
       text: step.label || `Pour ${i + 1}`,
       orientation: 'vertical',
+      offsetY: 30,
+      borderWidth: 0,
       style: {
         color: '#3b82f6',
         background: 'transparent',
-        fontSize: '10px'
+        fontSize: '10px',
+        fontWeight: 400,
+        padding: { left: 2, right: 2, top: 2, bottom: 2 }
       }
     }
   }))
@@ -143,8 +149,8 @@ const chartOptions = computed(() => ({
       borderColor: 'transparent',
       label: {
         text: 'Target Zone',
-        position: 'front',
-        offsetX: 8,
+        position: 'right',
+        offsetX: -8,
         style: {
           color: '#16a34a',
           background: 'transparent',
