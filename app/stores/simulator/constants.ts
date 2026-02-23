@@ -11,6 +11,7 @@ export const v60Templates: V60RecipeTemplate[] = [
     name: 'Tetsu Kasuya 4:6',
     coffeeGrams: 20,
     totalWater: 300,
+    grindSize: 415,
     pourSchedule: [
       { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 60, label: 'Pour 2' },
@@ -18,45 +19,52 @@ export const v60Templates: V60RecipeTemplate[] = [
       { startTime: 135, waterGrams: 60, label: 'Pour 4' },
       { startTime: 180, waterGrams: 60, label: 'Pour 5' }
     ],
+    totalBrewTime: 210,
     description: 'Tetsu Kasuya 4:6 method — 5 equal pours at 45s intervals'
   },
   {
     name: 'James Hoffmann',
     coffeeGrams: 30,
     totalWater: 500,
+    grindSize: 405,
     pourSchedule: [
       { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 240, label: 'Main pour' },
       { startTime: 75, waterGrams: 200, label: 'Top-off' }
     ],
+    totalBrewTime: 210,
     description: 'James Hoffmann Ultimate V60 — bloom + single large pour + top-off'
   },
   {
     name: 'Scott Rao',
     coffeeGrams: 22,
     totalWater: 360,
+    grindSize: 390,
     pourSchedule: [
       { startTime: 0, waterGrams: 66, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 134, label: 'Main pour' },
       { startTime: 75, waterGrams: 160, label: 'Final pour' }
     ],
+    totalBrewTime: 195,
     description: 'Scott Rao method — 3x dose bloom, then two pours with Rao spin'
   },
   {
     name: 'Lance Hedrick',
     coffeeGrams: 15,
     totalWater: 250,
-    grindSize: 400,
+    grindSize: 340,
     pourSchedule: [
       { startTime: 0, waterGrams: 45, isBloom: true, label: 'Bloom' },
       { startTime: 40, waterGrams: 205, label: 'Single pour' }
     ],
+    totalBrewTime: 150,
     description: 'Lance Hedrick 1-pour method — bloom then single continuous pour'
   },
   {
     name: 'Matt Winton',
     coffeeGrams: 20,
     totalWater: 300,
+    grindSize: 400,
     pourSchedule: [
       { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 60, temperature: 88, label: 'Pour 2' },
@@ -64,6 +72,7 @@ export const v60Templates: V60RecipeTemplate[] = [
       { startTime: 135, waterGrams: 60, temperature: 88, label: 'Pour 4' },
       { startTime: 180, waterGrams: 60, temperature: 88, label: 'Pour 5' }
     ],
+    totalBrewTime: 240,
     description: 'Matt Winton method — 5 pours with temperature stepping (93°C bloom → 88°C)'
   }
 ]

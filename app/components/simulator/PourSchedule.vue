@@ -190,8 +190,6 @@ const totalWater = computed(() => store.pourSchedule.reduce((sum, s) => sum + s.
 
 const brewTimeDisplay = computed(() => {
   if (!store.pourSchedule.length) return '0s'
-  const last = store.pourSchedule[store.pourSchedule.length - 1]
-  if (!last) return '0s'
-  return `${last.startTime + 45}s`
+  return `${store.recipe.brewTime}s`
 })
 </script>

@@ -44,6 +44,7 @@ export interface V60RecipeTemplate {
   totalWater: number
   grindSize?: number
   pourSchedule: PourSchedule
+  totalBrewTime?: number // total seconds including drawdown (overrides default 45s drain buffer)
   description?: string
 }
 
