@@ -5,6 +5,10 @@ export const H_COOL = 0.001 // /s, Newton cooling coefficient (~4°C/min, realis
 export const K_DEGAS = 0.03 // /s, CO2 degassing rate
 export const BLOOM_INHIBITION = 0.6 // initial rate reduction during bloom
 export const MAX_POUR_STEPS = 10 // max pour steps per schedule
+export const MIN_POUR_WATER_GRAMS = 1 // minimum water per pour step (grams)
+export const MIN_POUR_START_TIME = 0 // minimum start time (seconds)
+export const MIN_TEMP_OVERRIDE = 80 // °C, matches V60 tempRange lower bound
+export const MAX_TEMP_OVERRIDE = 100 // °C, matches V60 tempRange upper bound
 
 export const v60Templates: V60RecipeTemplate[] = [
   {
