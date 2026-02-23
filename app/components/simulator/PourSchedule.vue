@@ -101,7 +101,7 @@
 
         <!-- Remove button -->
         <UButton
-          v-if="store.pourSchedule.length > 1"
+          v-if="store.pourSchedule.length > 1 && !step.isBloom"
           icon="i-lucide-trash"
           size="sm"
           color="error"
@@ -173,9 +173,15 @@ function onUpdateStep(index: number, field: keyof PourStep, value: number) {
 }
 
 function onAddStep() {
+  const isEmpty = store.pourSchedule.length === 0
   const lastPour = store.pourSchedule[store.pourSchedule.length - 1]
   const nextTime = lastPour ? lastPour.startTime + 45 : 0
-  store.addPourStep({ startTime: nextTime, waterGrams: 60, isBloom: false })
+  store.addPourStep({
+    startTime: isEmpty ? 0 : nextTime,
+    waterGrams: 60,
+    isBloom: isEmpty,
+    label: isEmpty ? 'Bloom' : undefined
+  })
 }
 
 function onClearTemp(index: number) {
