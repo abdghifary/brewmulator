@@ -42,6 +42,8 @@
           <UInput
             type="number"
             :model-value="step.startTime"
+            :min="MIN_POUR_START_TIME"
+            :disabled="step.isBloom"
             size="sm"
             class="w-20"
             @update:model-value="onUpdateStep(index, 'startTime', Number($event))"
@@ -53,6 +55,7 @@
           <UInput
             type="number"
             :model-value="step.waterGrams"
+            :min="MIN_POUR_WATER_GRAMS"
             size="sm"
             class="w-20"
             @update:model-value="onUpdateStep(index, 'waterGrams', Number($event))"
@@ -66,6 +69,8 @@
               <UInput
                 type="number"
                 :model-value="step.temperature"
+                :min="MIN_TEMP_OVERRIDE"
+                :max="MAX_TEMP_OVERRIDE"
                 size="sm"
                 class="w-20"
                 @update:model-value="onUpdateStep(index, 'temperature', Number($event))"
@@ -151,7 +156,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useSimulatorStore } from '~/stores/simulator'
-import { v60Templates, MAX_POUR_STEPS } from '~/stores/simulator/constants'
+import { v60Templates, MAX_POUR_STEPS, MIN_POUR_WATER_GRAMS, MIN_POUR_START_TIME, MIN_TEMP_OVERRIDE, MAX_TEMP_OVERRIDE } from '~/stores/simulator/constants'
 import type { PourStep } from '~/stores/simulator/types'
 
 const store = useSimulatorStore()
