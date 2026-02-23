@@ -10,11 +10,11 @@ export interface PiecewiseCurveParams {
   maxTime: number
   numPoints: number
   wasmModule: WasmModule
-  globalTemp: number
+  globalTemp?: number
 }
 
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {
-  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method, maxTime, numPoints, wasmModule, globalTemp } = params
+  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method, maxTime, numPoints, wasmModule, globalTemp = 93 } = params
 
   if (pourSchedule.length === 0) return []
 
