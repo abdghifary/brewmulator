@@ -5,6 +5,7 @@ import { presetDefaults, methodToNumber, roastToNumber, v60Templates, MAX_POUR_S
 import { useBrewMath } from './composables/useBrewMath'
 import { useBrewLimits } from './composables/useBrewLimits'
 import { computePiecewiseCurve } from './composables/usePiecewiseExtraction'
+import { clampPourStep } from './validation'
 
 export * from './types'
 export * from './constants'
@@ -125,7 +126,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
 
   function addPourStep(step: PourStep): void {
     if (pourSchedule.value.length >= MAX_POUR_STEPS) return
-    pourSchedule.value.push(step)
+    pourSchedule.value.push(clampPourStep(step))
     pourSchedule.value.sort((a, b) => a.startTime - b.startTime)
     _recalculatePourTotals()
   }
@@ -136,7 +137,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
   }
 
   function updatePourStep(index: number, step: PourStep): void {
-    pourSchedule.value[index] = step
+    pourSchedule.value[index] = clampPourStep(step)
     pourSchedule.value.sort((a, b) => a.startTime - b.startTime)
     _recalculatePourTotals()
   }
@@ -144,7 +145,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
   function loadTemplate(templateIndex: number): void {
     const template = v60Templates[templateIndex]
     if (!template) return
-    pourSchedule.value = [...template.pourSchedule]
+    pourSchedule.value = template.pourSchedule.map(clampPourStep)
     recipe.value.coffeeGrams = template.coffeeGrams
     recipe.value.waterGrams = template.totalWater
     recipe.value.grindSize = template.grindSize ?? recipe.value.grindSize
