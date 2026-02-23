@@ -50,7 +50,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
         grindSize: recipe.value.grindSize,
         roastLevel: roastToNumber(recipe.value.roastLevel),
         method: methodToNumber(recipe.value.method),
-        maxTime: presetDefaults[recipe.value.method].maxTime,
+        maxTime: recipe.value.brewTime,
         numPoints: 101,
         wasmModule: wasmModule.value,
         globalTemp: recipe.value.temperature
@@ -151,6 +151,11 @@ export const useSimulatorStore = defineStore('simulator', () => {
     const firstTemp = template.pourSchedule[0]?.temperature
     if (firstTemp !== undefined) {
       recipe.value.temperature = firstTemp
+    }
+    _recalculatePourTotals()
+    // Use template's documented total brew time (includes drawdown) if available
+    if (template.totalBrewTime) {
+      recipe.value.brewTime = template.totalBrewTime
     }
   }
 
