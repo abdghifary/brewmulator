@@ -1,19 +1,15 @@
 <template>
   <div class="brew-parameters space-y-4">
-    <UFormField :label="`Temperature: ${store.recipe.temperature}°C`">
+    <UFormField
+      v-if="store.recipe.method !== 'v60'"
+      :label="'Temperature: ' + store.recipe.temperature + '°C'"
+    >
       <USlider
         v-model="store.recipe.temperature"
         :min="currentPreset.tempRange[0]"
         :max="currentPreset.tempRange[1]"
         :step="1"
-        :disabled="store.hasPourSchedule"
       />
-      <p
-        v-if="store.hasPourSchedule"
-        class="text-xs text-gray-400 mt-1"
-      >
-        Kettle temperature is set by pour schedule
-      </p>
     </UFormField>
 
     <UFormField :label="`Grind Size: ${store.recipe.grindSize}μm`">
@@ -39,20 +35,16 @@
       </div>
     </UFormField>
 
-    <UFormField :label="`Brew Time: ${formatTime(store.recipe.brewTime)}`">
+    <UFormField
+      v-if="store.recipe.method !== 'v60'"
+      :label="'Brew Time: ' + formatTime(store.recipe.brewTime)"
+    >
       <USlider
         v-model="store.recipe.brewTime"
         :min="0"
         :max="currentPreset.maxTime"
         :step="store.recipe.method === 'espresso' ? 1 : store.recipe.method === 'coldBrew' ? 3600 : 10"
-        :disabled="store.hasPourSchedule"
       />
-      <p
-        v-if="store.hasPourSchedule"
-        class="text-xs text-gray-400 mt-1"
-      >
-        Brew time is set by pour schedule
-      </p>
     </UFormField>
   </div>
 </template>
