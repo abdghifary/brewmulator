@@ -5,7 +5,7 @@ Physics-based coffee extraction simulator using WebAssembly and Nuxt UI.
 ## Features
 
 - **Real-time visualization**: See the extraction process as it happens.
-- **Brew Parameters**: Fine-tune water temperature, flow rate, and pressure.
+- **Brew Parameters**: Fine-tune water temperature, grind size, and brew time.
 - **Dose Parameters**: Adjust coffee mass, grind size, and distribution.
 
 ## Setup

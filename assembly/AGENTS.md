@@ -20,6 +20,8 @@ High-performance AssemblyScript physics engine implementing coffee extraction ki
 | **Kinetics** | Arrhenius equation & Spiro/Selwood model | `calculateRateConstant`, `calculateExtractionYield` |
 | **Strength** | TDS (Total Dissolved Solids) calculation | `calculateTDS` |
 | **Analysis** | Extraction zone thresholds (Under/Sweet/Over) | `getExtractionZone` |
+| **Extraction Maximum** | `E_MAX` | `index.ts` |
+| **Solubility Coefficient** | `ALPHA` | `index.ts` |
 
 ## CONVENTIONS
 - **Strict Typing**: Use explicit WASM types (`f64`, `f32`, `i32`, `u32`). Avoid the generic `number`.
