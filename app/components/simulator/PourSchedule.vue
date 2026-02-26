@@ -62,13 +62,14 @@
           />
         </UFormField>
 
-        <!-- Temperature override per step -->
+        <!-- Temperature per step -->
         <div class="flex items-center gap-1">
-          <template v-if="step.temperature !== undefined">
+          <!-- BLOOM: always show temp input, no toggle -->
+          <template v-if="step.isBloom">
             <UFormField label="Temp (°C)">
               <UInput
                 type="number"
-                :model-value="step.temperature"
+                :model-value="step.temperature ?? store.recipe.temperature"
                 :min="MIN_TEMP_OVERRIDE"
                 :max="MAX_TEMP_OVERRIDE"
                 size="sm"
@@ -76,26 +77,42 @@
                 @update:model-value="onUpdateStep(index, 'temperature', Number($event))"
               />
             </UFormField>
-            <UButton
-              icon="i-lucide-x"
-              size="xs"
-              color="neutral"
-              variant="ghost"
-              title="Use kettle temperature"
-              @click="onClearTemp(index)"
-            />
           </template>
+          <!-- NON-BLOOM: keep existing override toggle (unchanged) -->
           <template v-else>
-            <span class="text-xs text-gray-400">{{ store.recipe.temperature }}°C</span>
-            <UButton
-              size="xs"
-              color="neutral"
-              variant="ghost"
-              title="Override temperature for this pour"
-              @click="onSetTempOverride(index)"
-            >
-              Override
-            </UButton>
+            <template v-if="step.temperature !== undefined">
+              <UFormField label="Temp (°C)">
+                <UInput
+                  type="number"
+                  :model-value="step.temperature"
+                  :min="MIN_TEMP_OVERRIDE"
+                  :max="MAX_TEMP_OVERRIDE"
+                  size="sm"
+                  class="w-20"
+                  @update:model-value="onUpdateStep(index, 'temperature', Number($event))"
+                />
+              </UFormField>
+              <UButton
+                icon="i-lucide-x"
+                size="xs"
+                color="neutral"
+                variant="ghost"
+                title="Use kettle temperature"
+                @click="onClearTemp(index)"
+              />
+            </template>
+            <template v-else>
+              <span class="text-xs text-gray-400">{{ store.recipe.temperature }}°C</span>
+              <UButton
+                size="xs"
+                color="neutral"
+                variant="ghost"
+                title="Override temperature for this pour"
+                @click="onSetTempOverride(index)"
+              >
+                Override
+              </UButton>
+            </template>
           </template>
         </div>
 
@@ -156,7 +173,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useSimulatorStore } from '~/stores/simulator'
-import { v60Templates, MAX_POUR_STEPS, MIN_POUR_WATER_GRAMS, MIN_POUR_START_TIME, MIN_TEMP_OVERRIDE, MAX_TEMP_OVERRIDE } from '~/stores/simulator/constants'
+import { v60Templates, MAX_POUR_STEPS, MIN_POUR_WATER_GRAMS, MIN_POUR_START_TIME, MIN_TEMP_OVERRIDE, MAX_TEMP_OVERRIDE, T_AMBIENT, H_COOL } from '~/stores/simulator/constants'
 import type { PourStep } from '~/stores/simulator/types'
 
 const store = useSimulatorStore()
@@ -176,11 +193,21 @@ function onAddStep() {
   const isEmpty = store.pourSchedule.length === 0
   const lastPour = store.pourSchedule[store.pourSchedule.length - 1]
   const nextTime = lastPour ? lastPour.startTime + 45 : 0
+
+  // Newton's cooling: auto-calculate temp for non-bloom pours
+  let temperature: number | undefined
+  if (!isEmpty && lastPour) {
+    const lastPourTemp = lastPour.temperature ?? store.recipe.temperature
+    const dt = nextTime - lastPour.startTime
+    temperature = T_AMBIENT + (lastPourTemp - T_AMBIENT) * Math.exp(-H_COOL * dt)
+  }
+
   store.addPourStep({
     startTime: isEmpty ? 0 : nextTime,
     waterGrams: 60,
     isBloom: isEmpty,
-    label: isEmpty ? 'Bloom' : undefined
+    label: isEmpty ? 'Bloom' : undefined,
+    ...(temperature !== undefined ? { temperature } : {})
   })
 }
 

@@ -16,6 +16,7 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 │   └── stores/           # Pinia stores (WASM bridge)
 ├── assembly/             # Physics engine (AssemblyScript)
 ├── build/                # Compiled WASM & JS glue (gitignored, built on install)
+├── docs/                 # Physics model documentation
 ├── test/                 # Vitest suites (unit & nuxt)
 └── nuxt.config.ts        # Framework config
 ```
@@ -28,6 +29,7 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 | **State/Bridge** | `app/stores/simulator/` | Bridge between Vue and WASM |
 | **Theme/Styles** | `app/app.config.ts` | Colors & global config |
 | **Build Config** | `asconfig.json` | AssemblyScript compiler settings |
+| **Physics Docs** | `docs/physics-model.md` | Extraction math reference & model documentation |
 
 ## CODE MAP
 | Symbol | Type | Location | Role |
@@ -35,6 +37,11 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 | `useSimulatorStore` | Store | `app/stores/simulator/index.ts` | Main state & WASM bridge |
 | `calculateExtractionYield` | Function | `assembly/index.ts` | Core physics calculation |
 | `ExtractionChart` | Component | `app/components/simulator/` | ApexCharts visualization |
+| `computePiecewiseCurve` | Function | `app/stores/simulator/composables/usePiecewiseExtraction.ts` | V60 multi-pour extraction curve |
+| `PourSchedule` | Component | `app/components/simulator/PourSchedule.vue` | V60 pour schedule UI |
+| `clampPourStep` | Function | `app/stores/simulator/validation.ts` | Pour step validation & clamping |
+| `v60Templates` | Constant | `app/stores/simulator/constants.ts` | V60 recipe templates (Hoffmann, Rao, etc.) |
+| `useBrewMath` | Composable | `app/stores/simulator/composables/useBrewMath.ts` | Brew ratio, EY, TDS calculations |
 
 ## CONVENTIONS
 - **Nuxt 4**: Source files live in `app/`, not root.
