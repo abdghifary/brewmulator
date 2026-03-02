@@ -167,3 +167,31 @@ After the bloom phase (once all CO₂ has outgassed or a new pour begins), the i
 - **Liang, C., et al.** (2021). Coffee extraction and its physicochemical model. *Scientific Reports*, 11, 5535. DOI: [10.1038/s41598-021-85787-1](https://doi.org/10.1038/s41598-021-85787-1)
 
 - **Gagné, J.** (2021). *The Physics of Filter Coffee*. Scott's Digital Alchemy. ISBN: 978-0578246086
+
+---
+
+## Model Assumptions & Limitations
+
+The Brewmulator physics engine uses a simplified extraction model. These assumptions should be understood when interpreting simulation results:
+
+### Grind Size Model
+1. **Mean particle diameter**: Grind size represents a single average particle diameter in microns (μm). Real coffee grinding produces a distribution of particle sizes (fines, boulders, and target particles). This distribution is not modeled.
+2. **Inverse-square relationship**: Extraction rate scales with `(600/grind)²`, where 600μm is the reference "medium" grind (comparable to table salt). This models the surface-area-to-volume ratio of idealized spherical particles.
+3. **No fines migration**: In real pour-over brewing, fine particles migrate downward and can clog the filter bed, dramatically slowing flow rate and increasing contact time. This effect is not modeled.
+4. **No bed compaction**: Real coffee beds compact under water weight, creating channeling (uneven flow paths). The model assumes uniform water contact with all particles.
+
+### Water Flow Model
+5. **Ideal water distribution**: The model assumes uniform water distribution across the coffee bed, equivalent to using a drip assist device (e.g., Hario Drip Assist). Pouring technique, spiral patterns, and center-pour effects are not modeled.
+6. **No channeling**: All water contacts all coffee grounds uniformly. In reality, channeling reduces effective extraction.
+
+### Temperature Model
+7. **Newton cooling**: Temperature decays exponentially toward ambient (22°C) with a single cooling coefficient. Real thermal dynamics depend on dripper material (ceramic vs plastic vs metal), pre-heating, and ambient conditions.
+8. **Instantaneous mixing**: When new water is poured, it instantly mixes to a uniform temperature. Real slurry has thermal gradients.
+
+### Calibrated Template Values
+9. **Model-calibrated grind sizes**: V60 recipe template grind sizes are calibrated to produce realistic extraction yields within this simplified model. They may not correspond to literal grinder settings. For example, a template value of 500μm produces the same extraction yield in the simulator that the real-world recipe produces with its actual (typically coarser) grind setting — because real-world brewing benefits from effects (fines, compaction, channeling) that partially compensate for coarser grinds.
+
+### What This Means for Users
+- Use the simulator to understand **relative** effects: finer grind → faster extraction, higher temperature → faster extraction, etc.
+- **Absolute** extraction yield numbers are approximate — real-world results depend on grinder quality, bean freshness, pouring technique, and many other factors.
+- The grinder profile feature converts between grinder clicks/settings and microns for convenience, but the underlying simulation always operates on the model-calibrated micron scale.
