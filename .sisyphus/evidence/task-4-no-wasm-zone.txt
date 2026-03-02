@@ -1,0 +1,1 @@
+app/stores/simulator/types.ts:66:  getExtractionZone(

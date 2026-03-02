@@ -1,0 +1,2 @@
+37:    const absorptionRate = getMethodConfig(recipe.value.method).absorptionRate
+38:    const absorbed = recipe.value.coffeeGrams * absorptionRate

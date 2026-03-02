@@ -1,6 +1,7 @@
 import { computed, type Ref } from 'vue'
 import type { BrewRecipe, ExtractionPoint, WasmModule } from '../types'
 import { methodToNumber, roastToNumber } from '../constants'
+import { getMethodConfig } from '../methodConfig'
 
 export function useBrewMath(
   recipe: Ref<BrewRecipe>,
@@ -33,7 +34,7 @@ export function useBrewMath(
     // Absorption rate depends on brew method:
     // Espresso: ~1.2x (high pressure, lower retention)
     // Others: ~2.0x (standard drip/immersion retention)
-    const absorptionRate = recipe.value.method === 'espresso' ? 1.2 : 2.0
+    const absorptionRate = getMethodConfig(recipe.value.method).absorptionRate
     const absorbed = recipe.value.coffeeGrams * absorptionRate
     const waterMass = Math.max(0, recipe.value.waterGrams - absorbed)
 
@@ -54,11 +55,11 @@ export function useBrewMath(
   })
 
   const extractionZone = computed(() => {
-    if (!wasmModule.value) return 0
-    return wasmModule.value.getExtractionZone(
-      extractionYield.value,
-      methodToNumber(recipe.value.method)
-    )
+    const config = getMethodConfig(recipe.value.method)
+    const ey = extractionYield.value
+    if (ey < config.sweetSpot.min) return 0  // under-extracted
+    if (ey <= config.sweetSpot.max) return 1  // sweet spot
+    return 2  // over-extracted
   })
 
   return {
