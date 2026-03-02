@@ -5,7 +5,7 @@ import { presetDefaults, methodToNumber, roastToNumber, v60Templates, MAX_POUR_S
 import { useBrewMath } from './composables/useBrewMath'
 import { useBrewLimits } from './composables/useBrewLimits'
 import { computePiecewiseCurve } from './composables/usePiecewiseExtraction'
-import { clampPourStep } from './validation'
+import { clampPourStep, clampGrindSize } from './validation'
 
 export * from './types'
 export * from './constants'
@@ -149,7 +149,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     pourSchedule.value = template.pourSchedule.map(clampPourStep)
     recipe.value.coffeeGrams = template.coffeeGrams
     recipe.value.waterGrams = template.totalWater
-    recipe.value.grindSize = template.grindSize ?? recipe.value.grindSize
+    recipe.value.grindSize = clampGrindSize(template.grindSize ?? recipe.value.grindSize, recipe.value.method)
     const firstTemp = template.pourSchedule[0]?.temperature
     if (firstTemp !== undefined) {
       recipe.value.temperature = firstTemp
