@@ -63,13 +63,13 @@
 
     <UFormField
       v-if="store.recipe.method !== 'v60'"
-      :label="'Brew Time: ' + formatTime(store.recipe.brewTime)"
+      :label="'Brew Time: ' + formatTimeFull(store.recipe.brewTime, store.recipe.method)"
     >
       <USlider
         v-model="store.recipe.brewTime"
         :min="0"
         :max="currentPreset.maxTime"
-        :step="store.recipe.method === 'espresso' ? 1 : store.recipe.method === 'coldBrew' ? 3600 : 10"
+        :step="getMethodConfig(store.recipe.method).brewTimeStep"
       />
     </UFormField>
   </div>
@@ -80,6 +80,8 @@ import { computed, watch } from 'vue'
 import { useSimulatorStore } from '~/stores/simulator'
 import { presetDefaults } from '~/stores/simulator/constants'
 import { useGrinderProfile } from '~/stores/simulator/composables/useGrinderProfile'
+import { formatTimeFull } from '~/stores/simulator/utils'
+import { getMethodConfig } from '~/stores/simulator/methodConfig'
 
 type RoastLevel = 'light' | 'medium' | 'dark'
 
@@ -110,18 +112,5 @@ const currentPreset = computed(() => presetDefaults[store.recipe.method])
 
 function setRoast(roast: RoastLevel) {
   store.recipe.roastLevel = roast
-}
-
-function formatTime(seconds: number): string {
-  if (store.recipe.method === 'coldBrew') {
-    const hours = Math.floor(seconds / 3600)
-    return `${hours}h`
-  }
-  if (store.recipe.method === 'espresso') {
-    return `${seconds}s`
-  }
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 </script>
