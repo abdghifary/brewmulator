@@ -28,6 +28,8 @@
 import { computed } from 'vue'
 import { useSimulatorStore } from '~/stores/simulator'
 import { presetDefaults } from '~/stores/simulator/constants'
+import { formatTimeCompact } from '~/stores/simulator/utils'
+import { getMethodConfig } from '~/stores/simulator/methodConfig'
 
 const store = useSimulatorStore()
 const colorMode = useColorMode()
@@ -41,18 +43,6 @@ const series = computed(() => [{
   name: 'Extraction Yield',
   data: store.extractionCurve.map(p => ({ x: p.time, y: p.yield }))
 }])
-
-function formatTime(seconds: number): string {
-  if (store.recipe.method === 'coldBrew') {
-    const hours = Math.floor(seconds / 3600)
-    return `${hours}h`
-  }
-  if (store.recipe.method === 'espresso') {
-    return `${Math.round(seconds)}s`
-  }
-  const mins = Math.floor(seconds / 60)
-  return `${mins}m`
-}
 
 const pourAnnotations = computed(() => {
   if (!store.hasPourSchedule) return []
@@ -121,7 +111,7 @@ const chartOptions = computed(() => ({
     max: maxTime.value,
     tickAmount: 5,
     labels: {
-      formatter: (val: number) => formatTime(val),
+      formatter: (val: number) => formatTimeCompact(val, store.recipe.method),
       style: {
         fontFamily: 'ui-monospace, monospace'
       }
@@ -142,8 +132,8 @@ const chartOptions = computed(() => ({
   },
   annotations: {
     yaxis: [{
-      y: 18,
-      y2: 22,
+      y: getMethodConfig(store.recipe.method).sweetSpot.min,
+      y2: getMethodConfig(store.recipe.method).sweetSpot.max,
       fillColor: '#22c55e',
       opacity: 0.1,
       borderColor: 'transparent',
@@ -184,7 +174,7 @@ const chartOptions = computed(() => ({
   tooltip: {
     theme: isDark.value ? 'dark' : 'light',
     x: {
-      formatter: (val: number) => formatTime(val)
+      formatter: (val: number) => formatTimeCompact(val, store.recipe.method)
     },
     y: {
       formatter: (val: number) => val.toFixed(1) + '%'
