@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import type { BrewMethod, BrewRecipe, ExtractionPoint, WasmModule, PourStep, PourSchedule } from './types'
 import { presetDefaults, methodToNumber, roastToNumber, v60Templates, MAX_POUR_STEPS } from './constants'
+import { getMethodConfig } from './methodConfig'
 import { useBrewMath } from './composables/useBrewMath'
 import { useBrewLimits } from './composables/useBrewLimits'
 import { computePiecewiseCurve } from './composables/usePiecewiseExtraction'
@@ -9,6 +10,7 @@ import { clampPourStep, clampGrindSize } from './validation'
 
 export * from './types'
 export * from './constants'
+export * from './methodConfig'
 
 export const useSimulatorStore = defineStore('simulator', () => {
   // Infrastructure State
@@ -172,7 +174,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     if (pourSchedule.value.length === 0) return
     recipe.value.waterGrams = pourSchedule.value.reduce((sum, s) => sum + s.waterGrams, 0)
     const lastPour = pourSchedule.value[pourSchedule.value.length - 1]
-    if (lastPour) recipe.value.brewTime = lastPour.startTime + 45
+    if (lastPour) recipe.value.brewTime = lastPour.startTime + getMethodConfig(recipe.value.method).drainBuffer
   }
 
   return {
