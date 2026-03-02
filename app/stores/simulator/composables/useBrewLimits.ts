@@ -1,5 +1,6 @@
 import { computed, type Ref } from 'vue'
 import type { BrewRecipe } from '../types'
+import { grindBounds } from '../constants'
 
 export function useBrewLimits(recipe: Ref<BrewRecipe>) {
   const coffeeMin = computed(() => {
@@ -21,10 +22,17 @@ export function useBrewLimits(recipe: Ref<BrewRecipe>) {
     return recipe.value.method === 'coldBrew' ? 1500 : 1000
   })
 
+  const grindMin = computed(() => grindBounds[recipe.value.method].min)
+  const grindMax = computed(() => grindBounds[recipe.value.method].max)
+  const grindStep = computed(() => grindBounds[recipe.value.method].step)
+
   return {
     coffeeMin,
     coffeeMax,
     waterMin,
-    waterMax
+    waterMax,
+    grindMin,
+    grindMax,
+    grindStep
   }
 }

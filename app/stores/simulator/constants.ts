@@ -15,7 +15,7 @@ export const v60Templates: V60RecipeTemplate[] = [
     name: 'Tetsu Kasuya 4:6',
     coffeeGrams: 20,
     totalWater: 300,
-    grindSize: 415,
+    grindSize: 500,
     pourSchedule: [
       { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 60, label: 'Pour 2' },
@@ -152,4 +152,12 @@ export const presetDefaults: Record<BrewMethod, BrewPreset> = {
     maxTime: 86400,
     tempRange: [4, 25]
   }
+}
+
+export const grindBounds: Record<BrewMethod, { min: number, max: number, step: number }> = {
+  v60: { min: 300, max: 1000, step: 25 },
+  frenchPress: { min: 600, max: 1200, step: 50 },
+  espresso: { min: 100, max: 400, step: 10 },
+  aeropress: { min: 300, max: 900, step: 25 },
+  coldBrew: { min: 800, max: 1500, step: 50 }
 }

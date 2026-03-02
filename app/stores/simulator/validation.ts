@@ -1,5 +1,5 @@
-import type { PourStep } from './types'
-import { MIN_POUR_WATER_GRAMS, MIN_POUR_START_TIME, MIN_TEMP_OVERRIDE, MAX_TEMP_OVERRIDE } from './constants'
+import type { PourStep, BrewMethod } from './types'
+import { MIN_POUR_WATER_GRAMS, MIN_POUR_START_TIME, MIN_TEMP_OVERRIDE, MAX_TEMP_OVERRIDE, grindBounds } from './constants'
 
 export function clampPourStep(step: PourStep): PourStep {
   const clamped = { ...step }
@@ -12,4 +12,9 @@ export function clampPourStep(step: PourStep): PourStep {
     clamped.temperature = Math.max(MIN_TEMP_OVERRIDE, Math.min(MAX_TEMP_OVERRIDE, clamped.temperature))
   }
   return clamped
+}
+
+export function clampGrindSize(grindSize: number, method: BrewMethod): number {
+  const bounds = grindBounds[method]
+  return Math.max(bounds.min, Math.min(bounds.max, grindSize))
 }
