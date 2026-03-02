@@ -1,0 +1,27 @@
+
+> brewmulator@ test /home/agi/Work/Personal/Repo/brewmulator
+> vitest
+
+
+[1m[46m RUN [49m[22m [36mv4.0.17 [39m[90m/home/agi/Work/Personal/Repo/brewmulator[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m [30m[42m unit [49m[39m test/unit/example.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m [30m[42m unit [49m[39m test/unit/physics.test.ts [2m([22m[2m25 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m [30m[42m unit [49m[39m test/unit/piecewise.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m33 passed[39m[22m[90m (33)[39m
+[2m   Start at [22m 00:49:10
+[2m   Duration [22m 214ms[2m (transform 69ms, setup 0ms, import 102ms, tests 21ms, environment 0ms)[22m
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   88.67 |    84.21 |      75 |   87.23 |                   
+ simulator         |   69.23 |      100 |       0 |   69.23 |                   
+  constants.ts     |   69.23 |      100 |       0 |   69.23 | 71-78,82-87       
+ ...or/composables |      95 |    84.21 |     100 |   94.11 |                   
+  ...Extraction.ts |      95 |    84.21 |     100 |   94.11 | 39-40             
+-------------------|---------|----------|---------|---------|-------------------

@@ -1,0 +1,136 @@
+===============================================================================
+F2 CODE QUALITY REVIEW — v60-multi-pour feature
+Date: 2026-02-21
+===============================================================================
+
+=== AUTOMATED CHECKS ===
+
+Build [PASS]
+  - Initial run failed due to stale Nuxt cache (ENOENT manifest.json)
+  - After `rm -rf node_modules/.cache/nuxt`, build succeeds cleanly
+  - No TypeScript or compilation errors
+
+Tests [33 pass / 0 fail]
+  - 3 test files: physics.test.ts (25), example.test.ts (1), piecewise.test.ts (7)
+  - Coverage: 88.67% stmts, 84.21% branch, 75% funcs, 87.23% lines
+  - Uncovered: constants.ts lines 71-78, 82-87 (methodToNumber/roastToNumber maps)
+  - Uncovered: usePiecewiseExtraction.ts lines 39-40 (early-return when no active pours)
+
+Lint [FAIL] — 60 errors, 9 warnings (59 auto-fixable)
+  NEW errors introduced by feature (55 errors, 9 warnings):
+    constants.ts:     28 errors (trailing commas, alignment multi-spaces, unused import PourSchedule)
+    types.ts:          5 errors (alignment multi-spaces in PourStep interface)
+    index.ts:          1 error  (trailing comma line 55)
+    useBrewMath.ts:    1 error  (trailing comma line 9)
+    PourSchedule.vue: 11 errors + 9 warnings (trailing spaces, singleline content, max-attrs)
+    piecewise.test.ts: 13 errors (trailing commas)
+  PRE-EXISTING (not from this feature):
+    BrewParameters.vue: 2 errors, 1 warning
+    DoseParameters.vue: 2 errors, 1 warning
+  All 59 errors fixable with `pnpm lint --fix`
+
+Anti-pattern grep [CLEAN]
+  - No `as any`, `@ts-ignore`, `console.log`, `TODO`, `FIXME`, `HACK` in production code
+  - Test file has 1 legitimate `// eslint-disable-next-line @typescript-eslint/no-explicit-any`
+    for WASM module binding (acceptable — raw WASM exports lack typed interface)
+
+=== FILE-BY-FILE REVIEW ===
+
+1. usePiecewiseExtraction.ts — ISSUES FOUND
+   ✓ Pure function (no Vue refs/computed)
+   ✓ Uses wasmModule.E_MAX and wasmModule.ALPHA from WASM
+   ✓ Handles edge cases: empty schedule (line 18), zero time (line 34), no active pours (line 38-41)
+   ✓ No stubs or TODOs
+   ✓ Proper sorting of pours (line 23)
+   ✓ Bloom inhibition correctly scoped to bloom window (lines 52-56)
+   ✗ ISSUE: `as unknown as number` double-cast on lines 58-59 for E_MAX and ALPHA
+     - WasmModule interface types these as `readonly number` (types.ts:74-75)
+     - BUT actual WASM export is `{ readonly value: number }` (WebAssembly.Global)
+     - Cast is NECESSARY — WebAssembly.Global has valueOf() so arithmetic works
+       via JS coercion, but the WasmModule type is wrong
+     - ROOT CAUSE: WasmModule types E_MAX/ALPHA as `number` but AssemblyScript
+       `export const` produces WebAssembly.Global objects
+     - LSP confirms: index.ts:99 has type error for E_MAX incompatibility
+     - Pre-existing architectural issue, not introduced by this feature
+     - Severity: LOW (works at runtime, but types are technically wrong)
+
+2. PourSchedule.vue — ISSUES FOUND
+   ✓ Store-driven state (reads from store.pourSchedule, no local refs for pour data)
+   ✓ Correct @update:model-value binding pattern (not v-model on store array)
+   ✓ V60-only guard (line 2: v-if="store.recipe.method === 'v60'")
+   ✓ No excessive comments (only section labels in template)
+   ✓ Proper immutable update pattern (line 123: spread + computed key)
+   ✗ ISSUE: Magic number `45` on lines 129 and 139
+     - Used for "default seconds between pours" and "brew time after last pour"
+     - Same value appears in index.ts:165
+     - Should be a named constant in constants.ts (e.g., DEFAULT_POUR_INTERVAL_S)
+     - Severity: MEDIUM (maintainability, 3 locations to update if value changes)
+
+3. index.ts (store) — ISSUES FOUND
+   ✓ pourSchedule ref correctly typed as `ref<PourSchedule>([])`
+   ✓ hasPourSchedule computed: correct logic (v60 + schedule.length > 0)
+   ✓ _recalculatePourTotals correctly sums waterGrams and sets brewTime
+   ✓ computeCurve correctly branches (hasPourSchedule → piecewise, else → legacy)
+   ✓ Deep watcher on pourSchedule triggers computeCurve (line 94)
+   ✓ setPreset clears pour schedule when leaving V60 (line 110)
+   ✓ loadTemplate properly spreads template data (line 146: [...template.pourSchedule])
+   ✗ ISSUE: Magic number `45` on line 165 (same as PourSchedule.vue)
+   ✗ NOTE: console.error on line 105 is acceptable (WASM load failure)
+
+4. useBrewMath.ts — CLEAN
+   ✓ hasPourSchedule and extractionCurve params added correctly (lines 8-9)
+   ✓ extractionYield correctly falls back to legacy when no pour schedule (lines 17-19 vs 20-29)
+   ✓ Non-null assertion on line 18 is safe (guarded by length > 0)
+   ✓ No anti-patterns
+
+5. ExtractionChart.vue — CLEAN
+   ✓ pourAnnotations computed is reactive (line 45-62)
+   ✓ Blue dashed style: borderColor '#3b82f6', strokeDashArray 4, opacity 0.6
+   ✓ Existing green brew-time annotation preserved (lines 148-159)
+   ✓ Annotations spread correctly: [...pourAnnotations.value] (line 160)
+   ✓ Uses step.label with fallback to `Pour ${i + 1}` (line 53)
+
+6. index.vue — CLEAN
+   ✓ Pour Schedule card between Brew Params and Dose Params (lines 27-34)
+   ✓ V60-only guard: v-if="store.recipe.method === 'v60'" (line 27)
+   ✓ Consistent card structure with header slot
+
+7. constants.ts — ISSUES FOUND (lint only)
+   ✓ Physics constants properly named and documented (T_AMBIENT, H_COOL, K_DEGAS, BLOOM_INHIBITION)
+   ✓ Templates are realistic (Kasuya, Hoffmann, Rao, Hedrick, Winton)
+   ✓ Template water totals match sum of pours (verified manually)
+   ✗ ISSUE: Unused import `PourSchedule` on line 1 (lint catches this)
+   ✗ ISSUE: Alignment multi-spaces throughout (stylistic, auto-fixable)
+
+8. types.ts — CLEAN (lint only)
+   ✓ PourStep interface well-defined with optional fields
+   ✓ WasmModule interface includes calculateRateConstant, E_MAX, ALPHA
+   ✓ V60RecipeTemplate properly typed
+   ✗ Only issue: alignment multi-spaces in PourStep comments (auto-fixable)
+
+9. piecewise.test.ts — CLEAN
+   ✓ 7 well-designed tests covering: empty schedule, regression, bloom, monotonicity, temperature, numPoints
+   ✓ WASM loaded from real binary (not mocked)
+   ✓ Legitimate `any` cast for WASM module with eslint-disable comment
+
+=== ISSUE SUMMARY ===
+
+BLOCKING:
+  1. LINT FAILURES — 55 new errors + 9 new warnings across 6 files
+     Fix: `pnpm lint --fix` resolves 54 of 55 errors. 
+     Remaining 1: unused import `PourSchedule` in constants.ts (manual removal)
+
+NON-BLOCKING (code smells):
+  2. `as unknown as number` double-cast in usePiecewiseExtraction.ts:58-59
+     - Actually NECESSARY: WASM exports globals as WebAssembly.Global objects
+     - WasmModule interface types E_MAX as `number` but actual export is `{ value: number }`
+     - Works at runtime via valueOf() coercion — pre-existing architectural issue
+     - Proper fix: update WasmModule type or use .value accessor (separate PR)
+  3. Magic number `45` used in 3 locations without a named constant
+     - index.ts:165, PourSchedule.vue:129, PourSchedule.vue:139
+     - Should be `DEFAULT_POUR_INTERVAL_S` in constants.ts
+
+===============================================================================
+Build [PASS] | Lint [FAIL] | Tests [33 pass / 0 fail] | Files [5 clean / 4 issues]
+VERDICT: CONDITIONAL APPROVE — lint --fix + remove unused import required before merge
+===============================================================================

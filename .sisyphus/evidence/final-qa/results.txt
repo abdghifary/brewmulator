@@ -1,0 +1,87 @@
+=========================================================
+ FINAL QA REPORT — V60 Pour Schedule Feature
+ Date: 2026-02-21
+ Environment: Nuxt 4 dev server (localhost:3000)
+ Tool: Playwright browser automation
+=========================================================
+
+Scenarios [7/7 pass] | VERDICT: APPROVE
+
+---------------------------------------------------------
+ SCENARIO RESULTS
+---------------------------------------------------------
+
+S1: V60 shows Pour Schedule card                    PASS ✅
+  - "Pour Schedule" heading visible under V60 preset
+  - 5 template buttons: Tetsu Kasuya 4:6, James Hoffmann,
+    Scott Rao, Lance Hedrick, Matt Winton
+  - "Add Pour" button and helper text visible
+  - Screenshot: f3-s1-v60-pour-schedule-card.png
+
+S2: Template loading (Tetsu 4:6)                    PASS ✅
+  - Clicked "Tetsu Kasuya 4:6" → 5 pour steps loaded
+  - Bloom (0s/60g/93°C), Pour 2 (45s/60g), Pour 3 (90s/60g),
+    Pour 4 (135s/60g), Pour 5 (180s/60g)
+  - Summary: Total water 300g, Pours 5, Total brew time 225s
+  - Coffee auto-set to 20g, ratio 1:15.0
+  - Screenshot: f3-s2-template-loaded.png
+
+S3: Add pour step                                   PASS ✅
+  - Clicked "Add Pour" → Pour 6 added (225s/60g/93°C)
+  - Pour count increased to 6
+  - Total water updated to 360g, brew time to 270s
+  - Chart annotations updated to show 6 pours
+  - Screenshot: f3-s3-add-pour.png
+
+S4: Remove pour step                                PASS ✅
+  - Clicked remove (trash) button on Pour 6
+  - Pour count decreased back to 5
+  - Total water returned to 300g, brew time to 225s
+  - Chart annotations returned to 5 pours
+  - Screenshot: f3-s4-remove-pour.png
+
+S5: French Press hides pour schedule                PASS ✅
+  - Clicked "French Press" preset
+  - Pour Schedule card completely hidden
+  - No pour annotations on chart
+  - Water slider active (not disabled), no hint text
+  - Brew time slider active (not disabled)
+  - Screenshot: f3-s5-french-press-no-pour.png
+
+S6: Sliders disabled when pour schedule active      PASS ✅
+  - Switched back to V60, loaded Tetsu 4:6
+  - Water slider: disabled + "Water is set by pour schedule"
+  - Brew time slider: disabled + "Brew time is set by pour schedule"
+  - Water value auto-synced to 300g from pour total
+  - Screenshot: f3-s6-water-disabled.png
+
+S7: Chart has pour annotations                      PASS ✅
+  - 5 vertical dashed lines at pour times
+  - Labels rotated at top: Bloom, Pour 2, Pour 3, Pour 4, Pour 5
+  - Target Zone band rendered correctly
+  - Extraction curve renders with proper physics
+  - Screenshot: f3-s7-chart-annotations.png
+
+---------------------------------------------------------
+ EVIDENCE FILES
+---------------------------------------------------------
+  f3-s1-v60-pour-schedule-card.png
+  f3-s2-template-loaded.png
+  f3-s3-add-pour.png
+  f3-s4-remove-pour.png
+  f3-s5-french-press-no-pour.png
+  f3-s6-water-disabled.png
+  f3-s7-chart-annotations.png
+
+---------------------------------------------------------
+ NOTES
+---------------------------------------------------------
+- All reactivity works correctly: adding/removing pours
+  updates summary, chart, and disabled slider states instantly
+- Template button shows [active] state when selected
+- Physics engine responds correctly to pour schedule changes
+  (extraction yield changes with pour count/water)
+- No console errors observed during testing
+- Dev server started and stopped cleanly
+
+=========================================================

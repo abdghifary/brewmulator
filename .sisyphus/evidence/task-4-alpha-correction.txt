@@ -1,0 +1,8 @@
+20:### 1. Solubility Coefficient ($\alpha$)
+21:We use $\alpha \approx 1.1$ as the partition coefficient. This represents the ratio of the concentration of coffee solids in the grounds to the concentration in the water at equilibrium.
+25:$$Y_{eq} = \frac{E_{max}}{1 + \frac{\alpha}{ratio}}$$
+30:$$k_{obs} = k \left(1 + \frac{\alpha}{ratio}\right)$$
+41:- $\frac{\alpha}{ratio}$ is small.
+47:- $\frac{\alpha}{ratio}$ is significant.
+74:- $E_{eq} = \frac{E_{max}}{1 + \alpha / R}$ is the new equilibrium yield after water ratio *R* changes
+75:- $k_{obs} = k \cdot (1 + \alpha / R)$ is the observed rate constant

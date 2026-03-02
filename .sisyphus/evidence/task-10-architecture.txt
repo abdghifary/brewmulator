@@ -1,0 +1,3 @@
+73 docs/architecture.md
+- `usePiecewiseExtraction`: Implements the piecewise model described in `docs/physics-model.md`.
+For detailed extraction formulas and the saturation-aware model, see [Physics Model Documentation](./physics-model.md).

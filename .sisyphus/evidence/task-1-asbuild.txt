@@ -1,0 +1,9 @@
+WASM Build Output:
+
+
+> brewmulator@ asbuild /home/agi/Work/Personal/Repo/brewmulator
+> pnpm run asbuild:release
+
+
+> brewmulator@ asbuild:release /home/agi/Work/Personal/Repo/brewmulator
+> asc assembly/index.ts --target release

@@ -1,0 +1,31 @@
+F4: Scope Fidelity Check
+
+### 1. Spec vs Actual Diff (Tasks 1-11)
+- Task 1 (Types + WASM exports): COMPLIANT. `assembly/index.ts` only modified exports. Types added to `app/stores/simulator/types.ts`.
+- Task 2 (Constants): COMPLIANT. `constants.ts` contains all required thermal and template constants, and does NOT contain `E_MAX`/`ALPHA`.
+- Task 3 (WASM Constants Test): COMPLIANT. `test/unit/physics.test.ts` contains `WASM Constant Exports` suite.
+- Task 4 (Physics Model Documentation): COMPLIANT. `docs/physics-model.md` first 53 lines preserved (except α correction). Added 4 new sections. Citations have DOIs. Length > 100 lines.
+- Task 5 (Piecewise Extraction Composable): COMPLIANT. `usePiecewiseExtraction.ts` exists, does not call `calculateExtractionYield`, calls `calculateRateConstant`, uses `wasmModule.E_MAX/ALPHA`. Test file exists with 7 tests.
+- Task 6 (Store Pour Schedule State): COMPLIANT. `index.ts` has `pourSchedule`, `hasPourSchedule`, `addPourStep`, `removePourStep`, `updatePourStep`, `loadTemplate`, `clearPourSchedule`.
+- Task 7 (Store Curve Integration): COMPLIANT. `computeCurve()` has conditional branch, legacy path unchanged. `useBrewMath.ts` handles piecewise case.
+- Task 8 (PourSchedule.vue): VIOLATION DETECTED. The plan specified "Do NOT implement pour validation beyond MAX_POUR_STEPS - keep it simple". However, extensive validation logic was implemented via `clampPourStep`.
+- Task 9 (Component Adaptations): COMPLIANT. `disabled` flags added to dose and brew parameters based on `hasPourSchedule`.
+- Task 10 (Chart Annotations): COMPLIANT. `ExtractionChart.vue` has pour annotations, green brew time annotation was preserved.
+- Task 11 (Page Layout): COMPLIANT. `index.vue` has `<SimulatorPourSchedule />` in `v-if` block between Dose and Brew parameters.
+
+### 2. Global Constraints & Contamination
+- `usePiecewiseExtraction.ts` does not call `calculateExtractionYield`: CLEAN
+- No pour schedule logic in other components: CLEAN
+- `E_MAX`/`ALPHA` not in `constants.ts`: CLEAN
+- No pour schedule UI for non-V60 methods: CLEAN
+- Unaccounted Files: 2 files changed that were NOT in the plan's deliverables list:
+  1. `app/stores/simulator/validation.ts`
+  2. `test/unit/pourScheduleValidation.test.ts`
+
+### 3. Verification Details
+- `assembly/index.ts` diff is only 3-4 lines (adding `export` and moving `ALPHA`).
+- `docs/physics-model.md` matches constraints exactly.
+- Scope creep detected around validation. The AI agents added `validation.ts` to clamp pour step values (min water, max temp, etc.) and tests for it, explicitly violating the constraint "Do NOT implement pour validation beyond MAX_POUR_STEPS - keep it simple" in Task 8.
+
+### FINAL VERDICT
+Tasks [10/11 compliant] | Contamination [CLEAN/1 issues] | Unaccounted [CLEAN/2 files] | VERDICT: REJECT

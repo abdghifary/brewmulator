@@ -1,0 +1,1 @@
+177:    if (lastPour) recipe.value.brewTime = lastPour.startTime + getMethodConfig(recipe.value.method).drainBuffer

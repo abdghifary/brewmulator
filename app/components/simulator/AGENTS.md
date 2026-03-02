@@ -31,4 +31,5 @@ Core UI domain for the coffee extraction simulator, providing specialized visual
 - **Direct WASM Calls**: NEVER call WASM functions from components; all physics must route through Pinia actions.
 - **Local State for Parameters**: Don't use `ref` for brew/dose parameters; use the store to keep physics in sync.
 - **Prop Drilling**: Avoid passing simulation state via props; prefer direct store access for domain data.
-- **Hardcoded Bounds**: Use `presetDefaults` or store-provided limits instead of magic numbers for sliders.
+- **Hardcoded Bounds**: Use `getMethodConfig()` or store-provided limits instead of magic numbers for sliders.
+- **Local formatTime**: Don't create local formatting functions. Import formatTimeCompact or formatTimeFull from ~/stores/simulator/utils.

@@ -1,0 +1,21 @@
+Must Have [8/8]:
+  ✅ 1. Piecewise uses calculateRateConstant — confirmed in usePiecewiseExtraction.ts
+  ✅ 2. CO2 bloom inhibition — confirmed, formula matches
+  ✅ 3. Newton cooling + mass-weighted reheat — confirmed
+  ✅ 4. E_MAX and ALPHA exported from WASM — confirmed
+  ✅ 5. All 5 recipe templates — confirmed
+  ✅ 6. waterGrams computed as sum of pour weights — confirmed
+  ✅ 7. brewTime derived from last pour's startTime + drain time — confirmed
+  ✅ 8. Regression test: single-pour V60 matches legacy curve — confirmed
+
+Must NOT Have [8/8]:
+  ✅ 1. assembly/index.ts physics unchanged — diff shows minimal lines changed
+  ✅ 2. No pour UI on non-V60 — PourSchedule.vue has v-if guard
+  ✅ 3. No agitation/swirl/channeling — confirmed absent
+  ✅ 4. No calculateExtractionYield in piecewise composable — confirmed absent
+  ✅ 5. No JS duplicates of E_MAX or ALPHA — confirmed absent
+  ✅ 6. docs/physics-model.md not replaced — confirmed
+  ✅ 7. No hallucinated citations — confirmed
+  ✅ 8. No local ref() state for brew params in components — confirmed
+
+VERDICT: APPROVE

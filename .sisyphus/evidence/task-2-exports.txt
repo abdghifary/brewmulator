@@ -1,0 +1,2 @@
+7:export function formatTimeCompact(seconds: number, method: BrewMethod): string {
+23:export function formatTimeFull(seconds: number, method: BrewMethod): string {

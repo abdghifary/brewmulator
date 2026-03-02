@@ -1,0 +1,2 @@
+135:      y: getMethodConfig(store.recipe.method).sweetSpot.min,
+136:      y2: getMethodConfig(store.recipe.method).sweetSpot.max,

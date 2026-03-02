@@ -1,0 +1,34 @@
+TASK: Add thermal model constants and V60 recipe templates
+
+COMPLETION CHECKLIST:
+✓ T_AMBIENT = 22 (°C ambient temperature)
+✓ H_COOL = 0.005 (/s Newton cooling coefficient)
+✓ K_DEGAS = 0.03 (/s CO2 degassing rate)
+✓ BLOOM_INHIBITION = 0.6 (initial rate reduction during bloom)
+✓ MAX_POUR_STEPS = 10 (max pour steps per schedule)
+✓ v60Templates array with 5 templates
+✓ pnpm build exits 0
+
+MODIFIED FILES:
+- app/stores/simulator/constants.ts
+
+CHANGES:
+1. Added thermal constants (lines 3-7):
+   - T_AMBIENT: 22°C
+   - H_COOL: 0.005/s
+   - K_DEGAS: 0.03/s
+   - BLOOM_INHIBITION: 0.6
+
+2. Added MAX_POUR_STEPS = 10 constant
+
+3. Added v60Templates array with 5 recipe templates:
+   - Tetsu Kasuya 4:6 (5 pours at 45s intervals)
+   - James Hoffmann (bloom + single large + top-off)
+   - Scott Rao (3x dose bloom + two pours)
+   - Lance Hedrick (1-pour method)
+   - Matt Winton (5 pours with temperature stepping)
+
+VERIFICATION:
+- TypeScript compiled successfully
+- All types imported from types.ts
+- No existing code modified (preserved presetDefaults, methodToNumber, roastToNumber)

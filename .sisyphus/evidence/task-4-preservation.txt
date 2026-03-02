@@ -1,0 +1,53 @@
+# Physics Model: Saturation-Aware Extraction
+
+## Overview
+Brewmulator has transitioned from a simplified "Infinite Sink" model to a more realistic "Saturation-Aware" model. This change ensures that the brew ratio (the amount of water relative to coffee) correctly limits the maximum possible extraction yield, mirroring real-world physics where water can only hold a certain amount of dissolved coffee solids before becoming saturated.
+
+## The Old Model: Irreversible (Infinite Sink)
+In the previous model, extraction was treated as a one-way process where solids move from the coffee grounds into an infinite volume of water.
+- **Assumption**: Water never gets "full" or saturated.
+- **Result**: Given enough time, the extraction yield would always approach the theoretical maximum ($E_{max} \approx 28\%$), regardless of whether you were brewing a concentrated espresso or a dilute filter coffee.
+- **Formula**: $E(t) = E_{max}(1 - e^{-kt})$
+
+## The New Model: Reversible (Saturation Limited)
+The updated model implements **Reversible Kinetics** based on the **Spiro & Selwood** pseudo-first order model and the **Nernst-Brunner** equation. It recognizes that extraction is a diffusion process driven by the concentration gradient between the grounds and the liquid.
+- **Key Insight**: As the concentration of dissolved solids in the water increases, the "driving force" for extraction decreases.
+- **Equilibrium**: Extraction stops when the liquid reaches an equilibrium concentration, which is determined by the solubility coefficient and the brew ratio.
+
+## The Math
+The core of the simulator uses the following mathematical framework:
+
+### 1. Solubility Coefficient ($\alpha$)
+We use $\alpha \approx 1.1$ as the partition coefficient. This represents the ratio of the concentration of coffee solids in the grounds to the concentration in the water at equilibrium.
+
+### 2. Equilibrium Yield ($Y_{eq}$)
+The maximum yield achievable for a given brew ratio is no longer a fixed $E_{max}$. Instead, it is limited by saturation:
+$$Y_{eq} = \frac{E_{max}}{1 + \frac{\alpha}{ratio}}$$
+Where `ratio` is the water-to-coffee weight ratio (e.g., 16 for a 1:16 brew).
+
+### 3. Observed Rate Constant ($k_{obs}$)
+The speed at which the system approaches equilibrium also scales with the ratio:
+$$k_{obs} = k \left(1 + \frac{\alpha}{ratio}\right)$$
+Where $k$ is the base rate constant derived from temperature, grind size, and roast level.
+
+### 4. Extraction Equation
+The final extraction yield $E(t)$ at time $t$ is:
+$$E(t) = Y_{eq}(1 - e^{-k_{obs}t})$$
+
+## Practical Effects
+
+### High Ratio (Dilute Brews)
+When using a high water-to-coffee ratio (e.g., 1:17 or 1:20):
+- $\frac{\alpha}{ratio}$ is small.
+- $Y_{eq}$ remains close to $E_{max}$.
+- The simulation allows for higher total extraction yields, as the water remains relatively "hungry" for solids.
+
+### Low Ratio (Concentrated Brews)
+When using a low water-to-coffee ratio (e.g., 1:2 espresso or 1:10 Moka pot):
+- $\frac{\alpha}{ratio}$ is significant.
+- $Y_{eq}$ is substantially lower than $E_{max}$ (e.g., for 1:2, $Y_{eq} \approx E_{max} / (1 + 2/2) = E_{max} / 2 \approx 14\%$).
+- The simulation correctly predicts that you cannot reach high extraction yields in very concentrated brews without increasing the amount of water (i.e., bypass or longer ratio).
+
+## References
+- **Spiro, M., & Selwood, R. M.** (1984). The kinetics of coffee brewing. *Z. Lebensm. Unters. Forsch.*
+- **Nernst-Brunner Theory**: Describes the dissolution of solids into a liquid where saturation limits the rate of diffusion.

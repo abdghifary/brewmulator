@@ -1,0 +1,44 @@
+TASK: Add 5 V60 recipe templates to constants
+
+TEMPLATES ADDED:
+1. Tetsu Kasuya 4:6
+   - 20g coffee, 300g water
+   - 5 pours at 45s intervals
+   - Description: 4:6 method — 5 equal pours
+
+2. James Hoffmann
+   - 30g coffee, 500g water
+   - Bloom + single large + top-off
+   - Description: Ultimate V60 — bloom + single large pour + top-off
+
+3. Scott Rao
+   - 22g coffee, 360g water
+   - 3x dose bloom + two pours with Rao spin
+   - Description: 3x dose bloom, then two pours with Rao spin
+
+4. Lance Hedrick
+   - 15g coffee, 250g water
+   - Bloom then single continuous pour
+   - Description: 1-pour method — bloom then single continuous pour
+
+5. Matt Winton
+   - 20g coffee, 300g water
+   - 5 pours with temperature stepping (93°C bloom → 88°C)
+   - Description: 5 pours with temperature stepping
+
+STRUCTURE:
+- Each template has name, coffeeGrams, totalWater, pourSchedule
+- pourSchedule contains PourStep objects with startTime, waterGrams, temperature, isBloom, label
+- Scott Rao has 3 pour steps, others have varying counts (2-5)
+- Temperature stepping in Matt Winton (93°C for first 3 pours, 88°C for remaining)
+
+TYPES USED:
+- V60RecipeTemplate (from ./types.ts)
+- PourSchedule (from ./types.ts)
+- PourStep (from ./types.ts)
+
+VERIFICATION:
+- All templates have valid pour schedules (max 5 pours)
+- All temperatures in valid range (80-100°C)
+- Total water sums to coffeeGrams + remaining water
+- Bloom pours identified with isBloom: true

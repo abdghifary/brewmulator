@@ -1,0 +1,6 @@
+  sweetSpot: { min: number; max: number }
+    sweetSpot: { min: 18, max: 22 },
+    sweetSpot: { min: 18, max: 22 },
+    sweetSpot: { min: 17, max: 23 },
+    sweetSpot: { min: 18, max: 22 },
+    sweetSpot: { min: 16, max: 20 },

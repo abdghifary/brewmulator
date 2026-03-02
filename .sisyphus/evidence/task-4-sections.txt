@@ -1,0 +1,20 @@
+## Overview
+## The Old Model: Irreversible (Infinite Sink)
+## The New Model: Reversible (Saturation Limited)
+## The Math
+### 1. Solubility Coefficient ($\alpha$)
+### 2. Equilibrium Yield ($Y_{eq}$)
+### 3. Observed Rate Constant ($k_{obs}$)
+### 4. Extraction Equation
+## Practical Effects
+### High Ratio (Dilute Brews)
+### Low Ratio (Concentrated Brews)
+## References
+## Multi-Step Pour Schedule Model
+## Piecewise Extraction
+## Thermal Model
+### Newton Cooling
+### Pour Reheat
+### Temperature Effect on Rate
+## CO₂ Bloom Phase
+## Extended References
