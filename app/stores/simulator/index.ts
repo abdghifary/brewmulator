@@ -1,12 +1,11 @@
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
-import type { BrewMethod, BrewRecipe, ExtractionPoint, WasmModule, PourStep, PourSchedule } from './types'
-import { presetDefaults, methodToNumber, roastToNumber, v60Templates, MAX_POUR_STEPS } from './constants'
-import { getMethodConfig } from './methodConfig'
+import { ref, watch } from 'vue'
+import type { BrewMethod, BrewRecipe, ExtractionPoint, WasmModule } from './types'
+import { presetDefaults, methodToNumber, roastToNumber } from './constants'
 import { useBrewMath } from './composables/useBrewMath'
 import { useBrewLimits } from './composables/useBrewLimits'
+import { useV60PourSchedule } from './composables/useV60PourSchedule'
 import { computePiecewiseCurve } from './composables/usePiecewiseExtraction'
-import { clampPourStep, clampGrindSize } from './validation'
 
 export * from './types'
 export * from './constants'
@@ -30,12 +29,10 @@ export const useSimulatorStore = defineStore('simulator', () => {
   })
 
   const extractionCurve = ref<ExtractionPoint[]>([])
-  const pourSchedule = ref<PourSchedule>([])
-
-  const hasPourSchedule = computed(() => recipe.value.method === 'v60' && pourSchedule.value.length > 0)
 
   // Domain Composables
-  const { brewRatio, beverageWeight, extractionYield, tds, extractionZone } = useBrewMath(recipe, wasmModule, hasPourSchedule, extractionCurve)
+  const v60Pour = useV60PourSchedule(recipe)
+  const { brewRatio, beverageWeight, extractionYield, tds, extractionZone } = useBrewMath(recipe, wasmModule, v60Pour.hasPourSchedule, extractionCurve)
   const limits = useBrewLimits(recipe)
 
   // Actions
@@ -46,9 +43,9 @@ export const useSimulatorStore = defineStore('simulator', () => {
     }
 
     // Piecewise path for V60 with pour schedule
-    if (hasPourSchedule.value) {
+    if (v60Pour.hasPourSchedule.value) {
       extractionCurve.value = computePiecewiseCurve({
-        pourSchedule: pourSchedule.value,
+        pourSchedule: v60Pour.pourSchedule.value,
         coffeeGrams: recipe.value.coffeeGrams,
         grindSize: recipe.value.grindSize,
         roastLevel: roastToNumber(recipe.value.roastLevel),
@@ -95,7 +92,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
     computeCurve()
   }, { deep: true })
 
-  watch(pourSchedule, () => computeCurve(), { deep: true })
+  watch(v60Pour.pourSchedule, () => computeCurve(), { deep: true })
 
   const initialize = async () => {
     try {
@@ -111,7 +108,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
   }
 
   const setPreset = (newMethod: BrewMethod) => {
-    if (recipe.value.method === 'v60' && newMethod !== 'v60') clearPourSchedule()
+    if (recipe.value.method === 'v60' && newMethod !== 'v60') v60Pour.clearPourSchedule()
     const preset = presetDefaults[newMethod]
     recipe.value = {
       method: newMethod,
@@ -126,57 +123,6 @@ export const useSimulatorStore = defineStore('simulator', () => {
     computeCurve()
   }
 
-  function addPourStep(step: PourStep): void {
-    if (pourSchedule.value.length >= MAX_POUR_STEPS) return
-    pourSchedule.value.push(clampPourStep(step))
-    pourSchedule.value.sort((a, b) => a.startTime - b.startTime)
-    _recalculatePourTotals()
-  }
-
-  function removePourStep(index: number): void {
-    if (pourSchedule.value[index]?.isBloom) return
-    pourSchedule.value.splice(index, 1)
-    _recalculatePourTotals()
-  }
-
-  function updatePourStep(index: number, step: PourStep): void {
-    pourSchedule.value[index] = clampPourStep(step)
-    pourSchedule.value.sort((a, b) => a.startTime - b.startTime)
-    _recalculatePourTotals()
-  }
-
-  function loadTemplate(templateIndex: number): void {
-    const template = v60Templates[templateIndex]
-    if (!template) return
-    pourSchedule.value = template.pourSchedule.map(clampPourStep)
-    recipe.value.coffeeGrams = template.coffeeGrams
-    recipe.value.waterGrams = template.totalWater
-    recipe.value.grindSize = clampGrindSize(template.grindSize ?? recipe.value.grindSize, recipe.value.method)
-    const firstTemp = template.pourSchedule[0]?.temperature
-    if (firstTemp !== undefined) {
-      recipe.value.temperature = firstTemp
-    }
-    _recalculatePourTotals()
-    // Use template's documented total brew time (includes drawdown) if available
-    if (template.totalBrewTime) {
-      recipe.value.brewTime = template.totalBrewTime
-    }
-  }
-
-  function clearPourSchedule(): void {
-    pourSchedule.value = []
-    const defaults = presetDefaults[recipe.value.method]
-    recipe.value.waterGrams = defaults.waterGrams
-    recipe.value.brewTime = defaults.brewTime
-  }
-
-  function _recalculatePourTotals(): void {
-    if (pourSchedule.value.length === 0) return
-    recipe.value.waterGrams = pourSchedule.value.reduce((sum, s) => sum + s.waterGrams, 0)
-    const lastPour = pourSchedule.value[pourSchedule.value.length - 1]
-    if (lastPour) recipe.value.brewTime = lastPour.startTime + getMethodConfig(recipe.value.method).drainBuffer
-  }
-
   return {
     // Infrastructure
     isLoading,
@@ -186,24 +132,20 @@ export const useSimulatorStore = defineStore('simulator', () => {
     // State
     recipe,
     extractionCurve,
-    pourSchedule,
 
     // Actions
     setPreset,
     computeCurve,
-    addPourStep,
-    removePourStep,
-    updatePourStep,
-    loadTemplate,
-    clearPourSchedule,
 
     // Computed
-    hasPourSchedule,
     brewRatio,
     beverageWeight,
     extractionYield,
     tds,
     extractionZone,
-    ...limits
+    ...limits,
+
+    // V60 pour schedule (composed)
+    ...v60Pour,
   }
 })
