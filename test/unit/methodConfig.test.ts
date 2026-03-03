@@ -63,7 +63,11 @@ describe('MethodConfig', () => {
   it('all extension points have safe defaults', () => {
     for (const method of ALL_METHODS) {
       const config = METHOD_CONFIGS[method]
-      expect(config.supportsFineFraction).toBe(false)
+      if (method === 'v60') {
+        expect(config.supportsFineFraction).toBe(true)
+      } else {
+        expect(config.supportsFineFraction).toBe(false)
+      }
       expect(config.percolationMultiplier).toBe(1.0)
       expect(config.supportsDripperGeometry).toBe(false)
     }
