@@ -21,7 +21,7 @@ export const v60Templates: V60RecipeTemplate[] = [
     name: 'Tetsu Kasuya 4:6',
     coffeeGrams: 20,
     totalWater: 300,
-    grindSize: 500,
+    grindSize: 850,
     pourSchedule: [
       { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 60, label: 'Pour 2' },
@@ -36,7 +36,7 @@ export const v60Templates: V60RecipeTemplate[] = [
     name: 'James Hoffmann',
     coffeeGrams: 30,
     totalWater: 500,
-    grindSize: 405,
+    grindSize: 750,
     pourSchedule: [
       { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 240, label: 'Main pour' },
@@ -49,7 +49,7 @@ export const v60Templates: V60RecipeTemplate[] = [
     name: 'Scott Rao',
     coffeeGrams: 22,
     totalWater: 360,
-    grindSize: 390,
+    grindSize: 700,
     pourSchedule: [
       { startTime: 0, waterGrams: 66, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 134, label: 'Main pour' },
@@ -62,7 +62,7 @@ export const v60Templates: V60RecipeTemplate[] = [
     name: 'Lance Hedrick',
     coffeeGrams: 15,
     totalWater: 250,
-    grindSize: 340,
+    grindSize: 600,
     pourSchedule: [
       { startTime: 0, waterGrams: 45, isBloom: true, label: 'Bloom' },
       { startTime: 40, waterGrams: 205, label: 'Single pour' }
@@ -74,7 +74,7 @@ export const v60Templates: V60RecipeTemplate[] = [
     name: 'Matt Winton',
     coffeeGrams: 20,
     totalWater: 300,
-    grindSize: 400,
+    grindSize: 750,
     pourSchedule: [
       { startTime: 0, waterGrams: 60, isBloom: true, label: 'Bloom' },
       { startTime: 45, waterGrams: 60, temperature: 88, label: 'Pour 2' },

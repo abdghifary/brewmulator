@@ -61,6 +61,23 @@
       </div>
     </UFormField>
 
+    <!-- Grinder Quality slider — V60 only (bimodal PSD Model B) -->
+    <UFormField
+      v-if="getMethodConfig(store.recipe.method).supportsFineFraction"
+      :label="`Grinder Quality: ${grinderQualityLabel}`"
+    >
+      <USlider
+        :model-value="store.recipe.finesFraction ?? DEFAULT_FINES_FRACTION"
+        :min="0"
+        :max="MAX_FINES_FRACTION"
+        :step="0.01"
+        @update:model-value="store.recipe.finesFraction = Number($event)"
+      />
+      <p class="text-xs text-[var(--ui-text-dimmed)] mt-1">
+        Premium grinders produce fewer fines → lower extraction. Budget grinders produce more fines → higher extraction.
+      </p>
+    </UFormField>
+
     <UFormField
       v-if="store.recipe.method !== 'v60'"
       :label="'Brew Time: ' + formatTimeFull(store.recipe.brewTime, store.recipe.method)"
@@ -78,7 +95,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { useSimulatorStore } from '~/stores/simulator'
-import { presetDefaults } from '~/stores/simulator/constants'
+import { presetDefaults, DEFAULT_FINES_FRACTION, MAX_FINES_FRACTION } from '~/stores/simulator/constants'
 import { useGrinderProfile } from '~/stores/simulator/composables/useGrinderProfile'
 import { formatTimeFull } from '~/stores/simulator/utils'
 import { getMethodConfig } from '~/stores/simulator/methodConfig'
@@ -109,6 +126,16 @@ function onGrindInput(value: string | number) {
 const roastLevels: RoastLevel[] = ['light', 'medium', 'dark']
 
 const currentPreset = computed(() => presetDefaults[store.recipe.method])
+
+const grinderQualityLabel = computed(() => {
+  const ff = store.recipe.finesFraction ?? DEFAULT_FINES_FRACTION
+  const percent = (ff * 100).toFixed(0)
+  if (ff <= 0.05) return `Excellent (${percent}% fines)`
+  if (ff <= 0.12) return `Premium (${percent}% fines)`
+  if (ff <= 0.20) return `Good (${percent}% fines)`
+  if (ff <= 0.30) return `Budget (${percent}% fines)`
+  return `Blade (${percent}% fines)`
+})
 
 function setRoast(roast: RoastLevel) {
   store.recipe.roastLevel = roast
