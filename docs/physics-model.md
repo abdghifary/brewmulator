@@ -150,6 +150,95 @@ The effective rate constant during bloom is $k_{eff} = k \cdot f_{CO_2}(t)$.
 
 After the bloom phase (once all CO₂ has outgassed or a new pour begins), the inhibition disappears and $f_{CO_2} = 1$.
 
+## Bimodal Particle Size Distribution (Model B: Harmonic Mean)
+
+Real coffee grinding produces a bimodal distribution of particle sizes: small "fines" (<100μm)
+and larger "boulders" (the target grind setting). Rather than simulating two independent particle
+populations, the simulator computes an **effective grind size** via harmonic mean that captures
+the outsized surface-area contribution of fines:
+
+$$d_{eff} = \frac{1}{\frac{1 - \varphi}{d_{boulders}} + \frac{\varphi}{d_{fines}}}$$
+
+where:
+- $\varphi$ (`finesFraction`) is the mass fraction of fines (0.00–0.40, depending on grinder quality)
+- $d_{boulders}$ is the user's grind size setting (μm)
+- $d_{fines}$ = 100μm (fixed constant, per Gagné 2023 laser diffraction data)
+
+The harmonic mean is dominated by the smaller value — even a modest fines fraction (15%) at
+coarse grind (850μm) reduces the effective grind to ~400μm, dramatically increasing the rate
+constant via the grind factor $f_{grind} = (600/d_{eff})^2$.
+
+### Why Harmonic Mean (Model B) Over Two-Bin (Model A)
+
+An alternative "two-bin" approach (running separate ODE tracks for fines and boulders, then
+blending by mass fraction) was evaluated but rejected:
+
+- At 850μm with 15% fines, two-bin blending produces only ~10.5% EY (below the 17-21% target)
+- This is because the dominant boulder fraction (85%) extracts too slowly at coarse grind
+- The harmonic mean better reflects the physical reality: fines increase total accessible
+  surface area non-linearly, affecting the entire extraction bed's rate constant
+
+This approach is supported by Cameron et al. (2020) and Castillo-Santos et al. (2019), who
+validated effective surface area models for coffee extraction.
+
+### Grinder Quality Effect
+
+The fines fraction is controlled by grinder quality:
+
+| Grinder Type | Typical Fines Fraction | Source |
+|-------------|----------------------|--------|
+| Premium flat burr (e.g., Niche Zero) | 5–10% | Gagné 2023 |
+| Premium conical burr (e.g., Comandante C40) | 10–15% | Gagné 2023 |
+| Mid-range conical (e.g., Timemore C2) | 15–20% | Gagné 2023 |
+| Entry-level electric (e.g., Baratza Encore) | 18–25% | Smrke et al. 2024 |
+| Blade grinder | 30–40% | Gagné 2023 |
+
+In the simulator, users control this via the "Grinder Quality" slider (V60 only), which maps
+directly to `finesFraction`.
+
+### V60 Only
+
+Bimodal PSD modeling is currently enabled only for V60 pour-over, where the effect is most
+pronounced due to percolation through a coffee bed. Immersion methods (French Press, Cold Brew)
+are less affected by particle distribution because all particles have equal contact time
+regardless of size.
+
+### Implementation
+
+The effective grind size is computed inline in the piecewise ODE stepper
+(`usePiecewiseExtraction.ts`), before the existing `calculateRateConstant()` WASM call:
+
+```typescript
+const effectiveGrindSize = finesFraction > 0
+  ? 1 / ((1 - finesFraction) / grindSize + finesFraction / FINES_GRIND_SIZE)
+  : grindSize
+```
+
+When `finesFraction` is 0 or undefined, `d_eff = grindSize` — behavior is identical to the
+pre-bimodal model. No WASM changes are required.
+
+### Scientific References (Bimodal PSD)
+
+1. **Moroney, K.M. et al. (2015)** — Modelling of coffee extraction during brewing using multiscale methods. *Chemical Engineering Science*, 137, 216–234. DOI: [10.1016/j.ces.2015.06.003](https://doi.org/10.1016/j.ces.2015.06.003)
+
+2. **Moroney, K.M. et al. (2016)** — Coffee extraction kinetics in a well mixed system. *Journal of Mathematics in Industry*, 7, Article 2. DOI: [10.1186/s13362-016-0024-6](https://doi.org/10.1186/s13362-016-0024-6)
+
+3. **Moroney, K.M. et al. (2019)** — Analysing extraction uniformity from porous coffee beds using mathematical modelling and CFD. *PLoS ONE*, 14(7), e0219906. DOI: [10.1371/journal.pone.0219906](https://doi.org/10.1371/journal.pone.0219906)
+
+4. **Spiro, M. & Selwood, R.M. (1984)** — The kinetics and mechanism of caffeine infusion from coffee: The effect of particle size. *Journal of the Science of Food and Agriculture*, 35(8), 915–924. DOI: [10.1002/jsfa.2740350817](https://doi.org/10.1002/jsfa.2740350817)
+
+5. **Cameron, M.I. et al. (2020)** — Systematically Improving Espresso: Insights from Mathematical Modeling and Experiment. *Matter*, 2(3), 631–648. DOI: [10.1016/j.matt.2019.12.019](https://doi.org/10.1016/j.matt.2019.12.019)
+
+6. **Gagné, J. (2021)** — *The Physics of Filter Coffee*. Scott's Digital Alchemy. ISBN: 978-0578246086
+
+7. **Gagné, J. (2023)** — What I Learned from Analyzing 300 Particle Size Distributions for 24 Espresso Grinders. *Coffee ad Astra*. URL: https://coffeeadastra.com/2023/09/21/what-i-learned-from-analyzing-300-particle-size-distributions-for-24-espresso-grinders
+
+8. **Vaca Guerra, S. et al. (2023)** — Influence of particle size distribution on espresso extraction via packed bed compression. *Journal of Food Engineering*, 340, 111301. DOI: [10.1016/j.jfoodeng.2022.111301](https://doi.org/10.1016/j.jfoodeng.2022.111301)
+
+9. **Smrke, S. et al. (2024)** — The role of fines in espresso extraction dynamics. *Scientific Reports*, 14, Article 5765. DOI: [10.1038/s41598-024-55831-x](https://doi.org/10.1038/s41598-024-55831-x)
+
+10. **Castillo-Santos, K. et al. (2019)** — Mathematical model for coffee extraction based on the volume averaging theory. *Journal of Food Engineering*, 259, 1–8. DOI: [10.1016/j.jfoodeng.2019.05.025](https://doi.org/10.1016/j.jfoodeng.2019.05.025)
+
 ---
 
 ## Extended References
@@ -175,7 +264,7 @@ After the bloom phase (once all CO₂ has outgassed or a new pour begins), the i
 The Brewmulator physics engine uses a simplified extraction model. These assumptions should be understood when interpreting simulation results:
 
 ### Grind Size Model
-1. **Mean particle diameter**: Grind size represents a single average particle diameter in microns (μm). Real coffee grinding produces a distribution of particle sizes (fines, boulders, and target particles). This distribution is not modeled.
+1. **Mean particle diameter**: Grind size represents a single average particle diameter in microns (μm). Real coffee grinding produces a bimodal distribution of particle sizes. For V60 brewing, the simulator accounts for this via the Harmonic Mean Effective Grind Size model (see Bimodal PSD section above). For other methods, the distribution is not modeled.
 2. **Inverse-square relationship**: Extraction rate scales with `(600/grind)²`, where 600μm is the reference "medium" grind (comparable to table salt). This models the surface-area-to-volume ratio of idealized spherical particles.
 3. **No fines migration**: In real pour-over brewing, fine particles migrate downward and can clog the filter bed, dramatically slowing flow rate and increasing contact time. This effect is not modeled.
 4. **No bed compaction**: Real coffee beds compact under water weight, creating channeling (uneven flow paths). The model assumes uniform water contact with all particles.
