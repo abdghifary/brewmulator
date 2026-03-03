@@ -12,9 +12,9 @@ export const MAX_TEMP_OVERRIDE = 100 // °C, matches V60 tempRange upper bound
 
 // Bimodal PSD constants (Model B: Harmonic Mean Effective Grind Size)
 // Reference: Gagné 2023 — fines defined as <100μm via laser diffraction
-export const FINES_GRIND_SIZE = 100        // μm, fixed fines bin grind size
+export const FINES_GRIND_SIZE = 100 // μm, fixed fines bin grind size
 export const DEFAULT_FINES_FRACTION = 0.15 // typical mid-range grinder (Gagné 2023)
-export const MAX_FINES_FRACTION = 0.40     // upper bound — blade grinder territory
+export const MAX_FINES_FRACTION = 0.40 // upper bound — blade grinder territory
 
 export const v60Templates: V60RecipeTemplate[] = [
   {
