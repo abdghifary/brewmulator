@@ -7,6 +7,7 @@ export interface GrinderProfile {
   maxClick: number
   clickStep: number // 1 for most grinders, 0.5 for stepless like Niche Zero
   clickLabel: string // 'clicks' | 'setting' | 'μm'
+  defaultFinesFraction: number // typical fines (<100μm) mass fraction for this grinder (Gagné 2023)
 }
 
 export const RAW_MICRONS_ID = 'raw-microns'
@@ -20,7 +21,8 @@ export const grinderProfiles: GrinderProfile[] = [
     minClick: 50,
     maxClick: 1500,
     clickStep: 1,
-    clickLabel: 'μm'
+    clickLabel: 'μm',
+    defaultFinesFraction: 0.15
   },
   {
     id: 'comandante-c40',
@@ -30,7 +32,8 @@ export const grinderProfiles: GrinderProfile[] = [
     minClick: 1,
     maxClick: 50,
     clickStep: 1,
-    clickLabel: 'clicks'
+    clickLabel: 'clicks',
+    defaultFinesFraction: 0.11
   },
   {
     id: 'comandante-c40-red-clix',
@@ -40,7 +43,8 @@ export const grinderProfiles: GrinderProfile[] = [
     minClick: 1,
     maxClick: 100,
     clickStep: 1,
-    clickLabel: 'clicks'
+    clickLabel: 'clicks',
+    defaultFinesFraction: 0.11
   },
   {
     id: 'timemore-c2',
@@ -50,7 +54,8 @@ export const grinderProfiles: GrinderProfile[] = [
     minClick: 1,
     maxClick: 36,
     clickStep: 1,
-    clickLabel: 'clicks'
+    clickLabel: 'clicks',
+    defaultFinesFraction: 0.20
   },
   {
     id: '1zpresso-jx-pro',
@@ -60,7 +65,8 @@ export const grinderProfiles: GrinderProfile[] = [
     minClick: 1,
     maxClick: 120,
     clickStep: 1,
-    clickLabel: 'clicks'
+    clickLabel: 'clicks',
+    defaultFinesFraction: 0.19
   },
   {
     id: '1zpresso-k-ultra',
@@ -70,7 +76,8 @@ export const grinderProfiles: GrinderProfile[] = [
     minClick: 1,
     maxClick: 90,
     clickStep: 1,
-    clickLabel: 'clicks'
+    clickLabel: 'clicks',
+    defaultFinesFraction: 0.13
   },
   {
     id: 'baratza-encore',
@@ -80,7 +87,8 @@ export const grinderProfiles: GrinderProfile[] = [
     minClick: 1,
     maxClick: 40,
     clickStep: 1,
-    clickLabel: 'setting'
+    clickLabel: 'setting',
+    defaultFinesFraction: 0.19
   },
   {
     id: 'niche-zero',
@@ -90,7 +98,8 @@ export const grinderProfiles: GrinderProfile[] = [
     minClick: 0,
     maxClick: 50,
     clickStep: 0.5,
-    clickLabel: 'setting'
+    clickLabel: 'setting',
+    defaultFinesFraction: 0.17
   },
   {
     id: 'fellow-ode-gen2',
@@ -100,6 +109,7 @@ export const grinderProfiles: GrinderProfile[] = [
     minClick: 1,
     maxClick: 31,
     clickStep: 1,
-    clickLabel: 'setting'
+    clickLabel: 'setting',
+    defaultFinesFraction: 0.11
   }
 ]
