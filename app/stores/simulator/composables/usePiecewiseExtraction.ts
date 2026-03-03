@@ -1,5 +1,5 @@
 import type { PourSchedule, ExtractionPoint, WasmModule } from '../types'
-import { T_AMBIENT, H_COOL, K_DEGAS, BLOOM_INHIBITION } from '../constants'
+import { T_AMBIENT, H_COOL, K_DEGAS, BLOOM_INHIBITION, FINES_GRIND_SIZE } from '../constants'
 
 export interface PiecewiseCurveParams {
   pourSchedule: PourSchedule
@@ -11,6 +11,7 @@ export interface PiecewiseCurveParams {
   numPoints: number
   wasmModule: WasmModule
   globalTemp?: number
+  finesFraction?: number  // 0.0-0.40, fraction of mass that is fines (Model B: Harmonic Mean)
 }
 
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {
@@ -48,7 +49,12 @@ export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionP
     const lastPourTemp = lastPour.temperature ?? globalTemp
     const currentTemp = T_AMBIENT + (lastPourTemp - T_AMBIENT) * Math.exp(-H_COOL * (t - lastPour.startTime))
 
-    let k = wasmModule.calculateRateConstant(currentTemp, grindSize, roastLevel, method)
+    const phi = params.finesFraction ?? 0
+    const effectiveGrindSize = phi > 0
+      ? 1 / ((1 - phi) / grindSize + phi / FINES_GRIND_SIZE)
+      : grindSize
+
+    let k = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, method)
 
     if (bloomPour && t >= bloomPour.startTime && t < bloomEndTime) {
       const bloomDt = t - bloomPour.startTime
