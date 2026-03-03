@@ -65,6 +65,6 @@ export function useV60PourSchedule(recipe: Ref<BrewRecipe>) {
     removePourStep,
     updatePourStep,
     loadTemplate,
-    clearPourSchedule,
+    clearPourSchedule
   }
 }

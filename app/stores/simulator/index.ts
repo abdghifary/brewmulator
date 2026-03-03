@@ -146,6 +146,6 @@ export const useSimulatorStore = defineStore('simulator', () => {
     ...limits,
 
     // V60 pour schedule (composed)
-    ...v60Pour,
+    ...v60Pour
   }
 })
