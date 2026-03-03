@@ -11,7 +11,7 @@ export interface PiecewiseCurveParams {
   numPoints: number
   wasmModule: WasmModule
   globalTemp?: number
-  finesFraction?: number  // 0.0-0.40, fraction of mass that is fines (Model B: Harmonic Mean)
+  finesFraction?: number // 0.0-0.40, fraction of mass that is fines (Model B: Harmonic Mean)
 }
 
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {

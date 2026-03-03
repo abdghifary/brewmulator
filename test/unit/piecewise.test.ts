@@ -194,9 +194,9 @@ describe('Harmonic Mean Effective Grind Size (Model B)', () => {
         { startTime: 45, waterGrams: 60, temperature: 93 },
         { startTime: 90, waterGrams: 60, temperature: 93 },
         { startTime: 135, waterGrams: 60, temperature: 93 },
-        { startTime: 180, waterGrams: 60, temperature: 93 },
+        { startTime: 180, waterGrams: 60, temperature: 93 }
       ],
-      coffeeGrams: 20, maxTime: 210, numPoints: 101,
+      coffeeGrams: 20, maxTime: 210, numPoints: 101
     }))
     const finalEY = curve[curve.length - 1].yield
     expect(finalEY).toBeGreaterThanOrEqual(17)
