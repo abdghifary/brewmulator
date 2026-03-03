@@ -15,6 +15,7 @@ export interface BrewRecipe {
   coffeeGrams: number
   waterGrams: number
   pourSchedule?: PourSchedule
+  finesFraction?: number  // 0.0-0.40, fraction of coffee mass that is fines (bimodal PSD)
 }
 
 export interface BrewPreset {

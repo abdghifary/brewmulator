@@ -32,7 +32,7 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     sweetSpot: { min: 18, max: 22 },
     drainBuffer: 45,
     supportsPourSchedule: true,
-    supportsFineFraction: false,
+    supportsFineFraction: true,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false
   },
