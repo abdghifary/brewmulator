@@ -48,6 +48,9 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 | `useV60PourSchedule` | Composable | `app/stores/simulator/composables/useV60PourSchedule.ts` | V60 pour schedule state & actions |
 | `formatTimeCompact` | Function | `app/stores/simulator/utils.ts` | Chart axis time formatting |
 | `formatTimeFull` | Function | `app/stores/simulator/utils.ts` | Form label time formatting |
+| `clampFinesFraction` | Function | `app/stores/simulator/validation.ts` | Clamps finesFraction to 0–MAX_FINES_FRACTION range |
+| `FINES_GRIND_SIZE` | Constant | `app/stores/simulator/constants.ts` | Fixed fines bin size (100μm, Gagné 2023) |
+| `DEFAULT_FINES_FRACTION` | Constant | `app/stores/simulator/constants.ts` | Default fines fraction (0.15, mid-range grinder) |
 
 ## CONVENTIONS
 - **Nuxt 4**: Source files live in `app/`, not root.
