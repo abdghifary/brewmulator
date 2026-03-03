@@ -24,6 +24,22 @@
     </UFormField>
 
     <UFormField
+      v-if="getMethodConfig(store.recipe.method).supportsFineFraction"
+      :label="`Grinder Quality: ${grinderQualityLabel}`"
+    >
+      <USlider
+        :model-value="store.recipe.finesFraction ?? DEFAULT_FINES_FRACTION"
+        :min="0"
+        :max="MAX_FINES_FRACTION"
+        :step="0.01"
+        @update:model-value="store.recipe.finesFraction = Number($event)"
+      />
+      <p class="text-xs text-[var(--ui-text-dimmed)] mt-1">
+        Premium grinders produce fewer fines → lower extraction. Budget grinders produce more fines → higher extraction.
+      </p>
+    </UFormField>
+
+    <UFormField
       :label="isRawMode
         ? `Grind Size: ${store.recipe.grindSize}μm`
         : `Grind Size: ${store.recipe.grindSize}μm (${selectedGrinder.clickLabel} ${clicksForMicrons(store.recipe.grindSize)})`"
@@ -61,23 +77,6 @@
       </div>
     </UFormField>
 
-    <!-- Grinder Quality slider — V60 only (bimodal PSD Model B) -->
-    <UFormField
-      v-if="getMethodConfig(store.recipe.method).supportsFineFraction"
-      :label="`Grinder Quality: ${grinderQualityLabel}`"
-    >
-      <USlider
-        :model-value="store.recipe.finesFraction ?? DEFAULT_FINES_FRACTION"
-        :min="0"
-        :max="MAX_FINES_FRACTION"
-        :step="0.01"
-        @update:model-value="store.recipe.finesFraction = Number($event)"
-      />
-      <p class="text-xs text-[var(--ui-text-dimmed)] mt-1">
-        Premium grinders produce fewer fines → lower extraction. Budget grinders produce more fines → higher extraction.
-      </p>
-    </UFormField>
-
     <UFormField
       v-if="store.recipe.method !== 'v60'"
       :label="'Brew Time: ' + formatTimeFull(store.recipe.brewTime, store.recipe.method)"
@@ -108,8 +107,12 @@ watch(selectedGrinderId, () => {
   // Snap current grindSize to nearest valid click for the new grinder
   const clicks = clicksForMicrons(store.recipe.grindSize)
   const snapped = micronsForClicks(clicks)
-  // Only update if snapped value differs and is within method bounds
   store.recipe.grindSize = Math.max(store.grindMin, Math.min(store.grindMax, snapped))
+
+  // Set grinder quality (finesFraction) to this grinder's default
+  if (getMethodConfig(store.recipe.method).supportsFineFraction) {
+    store.recipe.finesFraction = selectedGrinder.value.defaultFinesFraction
+  }
 })
 
 let grindInputTimeout: ReturnType<typeof setTimeout> | null = null
