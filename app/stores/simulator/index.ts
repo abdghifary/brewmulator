@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import type { BrewMethod, BrewRecipe, ExtractionPoint, WasmModule } from './types'
-import { presetDefaults, methodToNumber, roastToNumber } from './constants'
+import { presetDefaults, methodToNumber, roastToNumber, DEFAULT_FINES_FRACTION } from './constants'
+import { clampFinesFraction } from './validation'
+import { getMethodConfig } from './methodConfig'
 import { useBrewMath } from './composables/useBrewMath'
 import { useBrewLimits } from './composables/useBrewLimits'
 import { useV60PourSchedule } from './composables/useV60PourSchedule'
@@ -25,7 +27,8 @@ export const useSimulatorStore = defineStore('simulator', () => {
     roastLevel: 'medium',
     brewTime: 180,
     coffeeGrams: 18,
-    waterGrams: 288
+    waterGrams: 288,
+    finesFraction: undefined
   })
 
   const extractionCurve = ref<ExtractionPoint[]>([])
@@ -53,7 +56,8 @@ export const useSimulatorStore = defineStore('simulator', () => {
         maxTime: recipe.value.brewTime,
         numPoints: 101,
         wasmModule: wasmModule.value,
-        globalTemp: recipe.value.temperature
+        globalTemp: recipe.value.temperature,
+        finesFraction: getMethodConfig(recipe.value.method).supportsFineFraction ? clampFinesFraction(recipe.value.finesFraction ?? DEFAULT_FINES_FRACTION) : undefined
       })
       return
     }
@@ -117,7 +121,8 @@ export const useSimulatorStore = defineStore('simulator', () => {
       roastLevel: preset.roastLevel,
       brewTime: preset.brewTime,
       coffeeGrams: preset.coffeeGrams,
-      waterGrams: preset.waterGrams
+      waterGrams: preset.waterGrams,
+      finesFraction: newMethod === 'v60' ? recipe.value.finesFraction : undefined
     }
     // Compute immediately on preset change
     computeCurve()
