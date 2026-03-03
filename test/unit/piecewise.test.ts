@@ -160,7 +160,7 @@ describe('Piecewise Extraction Engine', () => {
   })
 })
 
-describe('Effective Grind Size (Model C: φₑ Compressed Harmonic Mean)', () => {
+describe('Effective Grind Size (Sauter Mean d₃₂)', () => {
   it('φ=0 returns grindSize unchanged', () => {
     expect(computeEffectiveGrindSize(850, 0)).toBe(850)
     expect(computeEffectiveGrindSize(500, 0)).toBe(500)
@@ -175,12 +175,11 @@ describe('Effective Grind Size (Model C: φₑ Compressed Harmonic Mean)', () =>
     expect(dEff).toBeCloseTo(400, 0)
   })
 
-  it('φ=0.20 (Timemore C2) gives d_eff > 340μm — compression reduces fines impact', () => {
-    const dEffCompressed = computeEffectiveGrindSize(850, 0.20)
-    const dEffRawHarmonic = 1 / ((1 - 0.20) / 850 + 0.20 / 100)
-    expect(dEffRawHarmonic).toBeCloseTo(340, 0)
-    expect(dEffCompressed).toBeGreaterThan(dEffRawHarmonic)
-    expect(dEffCompressed).toBeCloseTo(385, 0)
+  it('φ=0.20 (Timemore C2) gives d_eff = d₃₂ = 340μm at 850μm', () => {
+    const dEff = computeEffectiveGrindSize(850, 0.20)
+    const d32 = 1 / ((1 - 0.20) / 850 + 0.20 / 100)
+    expect(d32).toBeCloseTo(340, 0)
+    expect(dEff).toBeCloseTo(d32, 8)
   })
 
   it('φ=0.40 (blade grinder) still produces elevated extraction effect', () => {
@@ -197,19 +196,11 @@ describe('Effective Grind Size (Model C: φₑ Compressed Harmonic Mean)', () =>
     }
   })
 
-  it('below PHI_REF, formula matches raw harmonic mean exactly', () => {
-    for (const phi of [0.05, 0.10, 0.15]) {
+  it('d_eff equals harmonic mean (d₃₂) for all φ values', () => {
+    for (const phi of [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40]) {
       const dEff = computeEffectiveGrindSize(850, phi)
-      const rawHarmonic = 1 / ((1 - phi) / 850 + phi / 100)
-      expect(dEff).toBeCloseTo(rawHarmonic, 8)
-    }
-  })
-
-  it('above PHI_REF, d_eff is larger than raw harmonic (compression effect)', () => {
-    for (const phi of [0.20, 0.25, 0.30, 0.35, 0.40]) {
-      const dEff = computeEffectiveGrindSize(850, phi)
-      const rawHarmonic = 1 / ((1 - phi) / 850 + phi / 100)
-      expect(dEff).toBeGreaterThan(rawHarmonic)
+      const d32 = 1 / ((1 - phi) / 850 + phi / 100)
+      expect(dEff).toBeCloseTo(d32, 8)
     }
   })
 
@@ -250,7 +241,7 @@ describe('Effective Grind Size (Model C: φₑ Compressed Harmonic Mean)', () =>
     expect(finalEY).toBeLessThanOrEqual(21)
   })
 
-  it('Timemore C2 (φ=0.20) at 850μm produces sweet spot EY (18-22%)', () => {
+  it('Timemore C2 (φ=0.20) at 850μm produces elevated EY (20-25%)', () => {
     const curve = computePiecewiseCurve(makeParams({
       grindSize: 850,
       finesFraction: 0.20,
@@ -264,7 +255,7 @@ describe('Effective Grind Size (Model C: φₑ Compressed Harmonic Mean)', () =>
       coffeeGrams: 20, maxTime: 210, numPoints: 101
     }))
     const finalEY = curve[curve.length - 1].yield
-    expect(finalEY).toBeGreaterThanOrEqual(18)
-    expect(finalEY).toBeLessThanOrEqual(22)
+    expect(finalEY).toBeGreaterThanOrEqual(20)
+    expect(finalEY).toBeLessThanOrEqual(25)
   })
 })

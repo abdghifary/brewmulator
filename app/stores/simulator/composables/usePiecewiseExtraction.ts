@@ -1,7 +1,7 @@
 import type { PourSchedule, ExtractionPoint, WasmModule } from '../types'
 import {
   T_AMBIENT, H_COOL, K_DEGAS, BLOOM_INHIBITION,
-  FINES_GRIND_SIZE, PHI_REF, PHI_HI, BETA_0, BETA_1, N_COMPRESS
+  FINES_GRIND_SIZE
 } from '../constants'
 
 export interface PiecewiseCurveParams {
@@ -14,29 +14,32 @@ export interface PiecewiseCurveParams {
   numPoints: number
   wasmModule: WasmModule
   globalTemp?: number
-  finesFraction?: number // 0.0-0.40, fraction of mass that is fines (Model C: φₑ Compressed Harmonic Mean)
+  finesFraction?: number // 0.0-0.40, fraction of mass that is fines
 }
 
 /**
- * Compute effective grind size from bimodal PSD using φₑ compression.
+ * Compute effective grind size from bimodal PSD using the Sauter mean diameter d₃₂.
  *
- * Below PHI_REF (0.15), the raw harmonic mean is used — no compression.
- * Above PHI_REF, φ is compressed via a saturation curve before the harmonic
- * mean, modeling fines shielding/clogging/exhaustion in a percolation bed.
+ * d₃₂ is the surface-volume mean: the mono-disperse diameter with the same
+ * total surface-area-to-volume ratio as the bimodal mixture. When rate scales
+ * with surface area per unit volume (∝ 1/d²), d₃₂ is the correct single-size
+ * surrogate for a polydisperse bed.
  *
- * Invariant: φ=0.15 @ 850μm → d_eff=400μm (calibration preserved exactly).
+ * For a two-bin mixture (coarse mass fraction X₁, fines mass fraction φ):
+ *   d₃₂ = 1 / (φ/d_f + (1-φ)/d_c)
+ *
+ * References:
+ *   Moroney et al. (2015) DOI: 10.1016/j.ces.2015.06.003 — Sauter mean for coffee PSD
+ *   Moroney et al. (2016) DOI: 10.1186/s13362-016-0024-6 — d₃₂ in extraction kinetics
  */
-export function computeEffectiveGrindSize(grindSize: number, phi: number): number {
+export function computeEffectiveGrindSize(
+  grindSize: number,
+  phi: number
+): number {
   if (phi <= 0) return grindSize
 
-  let phiE = phi
-  if (phi > PHI_REF) {
-    const x = Math.min(1, (phi - PHI_REF) / (PHI_HI - PHI_REF))
-    const beta = BETA_0 + (BETA_1 - BETA_0) * Math.pow(x, N_COMPRESS)
-    phiE = PHI_REF + beta * (phi - PHI_REF)
-  }
-
-  return 1 / ((1 - phiE) / grindSize + phiE / FINES_GRIND_SIZE)
+  // Sauter mean diameter d₃₂ (Moroney 2015)
+  return 1 / (phi / FINES_GRIND_SIZE + (1 - phi) / grindSize)
 }
 
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {

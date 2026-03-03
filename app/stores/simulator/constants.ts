@@ -10,21 +10,11 @@ export const MIN_POUR_START_TIME = 0 // minimum start time (seconds)
 export const MIN_TEMP_OVERRIDE = 80 // °C, matches V60 tempRange lower bound
 export const MAX_TEMP_OVERRIDE = 100 // °C, matches V60 tempRange upper bound
 
-// Bimodal PSD constants (Model C: φₑ Compressed Harmonic Mean)
+// Bimodal PSD constants — Sauter mean diameter d₃₂ model (Moroney 2015)
 // Reference: Gagné 2023 — fines defined as <100μm via laser diffraction
 export const FINES_GRIND_SIZE = 100 // μm, fixed fines bin grind size
 export const DEFAULT_FINES_FRACTION = 0.15 // typical mid-range grinder (Gagné 2023)
 export const MAX_FINES_FRACTION = 0.40 // upper bound — blade grinder territory
-
-// φₑ compression parameters — models fines shielding/clogging/exhaustion in percolation bed
-// Below PHI_REF, φₑ = φ (no compression). Above PHI_REF, a saturation curve compresses φ
-// so the harmonic mean doesn't over-weight fines at high φ.
-// Calibration: φ=0.15 @ 850μm → d_eff=400μm → EY≈20.63% (Sweet Spot) — preserved exactly.
-export const PHI_REF = 0.15 // reference fines fraction (no compression below this)
-export const PHI_HI = 0.40 // upper fines fraction (blade grinder)
-export const BETA_0 = 0.20 // compression strength at φ=PHI_REF (onset)
-export const BETA_1 = 0.60 // compression strength at φ=PHI_HI (ceiling)
-export const N_COMPRESS = 2 // compression curve exponent (quadratic rolloff)
 
 export const v60Templates: V60RecipeTemplate[] = [
   {

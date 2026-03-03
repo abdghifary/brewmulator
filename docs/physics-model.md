@@ -150,78 +150,47 @@ The effective rate constant during bloom is $k_{eff} = k \cdot f_{CO_2}(t)$.
 
 After the bloom phase (once all CO₂ has outgassed or a new pour begins), the inhibition disappears and $f_{CO_2} = 1$.
 
-## Bimodal Particle Size Distribution (Model C: φₑ Compressed Harmonic Mean)
+## Bimodal Particle Size Distribution (Sauter Mean d₃₂)
 
 Real coffee grinding produces a bimodal distribution of particle sizes: small "fines" (<100μm)
 and larger "boulders" (the target grind setting). The simulator computes an **effective grind
-size** via harmonic mean, with a **φₑ compression** applied above the reference fines fraction
-to prevent the harmonic mean from over-weighting fines at high φ.
+size** using the **Sauter mean diameter** $d_{32}$, the standard surface-volume mean from
+particle science.
 
-### Effective Fines Fraction (φₑ)
+### Why d₃₂?
 
-The raw harmonic mean is highly sensitive to fines — at φ=0.20 (Timemore C2), an 850μm grind
-collapses to d_eff≈340μm, making it impossible to brew in the sweet spot. This contradicts
-real-world experience where mid-range grinders produce perfectly acceptable V60 coffee.
+The extraction rate in our model scales with surface area per unit volume ($\propto 1/d^2$).
+The Sauter mean $d_{32}$ is defined as the diameter of a mono-disperse bed with the **same
+total surface-area-to-volume ratio** as the polydisperse mixture — making it the
+mathematically correct single-size surrogate for surface-area-driven kinetics.
 
-Physically, not all fines contribute equally to extraction in a percolation bed:
-- Fines migrate and cluster, reducing their effective surface area
-- Fine particles shield each other from water flow (bed clogging)
-- Fines near the filter exhaust quickly, becoming inert
-
-To model this, we compress φ above a reference point before applying the harmonic mean:
-
-$$\varphi_e = \begin{cases} \varphi & \text{if } \varphi \leq \varphi_{ref} \\ \varphi_{ref} + \beta(\varphi) \cdot (\varphi - \varphi_{ref}) & \text{if } \varphi > \varphi_{ref} \end{cases}$$
-
-where the compression factor β increases with φ:
-
-$$\beta(\varphi) = \beta_0 + (\beta_1 - \beta_0) \cdot \left(\frac{\varphi - \varphi_{ref}}{\varphi_{hi} - \varphi_{ref}}\right)^n$$
+Moroney et al. (2015) use $d_{32}$ explicitly as the characteristic particle diameter in their
+coffee extraction model derived from Nernst-Brunner diffusion theory.
 
 ### Effective Grind Size
 
-The compressed φₑ is then used in the standard harmonic mean:
+For a two-bin bimodal mixture (coarse mass fraction $1-\varphi$, fines mass fraction $\varphi$):
 
-$$d_{eff} = \frac{1}{\frac{1 - \varphi_e}{d_{boulders}} + \frac{\varphi_e}{d_{fines}}}$$
+$$d_{eff} = d_{32} = \left(\frac{\varphi}{d_{fines}} + \frac{1-\varphi}{d_{boulders}}\right)^{-1}$$
 
 where:
 - $d_{boulders}$ is the user's grind size setting (μm)
 - $d_{fines}$ = 100μm (fixed constant, per Gagné 2023 laser diffraction data)
+- $\varphi$ is the fines mass fraction (0.0–0.40)
 
-### Parameters
-
-| Parameter | Symbol | Value | Description |
-|-----------|--------|-------|-------------|
-| Reference fines fraction | $\varphi_{ref}$ | 0.15 | No compression below this |
-| Upper fines fraction | $\varphi_{hi}$ | 0.40 | Blade grinder ceiling |
-| Onset compression | $\beta_0$ | 0.20 | Compression strength at $\varphi_{ref}$ |
-| Ceiling compression | $\beta_1$ | 0.60 | Compression strength at $\varphi_{hi}$ |
-| Curve exponent | $n$ | 2 | Quadratic rolloff |
+When $\varphi = 0$, $d_{eff} = d_{boulders}$ — behavior is identical to the pre-bimodal model.
 
 ### Calibration
 
-The model is calibrated so that the reference point is preserved exactly:
-- φ=0.15 @ 850μm → φₑ=0.15 → d_eff=400μm → EY≈20.63% (Sweet Spot)
-
-At higher fines fractions, the compression reduces the fines impact:
-
-| Grinder | φ | φₑ | d_eff (850μm) | Effect |
-|---------|---|-----|---------------|--------|
-| No fines | 0 | 0 | 850μm | Baseline |
-| Niche Zero | 0.08 | 0.08 | 547μm | Mild increase |
-| Comandante C40 | 0.11 | 0.11 | 474μm | Moderate increase |
-| Default (reference) | 0.15 | 0.15 | 400μm | Calibration point |
-| Timemore C2 | 0.20 | 0.161 | 385μm | Compressed — realistic |
-| Baratza Encore | 0.22 | 0.166 | 377μm | Compressed |
-| Blade grinder | 0.40 | 0.210 | 313μm | Heavily compressed |
-
-### Why φₑ Compression Over Raw Harmonic Mean
-
-The raw harmonic mean (Model B) was too sensitive at high fines fractions:
-- Timemore C2 (φ=0.20) at 850μm → d_eff=340μm → EY≈22.95% (Over-extracted)
-- Even at max grind (1000μm) → d_eff=357μm → EY≈22.32% (Still over-extracted)
-- This made it impossible for mid-range grinders to brew in the sweet spot
-
-The φₑ compression (Model C) fixes this by modeling the diminishing returns of fines in a
-percolation bed, supported by Moroney et al. (2019) bed clogging observations.
+| Grinder | φ | d_eff (850μm) | Effect on EY |
+|---------|---|---------------|--------------|
+| No fines | 0 | 850μm | Baseline |
+| Niche Zero | 0.08 | 547μm | Mild increase |
+| Comandante C40 | 0.11 | 474μm | Moderate increase |
+| Default (reference) | 0.15 | 400μm | Calibration point (~20% EY) |
+| Timemore C2 | 0.20 | 340μm | Strong increase (~23% EY) |
+| Baratza Encore | 0.22 | 315μm | Strong increase |
+| Blade grinder | 0.40 | 213μm | Very aggressive extraction |
 
 ### Grinder Quality Effect
 
@@ -232,7 +201,7 @@ The fines fraction is controlled by grinder quality:
 | Premium flat burr (e.g., Niche Zero) | 5–10% | Gagné 2023 |
 | Premium conical burr (e.g., Comandante C40) | 10–15% | Gagné 2023 |
 | Mid-range conical (e.g., Timemore C2) | 15–20% | Gagné 2023 |
-| Entry-level electric (e.g., Baratza Encore) | 18–25% | Smrke et al. 2024 |
+| Entry-level electric (e.g., Baratza Encore) | 18–25% | Kaffeemacher 2023 |
 | Blade grinder | 30–40% | Gagné 2023 |
 
 In the simulator, users control this via the "Grinder Quality" slider (V60 only), which maps
@@ -253,15 +222,7 @@ The effective grind size is computed by `computeEffectiveGrindSize()` in
 ```typescript
 export function computeEffectiveGrindSize(grindSize: number, phi: number): number {
   if (phi <= 0) return grindSize
-
-  let phiE = phi
-  if (phi > PHI_REF) {
-    const x = Math.min(1, (phi - PHI_REF) / (PHI_HI - PHI_REF))
-    const beta = BETA_0 + (BETA_1 - BETA_0) * Math.pow(x, N_COMPRESS)
-    phiE = PHI_REF + beta * (phi - PHI_REF)
-  }
-
-  return 1 / ((1 - phiE) / grindSize + phiE / FINES_GRIND_SIZE)
+  return 1 / (phi / FINES_GRIND_SIZE + (1 - phi) / grindSize)
 }
 ```
 
@@ -286,9 +247,9 @@ pre-bimodal model. No WASM changes are required.
 
 8. **Vaca Guerra, S. et al. (2023)** — Influence of particle size distribution on espresso extraction via packed bed compression. *Journal of Food Engineering*, 340, 111301. DOI: [10.1016/j.jfoodeng.2022.111301](https://doi.org/10.1016/j.jfoodeng.2022.111301)
 
-9. **Smrke, S. et al. (2024)** — The role of fines in espresso extraction dynamics. *Scientific Reports*, 14, Article 5765. DOI: [10.1038/s41598-024-55831-x](https://doi.org/10.1038/s41598-024-55831-x)
+9. **Smrke, S. et al. (2024)** — The role of fines in espresso extraction dynamics. *Scientific Reports*, 14, Article 5612. DOI: [10.1038/s41598-024-55831-x](https://doi.org/10.1038/s41598-024-55831-x)
 
-10. **Castillo-Santos, K. et al. (2019)** — Mathematical model for coffee extraction based on the volume averaging theory. *Journal of Food Engineering*, 259, 1–8. DOI: [10.1016/j.jfoodeng.2019.05.025](https://doi.org/10.1016/j.jfoodeng.2019.05.025)
+10. **Sano, Y. et al. (2019)** — Mathematical model for coffee extraction based on the volume averaging theory. *Journal of Food Engineering*, 263, 1–8. DOI: [10.1016/j.jfoodeng.2019.05.025](https://doi.org/10.1016/j.jfoodeng.2019.05.025)
 
 ---
 
@@ -315,7 +276,7 @@ pre-bimodal model. No WASM changes are required.
 The Brewmulator physics engine uses a simplified extraction model. These assumptions should be understood when interpreting simulation results:
 
 ### Grind Size Model
-1. **Mean particle diameter**: Grind size represents a single average particle diameter in microns (μm). Real coffee grinding produces a bimodal distribution of particle sizes. For V60 brewing, the simulator accounts for this via the φₑ Compressed Harmonic Mean model (see Bimodal PSD section above). For other methods, the distribution is not modeled.
+1. **Mean particle diameter**: Grind size represents a single average particle diameter in microns (μm). Real coffee grinding produces a bimodal distribution of particle sizes. For V60 brewing, the simulator accounts for this via the Sauter Mean d₃₂ model (see Bimodal PSD section above). For other methods, the distribution is not modeled.
 2. **Inverse-square relationship**: Extraction rate scales with `(600/grind)²`, where 600μm is the reference "medium" grind (comparable to table salt). This models the surface-area-to-volume ratio of idealized spherical particles.
 3. **No fines migration**: In real pour-over brewing, fine particles migrate downward and can clog the filter bed, dramatically slowing flow rate and increasing contact time. This effect is not modeled.
 4. **No bed compaction**: Real coffee beds compact under water weight, creating channeling (uneven flow paths). The model assumes uniform water contact with all particles.
