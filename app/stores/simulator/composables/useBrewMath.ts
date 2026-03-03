@@ -57,9 +57,9 @@ export function useBrewMath(
   const extractionZone = computed(() => {
     const config = getMethodConfig(recipe.value.method)
     const ey = extractionYield.value
-    if (ey < config.sweetSpot.min) return 0  // under-extracted
-    if (ey <= config.sweetSpot.max) return 1  // sweet spot
-    return 2  // over-extracted
+    if (ey < config.sweetSpot.min) return 0 // under-extracted
+    if (ey <= config.sweetSpot.max) return 1 // sweet spot
+    return 2 // over-extracted
   })
 
   return {

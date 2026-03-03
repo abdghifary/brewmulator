@@ -12,7 +12,7 @@ function makeRecipe(overrides: Partial<BrewRecipe> = {}): BrewRecipe {
     brewTime: 180,
     coffeeGrams: 18,
     waterGrams: 288,
-    ...overrides,
+    ...overrides
   }
 }
 

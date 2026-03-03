@@ -5,12 +5,12 @@ export interface MethodConfig {
   id: BrewMethod
   label: string
   defaults: BrewPreset
-  grindBounds: { min: number; max: number; step: number }
-  coffeeRange: { min: number; max: number }
-  waterRange: { min: number; max: number }
+  grindBounds: { min: number, max: number, step: number }
+  coffeeRange: { min: number, max: number }
+  waterRange: { min: number, max: number }
   absorptionRate: number
   brewTimeStep: number
-  sweetSpot: { min: number; max: number }
+  sweetSpot: { min: number, max: number }
   drainBuffer: number
   supportsPourSchedule: boolean
   // Extension points for future plans (safe defaults)
@@ -34,7 +34,7 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsPourSchedule: true,
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
-    supportsDripperGeometry: false,
+    supportsDripperGeometry: false
   },
   frenchPress: {
     id: 'frenchPress',
@@ -50,7 +50,7 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsPourSchedule: false,
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
-    supportsDripperGeometry: false,
+    supportsDripperGeometry: false
   },
   espresso: {
     id: 'espresso',
@@ -66,7 +66,7 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsPourSchedule: false,
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
-    supportsDripperGeometry: false,
+    supportsDripperGeometry: false
   },
   aeropress: {
     id: 'aeropress',
@@ -82,7 +82,7 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsPourSchedule: false,
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
-    supportsDripperGeometry: false,
+    supportsDripperGeometry: false
   },
   coldBrew: {
     id: 'coldBrew',
@@ -98,8 +98,8 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsPourSchedule: false,
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
-    supportsDripperGeometry: false,
-  },
+    supportsDripperGeometry: false
+  }
 }
 
 export function getMethodConfig(method: BrewMethod): MethodConfig {
