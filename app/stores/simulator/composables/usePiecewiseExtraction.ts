@@ -1,5 +1,8 @@
 import type { PourSchedule, ExtractionPoint, WasmModule } from '../types'
-import { T_AMBIENT, H_COOL, K_DEGAS, BLOOM_INHIBITION, FINES_GRIND_SIZE } from '../constants'
+import {
+  T_AMBIENT, H_COOL, K_DEGAS, BLOOM_INHIBITION,
+  FINES_GRIND_SIZE, PHI_REF, PHI_HI, BETA_0, BETA_1, N_COMPRESS
+} from '../constants'
 
 export interface PiecewiseCurveParams {
   pourSchedule: PourSchedule
@@ -11,7 +14,29 @@ export interface PiecewiseCurveParams {
   numPoints: number
   wasmModule: WasmModule
   globalTemp?: number
-  finesFraction?: number // 0.0-0.40, fraction of mass that is fines (Model B: Harmonic Mean)
+  finesFraction?: number // 0.0-0.40, fraction of mass that is fines (Model C: φₑ Compressed Harmonic Mean)
+}
+
+/**
+ * Compute effective grind size from bimodal PSD using φₑ compression.
+ *
+ * Below PHI_REF (0.15), the raw harmonic mean is used — no compression.
+ * Above PHI_REF, φ is compressed via a saturation curve before the harmonic
+ * mean, modeling fines shielding/clogging/exhaustion in a percolation bed.
+ *
+ * Invariant: φ=0.15 @ 850μm → d_eff=400μm (calibration preserved exactly).
+ */
+export function computeEffectiveGrindSize(grindSize: number, phi: number): number {
+  if (phi <= 0) return grindSize
+
+  let phiE = phi
+  if (phi > PHI_REF) {
+    const x = Math.min(1, (phi - PHI_REF) / (PHI_HI - PHI_REF))
+    const beta = BETA_0 + (BETA_1 - BETA_0) * Math.pow(x, N_COMPRESS)
+    phiE = PHI_REF + beta * (phi - PHI_REF)
+  }
+
+  return 1 / ((1 - phiE) / grindSize + phiE / FINES_GRIND_SIZE)
 }
 
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {
@@ -49,10 +74,7 @@ export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionP
     const lastPourTemp = lastPour.temperature ?? globalTemp
     const currentTemp = T_AMBIENT + (lastPourTemp - T_AMBIENT) * Math.exp(-H_COOL * (t - lastPour.startTime))
 
-    const phi = params.finesFraction ?? 0
-    const effectiveGrindSize = phi > 0
-      ? 1 / ((1 - phi) / grindSize + phi / FINES_GRIND_SIZE)
-      : grindSize
+    const effectiveGrindSize = computeEffectiveGrindSize(grindSize, params.finesFraction ?? 0)
 
     let k = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, method)
 
