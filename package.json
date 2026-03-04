@@ -1,7 +1,7 @@
 {
   "name": "brewmulator",
-  "private": true,
   "type": "module",
+  "license": "MIT",
   "scripts": {
     "dev": "nuxt dev",
     "build": "pnpm run asbuild:release && nuxt build",
