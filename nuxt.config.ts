@@ -6,6 +6,7 @@ import topLevelAwait from 'vite-plugin-top-level-await'
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
+    '@nuxt/fonts',
     '@nuxt/ui',
     '@pinia/nuxt',
     '@nuxt/test-utils',
