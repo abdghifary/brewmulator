@@ -1,7 +1,10 @@
 <template>
   <div class="extraction-results">
     <div class="grid grid-cols-2 gap-4">
-      <UCard variant="outline">
+      <UCard
+        variant="outline"
+        class="transition-shadow duration-200 hover:shadow-md"
+      >
         <div class="text-sm text-[var(--ui-text-muted)]">
           Extraction Yield
         </div>
@@ -10,7 +13,10 @@
         </div>
       </UCard>
 
-      <UCard variant="outline">
+      <UCard
+        variant="outline"
+        class="transition-shadow duration-200 hover:shadow-md"
+      >
         <div class="text-sm text-[var(--ui-text-muted)]">
           TDS
         </div>
@@ -19,7 +25,10 @@
         </div>
       </UCard>
 
-      <UCard variant="outline">
+      <UCard
+        variant="outline"
+        class="transition-shadow duration-200 hover:shadow-md"
+      >
         <div class="text-sm text-[var(--ui-text-muted)]">
           Beverage Weight
         </div>
@@ -28,7 +37,10 @@
         </div>
       </UCard>
 
-      <UCard variant="outline">
+      <UCard
+        variant="outline"
+        class="transition-shadow duration-200 hover:shadow-md"
+      >
         <div class="text-sm text-[var(--ui-text-muted)]">
           Zone
         </div>
