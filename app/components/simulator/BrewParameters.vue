@@ -2,8 +2,10 @@
   <div class="brew-parameters space-y-4">
     <UFormField
       v-if="store.recipe.method !== 'v60'"
-      :label="'Temperature: ' + store.recipe.temperature + '°C'"
     >
+      <template #label>
+        <span>Temperature: <span class="font-mono">{{ store.recipe.temperature }}°C</span></span>
+      </template>
       <USlider
         v-model="store.recipe.temperature"
         :min="currentPreset.tempRange[0]"
@@ -25,8 +27,10 @@
 
     <UFormField
       v-if="getMethodConfig(store.recipe.method).supportsFineFraction"
-      :label="`Grinder Quality: ${grinderQualityLabel}`"
     >
+      <template #label>
+        <span>Grinder Quality: <span class="font-mono">{{ grinderQualityLabel }}</span></span>
+      </template>
       <USlider
         :model-value="store.recipe.finesFraction ?? DEFAULT_FINES_FRACTION"
         :min="0"
@@ -39,11 +43,11 @@
       </p>
     </UFormField>
 
-    <UFormField
-      :label="isRawMode
-        ? `Grind Size: ${store.recipe.grindSize}μm`
-        : `Grind Size: ${store.recipe.grindSize}μm (${selectedGrinder.clickLabel} ${clicksForMicrons(store.recipe.grindSize)})`"
-    >
+    <UFormField>
+      <template #label>
+        <span v-if="isRawMode">Grind Size: <span class="font-mono">{{ store.recipe.grindSize }}μm</span></span>
+        <span v-else>Grind Size: <span class="font-mono">{{ store.recipe.grindSize }}μm ({{ selectedGrinder.clickLabel }} {{ clicksForMicrons(store.recipe.grindSize) }})</span></span>
+      </template>
       <div class="flex items-center gap-3">
         <USlider
           v-model="store.recipe.grindSize"
@@ -56,7 +60,7 @@
           type="number"
           :min="store.grindMin"
           :max="store.grindMax"
-          class="w-20"
+          class="w-20 font-mono"
           :model-value="store.recipe.grindSize"
           @update:model-value="onGrindInput"
         />
@@ -79,8 +83,10 @@
 
     <UFormField
       v-if="store.recipe.method !== 'v60'"
-      :label="'Brew Time: ' + formatTimeFull(store.recipe.brewTime, store.recipe.method)"
     >
+      <template #label>
+        <span>Brew Time: <span class="font-mono">{{ formatTimeFull(store.recipe.brewTime, store.recipe.method) }}</span></span>
+      </template>
       <USlider
         v-model="store.recipe.brewTime"
         :min="0"
