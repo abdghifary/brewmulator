@@ -1,74 +1,78 @@
 <template>
-  <div class="simulator-page min-h-screen p-4 md:p-8">
-    <div class="max-w-7xl mx-auto space-y-8">
-      <div class="text-center">
-        <h1 class="text-4xl font-bold">
-          Coffee Extraction Simulator
-        </h1>
-        <p class="text-gray-500 mt-2">
-          Visualize extraction kinetics in real-time using physics-based
-          modeling
-        </p>
-      </div>
+  <NuxtLayout name="dashboard">
+    <!-- Navbar: PresetSelector + color mode toggle -->
+    <template #navbar>
+      <UDashboardNavbar>
+        <template #left>
+          <SimulatorPresetSelector />
+        </template>
+        <template #right>
+          <UColorModeButton />
+        </template>
+      </UDashboardNavbar>
+    </template>
 
-      <SimulatorPresetSelector />
+    <!-- Sidebar: Parameter controls -->
+    <template #sidebar>
+      <div class="p-4 space-y-6">
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-[var(--ui-text-muted)] mb-3">
+            Brew Parameters
+          </h3>
+          <SimulatorBrewParameters />
+        </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="space-y-6">
-          <UCard>
-            <template #header>
-              <h2 class="text-xl font-semibold">
-                Brew Parameters
-              </h2>
-            </template>
-            <SimulatorBrewParameters />
-          </UCard>
+        <USeparator />
 
-          <UCard v-if="store.recipe.method === 'v60'">
-            <template #header>
-              <h2 class="text-xl font-semibold">
-                Pour Schedule
-              </h2>
-            </template>
+        <Transition
+          enter-active-class="transition-all duration-300 ease-out"
+          enter-from-class="opacity-0 -translate-y-2"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition-all duration-200 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 -translate-y-2"
+        >
+          <div v-if="store.recipe.method === 'v60'">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-[var(--ui-text-muted)] mb-3">
+              Pour Schedule
+            </h3>
             <SimulatorPourSchedule />
-          </UCard>
+          </div>
+        </Transition>
 
-          <UCard>
-            <template #header>
-              <h2 class="text-xl font-semibold">
-                Dose Parameters
-              </h2>
-            </template>
-            <SimulatorDoseParameters />
-          </UCard>
-        </div>
+        <USeparator v-if="store.recipe.method === 'v60'" />
 
-        <div class="space-y-6">
-          <UCard>
-            <template #header>
-              <h2 class="text-xl font-semibold">
-                Extraction Curve
-              </h2>
-            </template>
-            <SimulatorExtractionChart />
-          </UCard>
-
-          <UCard>
-            <template #header>
-              <h2 class="text-xl font-semibold">
-                Results
-              </h2>
-            </template>
-            <SimulatorExtractionResults />
-          </UCard>
+        <div>
+          <h3 class="text-xs font-semibold uppercase tracking-wider text-[var(--ui-text-muted)] mb-3">
+            Dose Parameters
+          </h3>
+          <SimulatorDoseParameters />
         </div>
       </div>
+    </template>
+
+    <!-- Default slot: Main content (Chart + Results) -->
+    <div class="p-6 space-y-6">
+      <UCard variant="outline">
+        <template #header>
+          <h2 class="text-lg font-semibold">
+            Extraction Curve
+          </h2>
+        </template>
+        <SimulatorExtractionChart />
+      </UCard>
+
+      <SimulatorExtractionResults />
     </div>
-  </div>
+  </NuxtLayout>
 </template>
 
 <script setup lang="ts">
 import { useSimulatorStore } from '~/stores/simulator'
+
+definePageMeta({
+  layout: false
+})
 
 useSeoMeta({
   title: 'Coffee Extraction Simulator',
