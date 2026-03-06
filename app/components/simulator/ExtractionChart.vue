@@ -2,13 +2,14 @@
   <div class="extraction-chart h-[300px] w-full relative">
     <ClientOnly>
       <apexchart
+        :key="isDark ? 'dark' : 'light'"
         type="area"
         height="300"
         :options="chartOptions"
         :series="series"
       />
       <template #fallback>
-        <div class="h-[300px] w-full bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800 animate-pulse" />
+        <div class="h-[300px] w-full bg-[var(--ui-bg-muted)]/50 rounded-lg border border-[var(--ui-border)] animate-pulse" />
       </template>
     </ClientOnly>
     <!-- Empty state hint: V60 selected but no pour schedule configured yet -->
@@ -16,7 +17,7 @@
       v-if="store.recipe.method === 'v60' && !store.hasPourSchedule"
       class="absolute inset-0 flex items-end justify-center pb-8 pointer-events-none"
     >
-      <div class="bg-gray-900/80 dark:bg-gray-800/90 text-gray-100 text-sm px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm">
+      <div class="bg-stone-900/80 dark:bg-stone-800/90 text-stone-100 text-sm px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm">
         <span>☕</span>
         <span>Select a template or add a pour step to see the multi-pour curve</span>
       </div>
@@ -39,6 +40,18 @@ const maxTime = computed(() =>
   store.hasPourSchedule ? store.recipe.brewTime : presetDefaults[store.recipe.method].maxTime
 )
 
+// Espresso Lab palette — all chart colors centralized here
+const chartColors = computed(() => ({
+  line: isDark.value ? '#F59E0B' : '#D97706', // amber-500 / amber-600
+  sweetSpotFill: isDark.value ? '#10B981' : '#059669', // emerald-500 / emerald-600
+  sweetSpotLabel: isDark.value ? '#10B981' : '#059669', // emerald-500 / emerald-600
+  pourLine: isDark.value ? '#78716C' : '#A8A29E', // stone-500 / stone-400
+  pourLabel: isDark.value ? '#A8A29E' : '#78716C', // stone-400 / stone-500
+  foreColor: isDark.value ? '#A8A29E' : '#78716C', // stone-400 / stone-500
+  gridBorder: isDark.value ? '#292524' : '#E7E5E4', // stone-800 / stone-200
+  brewTimeLine: isDark.value ? '#F59E0B' : '#D97706' // amber (matches line)
+}))
+
 const series = computed(() => [{
   name: 'Extraction Yield',
   data: store.extractionCurve.map(p => ({ x: p.time, y: p.yield }))
@@ -48,7 +61,7 @@ const pourAnnotations = computed(() => {
   if (!store.hasPourSchedule) return []
   return store.pourSchedule.map((step, i) => ({
     x: step.startTime,
-    borderColor: '#3b82f6',
+    borderColor: chartColors.value.pourLine,
     strokeDashArray: 4,
     opacity: 0.6,
     label: {
@@ -57,7 +70,7 @@ const pourAnnotations = computed(() => {
       offsetY: 30,
       borderWidth: 0,
       style: {
-        color: '#3b82f6',
+        color: chartColors.value.pourLabel,
         background: 'transparent',
         fontSize: '10px',
         fontWeight: 400,
@@ -76,31 +89,31 @@ const chartOptions = computed(() => ({
     animations: {
       enabled: true,
       easing: 'easeinout',
-      speed: 300,
+      speed: 400,
       dynamicAnimation: {
         enabled: true,
-        speed: 150
+        speed: 200
       }
     },
-    foreColor: isDark.value ? '#94a3b8' : '#64748b',
+    foreColor: chartColors.value.foreColor,
     zoom: { enabled: false }
   },
   theme: {
     mode: isDark.value ? 'dark' as const : 'light' as const
   },
-  colors: ['#22c55e'],
+  colors: [chartColors.value.line],
   fill: {
     type: 'gradient',
     gradient: {
       shadeIntensity: 1,
-      opacityFrom: 0.3,
-      opacityTo: 0.05,
+      opacityFrom: 0.25,
+      opacityTo: 0.03,
       stops: [0, 100]
     }
   },
   stroke: {
     curve: 'smooth',
-    width: 2
+    width: 2.5
   },
   dataLabels: {
     enabled: false
@@ -113,7 +126,7 @@ const chartOptions = computed(() => ({
     labels: {
       formatter: (val: number) => formatTimeCompact(val, store.recipe.method),
       style: {
-        fontFamily: 'ui-monospace, monospace'
+        fontFamily: 'JetBrains Mono, monospace'
       }
     },
     axisBorder: { show: false },
@@ -126,7 +139,7 @@ const chartOptions = computed(() => ({
     labels: {
       formatter: (val: number) => val + '%',
       style: {
-        fontFamily: 'ui-monospace, monospace'
+        fontFamily: 'JetBrains Mono, monospace'
       }
     }
   },
@@ -134,7 +147,7 @@ const chartOptions = computed(() => ({
     yaxis: [{
       y: getMethodConfig(store.recipe.method).sweetSpot.min,
       y2: getMethodConfig(store.recipe.method).sweetSpot.max,
-      fillColor: '#22c55e',
+      fillColor: chartColors.value.sweetSpotFill,
       opacity: 0.1,
       borderColor: 'transparent',
       label: {
@@ -142,7 +155,7 @@ const chartOptions = computed(() => ({
         position: 'right',
         offsetX: -8,
         style: {
-          color: '#16a34a',
+          color: chartColors.value.sweetSpotLabel,
           background: 'transparent',
           fontSize: '11px',
           fontWeight: 500,
@@ -153,7 +166,7 @@ const chartOptions = computed(() => ({
     xaxis: [
       {
         x: store.recipe.brewTime,
-        borderColor: '#22c55e',
+        borderColor: chartColors.value.brewTimeLine,
         strokeDashArray: 0,
         opacity: 0.8,
         label: {
@@ -167,7 +180,7 @@ const chartOptions = computed(() => ({
     ]
   },
   grid: {
-    borderColor: isDark.value ? '#1e293b' : '#e2e8f0',
+    borderColor: chartColors.value.gridBorder,
     strokeDashArray: 4,
     padding: { left: 10, right: 10 }
   },
@@ -181,7 +194,11 @@ const chartOptions = computed(() => ({
     }
   },
   markers: {
-    size: 0
+    size: 0,
+    hover: {
+      size: 5,
+      sizeOffset: 3
+    }
   }
 }))
 </script>
