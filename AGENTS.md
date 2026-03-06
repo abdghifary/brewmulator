@@ -51,6 +51,7 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 | `clampFinesFraction` | Function | `app/stores/simulator/validation.ts` | Clamps finesFraction to 0–MAX_FINES_FRACTION range |
 | `FINES_GRIND_SIZE` | Constant | `app/stores/simulator/constants.ts` | Fixed fines bin size (100μm, Gagné 2023) |
 | `DEFAULT_FINES_FRACTION` | Constant | `app/stores/simulator/constants.ts` | Default fines fraction (0.15, mid-range grinder) |
+| `MAX_FINES_FRACTION` | Constant | `app/stores/simulator/constants.ts` | Upper bound for fines fraction slider (0.40, blade grinder territory) |
 
 ## CONVENTIONS
 - **Nuxt 4**: Source files live in `app/`, not root.
@@ -75,3 +76,4 @@ pnpm lint            # Lint code
 - **WASM Artifacts**: WASM artifacts are built automatically on `pnpm install` (via `prepare` script) and during production builds.
 - **Reactivity**: The WASM module is loaded async. Ensure `store.initialize()` is called before accessing physics functions.
 - **CI Gaps**: CI currently lacks `pnpm build` and `pnpm test` steps. WASM artifacts are not verified against source in CI.
+- **Bimodal PSD**: V60 uses a Sauter mean diameter (d₃₂) effective grind size to model fines. Controlled by `finesFraction` on `BrewRecipe`. See `docs/physics-model.md` for physics details.
