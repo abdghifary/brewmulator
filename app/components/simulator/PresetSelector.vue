@@ -1,9 +1,10 @@
 <template>
-  <div class="preset-selector">
-    <div class="flex flex-wrap gap-2">
+  <div class="preset-selector min-w-0 overflow-x-auto">
+    <div class="flex gap-2">
       <UButton
         v-for="preset in presets"
         :key="preset.id"
+        class="shrink-0"
         :variant="store.recipe.method === preset.id ? 'solid' : 'outline'"
         :color="store.recipe.method === preset.id ? 'primary' : 'neutral'"
         :icon="preset.icon"
