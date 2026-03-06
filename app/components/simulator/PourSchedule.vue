@@ -21,7 +21,7 @@
       <div
         v-for="(step, index) in store.pourSchedule"
         :key="index"
-        class="flex items-center gap-2 p-2 border border-gray-200 dark:border-gray-800 rounded-md"
+        class="flex items-center gap-2 p-2 border border-[var(--ui-border)] rounded-md transition-colors duration-150 hover:bg-[var(--ui-bg-elevated)]"
       >
         <!-- Bloom badge -->
         <UBadge
@@ -34,7 +34,7 @@
         </UBadge>
         <span
           v-else
-          class="text-xs text-gray-500 font-medium"
+          class="text-xs text-[var(--ui-text-muted)] font-medium"
         >Pour {{ index + 1 }}</span>
 
         <!-- Start time -->
@@ -102,7 +102,7 @@
               />
             </template>
             <template v-else>
-              <span class="text-xs text-gray-400">{{ store.recipe.temperature }}°C</span>
+              <span class="text-xs text-[var(--ui-text-dimmed)]">{{ store.recipe.temperature }}°C</span>
               <UButton
                 size="xs"
                 color="neutral"
@@ -144,26 +144,26 @@
     <!-- Summary footer -->
     <div
       v-if="store.pourSchedule.length > 0"
-      class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 text-sm text-gray-500 dark:text-gray-400 space-y-1"
+      class="mt-4 pt-4 border-t border-[var(--ui-border)] text-sm text-[var(--ui-text-muted)] space-y-1"
     >
       <div class="flex justify-between">
         <span>Total water:</span>
-        <span class="font-medium text-gray-900 dark:text-gray-100">{{ totalWater }}g</span>
+        <span class="font-medium font-mono tabular-nums text-[var(--ui-text-highlighted)]">{{ totalWater }}g</span>
       </div>
       <div class="flex justify-between">
         <span>Pours:</span>
-        <span class="font-medium text-gray-900 dark:text-gray-100">{{ store.pourSchedule.length }}</span>
+        <span class="font-medium font-mono tabular-nums text-[var(--ui-text-highlighted)]">{{ store.pourSchedule.length }}</span>
       </div>
       <div class="flex justify-between">
         <span>Total brew time:</span>
-        <span class="font-medium text-gray-900 dark:text-gray-100">{{ brewTimeDisplay }}</span>
+        <span class="font-medium font-mono tabular-nums text-[var(--ui-text-highlighted)]">{{ brewTimeDisplay }}</span>
       </div>
     </div>
 
     <!-- Empty state -->
     <div
       v-else
-      class="mt-4 text-sm text-gray-400 italic"
+      class="mt-4 text-sm text-[var(--ui-text-dimmed)] italic"
     >
       Select a template above or add pour steps manually.
     </div>

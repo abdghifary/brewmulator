@@ -1,35 +1,35 @@
 <template>
   <div class="extraction-results">
     <div class="grid grid-cols-2 gap-4">
-      <UCard>
-        <div class="text-sm text-gray-500">
+      <UCard variant="outline">
+        <div class="text-sm text-[var(--ui-text-muted)]">
           Extraction Yield
         </div>
-        <div class="text-2xl font-bold">
+        <div class="text-2xl font-bold font-mono tabular-nums transition-colors duration-300">
           {{ store.extractionYield.toFixed(2) }}%
         </div>
       </UCard>
 
-      <UCard>
-        <div class="text-sm text-gray-500">
+      <UCard variant="outline">
+        <div class="text-sm text-[var(--ui-text-muted)]">
           TDS
         </div>
-        <div class="text-2xl font-bold">
+        <div class="text-2xl font-bold font-mono tabular-nums transition-colors duration-300">
           {{ store.tds.toFixed(2) }}%
         </div>
       </UCard>
 
-      <UCard>
-        <div class="text-sm text-gray-500">
+      <UCard variant="outline">
+        <div class="text-sm text-[var(--ui-text-muted)]">
           Beverage Weight
         </div>
-        <div class="text-2xl font-bold">
+        <div class="text-2xl font-bold font-mono tabular-nums transition-colors duration-300">
           {{ store.beverageWeight.toFixed(0) }}g
         </div>
       </UCard>
 
-      <UCard>
-        <div class="text-sm text-gray-500">
+      <UCard variant="outline">
+        <div class="text-sm text-[var(--ui-text-muted)]">
           Zone
         </div>
         <div class="text-2xl font-bold">
