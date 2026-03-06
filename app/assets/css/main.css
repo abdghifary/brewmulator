@@ -13,3 +13,12 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Hide scrollbars on preset button row while keeping scroll functionality */
+.preset-selector {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.preset-selector::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/WebKit */
+}
