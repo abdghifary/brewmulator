@@ -59,7 +59,7 @@
             Extraction Curve
           </h2>
         </template>
-        <SimulatorExtractionChart />
+        <LazySimulatorExtractionChart hydrate-on-visible />
       </UCard>
 
       <SimulatorExtractionResults />

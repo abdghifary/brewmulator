@@ -99,6 +99,8 @@ export const useSimulatorStore = defineStore('simulator', () => {
   watch(v60Pour.pourSchedule, () => computeCurve(), { deep: true })
 
   const initialize = async () => {
+    if (wasmModule.value) return
+
     try {
       const module = await import('../../../build/release.js')
       wasmModule.value = module
@@ -124,8 +126,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
       waterGrams: preset.waterGrams,
       finesFraction: newMethod === 'v60' ? recipe.value.finesFraction : undefined
     }
-    // Compute immediately on preset change
-    computeCurve()
+    // Deep watcher on recipe handles recomputation automatically
   }
 
   return {
