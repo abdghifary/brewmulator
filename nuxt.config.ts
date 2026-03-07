@@ -27,9 +27,47 @@ export default defineNuxtConfig({
     '/': { prerender: true }
   },
 
+  // ---------------------------------------------------------------------------
+  // Performance: Prevent modulepreload of the vendor-charts chunk (~700KB).
+  //
+  // Without this hook, Nuxt adds <link rel="modulepreload"> for vendor-charts
+  // in the prerendered HTML, causing the browser to eagerly fetch 700KB of
+  // ApexCharts JS on every page load — even before the chart is needed.
+  //
+  // The chart component uses Lazy prefix + hydrate-on-visible + defineAsyncComponent,
+  // so the chunk is only needed when the chart enters the viewport. This hook
+  // ensures the prerendered HTML doesn't defeat that lazy-loading strategy.
+  //
+  // The chunk name 'vendor-charts' is set by manualChunks in vite.build below.
+  // ---------------------------------------------------------------------------
+  hooks: {
+    'build:manifest': (manifest) => {
+      for (const key in manifest) {
+        const entry = manifest[key]
+        if (entry?.name === 'vendor-charts') {
+          entry.prefetch = false
+          entry.preload = false
+        }
+      }
+    }
+  },
+
   compatibilityDate: '2025-01-15',
 
   vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          // Isolate ApexCharts (~700KB) into its own chunk so it can be lazy-loaded
+          // independently. Referenced by the build:manifest hook above.
+          manualChunks(id) {
+            if (id.includes('apexcharts') || id.includes('vue3-apexcharts')) {
+              return 'vendor-charts'
+            }
+          }
+        }
+      }
+    },
     plugins: [
       wasm(),
       topLevelAwait(),

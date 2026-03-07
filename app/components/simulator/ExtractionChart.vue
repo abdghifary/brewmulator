@@ -1,7 +1,7 @@
 <template>
   <div class="extraction-chart h-[300px] w-full relative">
     <ClientOnly>
-      <apexchart
+      <VueApexCharts
         :key="isDark ? 'dark' : 'light'"
         type="area"
         height="300"
@@ -26,11 +26,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useSimulatorStore } from '~/stores/simulator'
 import { presetDefaults } from '~/stores/simulator/constants'
 import { formatTimeCompact } from '~/stores/simulator/utils'
 import { getMethodConfig } from '~/stores/simulator/methodConfig'
+
+const VueApexCharts = defineAsyncComponent(() => import('vue3-apexcharts'))
 
 const store = useSimulatorStore()
 const colorMode = useColorMode()
