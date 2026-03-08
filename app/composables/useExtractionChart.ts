@@ -64,7 +64,6 @@ const BASE_CHART_OPTIONS = {
   }
 } as const
 
-
 export function useExtractionChart() {
   const store = useSimulatorStore()
   const colorMode = useColorMode()
