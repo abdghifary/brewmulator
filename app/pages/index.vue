@@ -1,10 +1,24 @@
 <template>
   <NuxtLayout name="dashboard">
-    <!-- Navbar: PresetSelector + color mode toggle -->
+    <!-- Navbar: Brewmulator title + color mode toggle -->
     <template #navbar>
-      <UDashboardNavbar>
+      <UDashboardNavbar :toggle="false">
         <template #left>
-          <SimulatorPresetSelector />
+          <UButton
+            class="lg:hidden"
+            icon="i-lucide-menu"
+            color="neutral"
+            variant="ghost"
+            aria-label="Open sidebar"
+            @click="sidebarOpen = !sidebarOpen"
+          />
+          <div class="flex items-center gap-2">
+            <UIcon
+              name="i-lucide-flask-conical"
+              class="text-primary size-5"
+            />
+            <span class="font-semibold text-sm tracking-tight">Brewmulator</span>
+          </div>
         </template>
         <template #right>
           <UColorModeButton />
@@ -16,7 +30,9 @@
     <template #sidebar>
       <div class="p-4 space-y-6">
         <div>
-          <h3 class="text-xs font-semibold uppercase tracking-wider text-[var(--ui-text-muted)] mb-3">
+          <h3
+            class="text-xs font-semibold uppercase tracking-wider text-[var(--ui-text-muted)] mb-3"
+          >
             Brew Parameters
           </h3>
           <SimulatorBrewParameters />
@@ -33,7 +49,9 @@
           leave-to-class="opacity-0 -translate-y-2"
         >
           <div v-if="store.recipe.method === 'v60'">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-[var(--ui-text-muted)] mb-3">
+            <h3
+              class="text-xs font-semibold uppercase tracking-wider text-[var(--ui-text-muted)] mb-3"
+            >
               Pour Schedule
             </h3>
             <SimulatorPourSchedule />
@@ -43,7 +61,9 @@
         <USeparator v-if="store.recipe.method === 'v60'" />
 
         <div>
-          <h3 class="text-xs font-semibold uppercase tracking-wider text-[var(--ui-text-muted)] mb-3">
+          <h3
+            class="text-xs font-semibold uppercase tracking-wider text-[var(--ui-text-muted)] mb-3"
+          >
             Dose Parameters
           </h3>
           <SimulatorDoseParameters />
@@ -51,19 +71,26 @@
       </div>
     </template>
 
-    <!-- Default slot: Main content (Chart + Results) -->
-    <div class="p-6 space-y-6">
-      <UCard variant="outline">
-        <template #header>
-          <h2 class="text-lg font-semibold">
-            Extraction Curve
-          </h2>
-        </template>
-        <LazySimulatorExtractionChart hydrate-on-visible />
-      </UCard>
+    <!-- Default slot: Dock + Chart + Results -->
+    <!-- <div class="p-6 space-y-6"> -->
 
-      <SimulatorExtractionResults />
-    </div>
+    <LazySimulatorPresetSelector hydrate-on-visible />
+
+    <UCard
+      variant="outline"
+      class="flex-shrink-0"
+    >
+      <template #header>
+        <h2 class="text-lg font-semibold">
+          Extraction Curve
+        </h2>
+      </template>
+      <LazySimulatorExtractionChart hydrate-on-visible />
+    </UCard>
+
+    <SimulatorExtractionResults />
+
+    <!-- </div> -->
   </NuxtLayout>
 </template>
 
@@ -80,6 +107,7 @@ useSeoMeta({
 })
 
 const store = useSimulatorStore()
+const sidebarOpen = useState('sidebar-open', () => false)
 
 onMounted(() => {
   store.initialize()

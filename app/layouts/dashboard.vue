@@ -1,42 +1,36 @@
 <template>
-  <UDashboardGroup
-    storage="cookie"
-    storage-key="brewmulator"
-  >
-    <UDashboardSidebar
-      id="simulator-controls"
-      resizable
-      collapsible
-      :min-size="22"
-      :default-size="30"
-      :max-size="40"
+  <div class="flex flex-col h-dvh overflow-hidden">
+    <!-- Full-width top navbar, spans sidebar + panel columns -->
+    <slot name="navbar" />
+
+    <!-- Sidebar + Panel sit below the navbar -->
+    <UDashboardGroup
+      storage="cookie"
+      storage-key="brewmulator"
+      class="!top-(--ui-header-height)"
     >
-      <template #header>
-        <div class="flex items-center justify-between p-4">
-          <div class="flex items-center gap-2">
-            <UIcon
-              name="i-lucide-flask-conical"
-              class="text-primary size-5"
-            />
-            <span class="font-semibold text-sm">Brewmulator</span>
-          </div>
-          <UDashboardSidebarCollapse />
-        </div>
-      </template>
-
-      <template #default>
+      <UDashboardSidebar
+        id="simulator-controls"
+        v-model:open="sidebarOpen"
+        resizable
+        collapsible
+        :min-size="22"
+        :default-size="30"
+        :max-size="40"
+        :ui="{ root: 'min-h-0' }"
+      >
         <slot name="sidebar" />
-      </template>
-    </UDashboardSidebar>
+      </UDashboardSidebar>
 
-    <UDashboardPanel>
-      <template #header>
-        <slot name="navbar" />
-      </template>
-
-      <template #body>
-        <slot />
-      </template>
-    </UDashboardPanel>
-  </UDashboardGroup>
+      <UDashboardPanel :ui="{ root: 'min-h-0' }">
+        <template #body>
+          <slot />
+        </template>
+      </UDashboardPanel>
+    </UDashboardGroup>
+  </div>
 </template>
+
+<script setup lang="ts">
+const sidebarOpen = useState('sidebar-open', () => false)
+</script>

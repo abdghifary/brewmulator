@@ -1,4 +1,12 @@
-import type { BrewMethod, RoastLevel, BrewPreset, V60RecipeTemplate } from './types'
+import type { BrewMethod, MethodPresetOption, RoastLevel, BrewPreset, V60RecipeTemplate } from './types'
+
+export const METHOD_PRESET_OPTIONS: MethodPresetOption[] = [
+  { id: 'v60', label: 'V60', icon: 'i-lucide-filter' },
+  { id: 'frenchPress', label: 'French Press', icon: 'i-lucide-coffee' },
+  { id: 'espresso', label: 'Espresso', icon: 'i-lucide-gauge' },
+  { id: 'aeropress', label: 'AeroPress', icon: 'i-lucide-arrow-down-to-line' },
+  { id: 'coldBrew', label: 'Cold Brew', icon: 'i-lucide-snowflake' }
+]
 
 export const T_AMBIENT = 22 // °C, ambient temperature
 export const H_COOL = 0.001 // /s, Newton cooling coefficient (~4°C/min, realistic for V60)

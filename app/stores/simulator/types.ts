@@ -1,4 +1,10 @@
 export type BrewMethod = 'v60' | 'frenchPress' | 'espresso' | 'aeropress' | 'coldBrew'
+
+export interface MethodPresetOption {
+  id: BrewMethod
+  label: string
+  icon: string
+}
 export type RoastLevel = 'light' | 'medium' | 'dark'
 
 export interface ExtractionPoint {
