@@ -186,5 +186,5 @@ export function useExtractionChart() {
     }
   }))
 
-  return { chartOptions, series }
+  return { chartOptions, series, isDark }
 }

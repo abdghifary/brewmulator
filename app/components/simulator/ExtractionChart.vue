@@ -2,6 +2,7 @@
   <div class="extraction-chart h-[300px] w-full relative">
     <ClientOnly>
       <VueApexCharts
+        :key="isDark ? 'dark' : 'light'"
         type="area"
         height="300"
         :options="chartOptions"
@@ -36,5 +37,5 @@ import { useSimulatorStore } from '~/stores/simulator'
 const VueApexCharts = defineAsyncComponent(() => import('vue3-apexcharts'))
 
 const store = useSimulatorStore()
-const { chartOptions, series } = useExtractionChart()
+const { chartOptions, series, isDark } = useExtractionChart()
 </script>
