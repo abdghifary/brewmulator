@@ -19,6 +19,10 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  colorMode: {
+    preference: 'dark'
+  },
+
   build: {
     transpile: ['vue3-apexcharts']
   },
