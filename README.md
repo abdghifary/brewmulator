@@ -12,6 +12,7 @@ Physics-based coffee extraction simulator that combines a [Nuxt 4](https://nuxt.
 - **CO₂ Bloom Simulation** — Models outgassing inhibition during the bloom phase of pour-over brewing
 - **Bimodal Grind Distribution** — Sauter mean diameter (d₃₂) models the effect of fines on extraction rate (V60)
 - **Extraction Results** — Live readout of Extraction Yield %, TDS %, beverage weight, and zone classification
+- **Two-Phase Extraction Kinetics** — Physically accurate surface-wash + Fickian diffusion model (Moroney 2015) separates fast surface solubles from slow cell-wall diffusion for V60 pour-over brewing
 
 ## Tech Stack
 
@@ -109,6 +110,8 @@ For the full mathematical treatment, see [`docs/physics-model.md`](docs/physics-
 
 - Spiro, M. & Selwood, R. M. (1984). *The kinetics of coffee brewing.* Z. Lebensm. Unters. Forsch.
 - Moroney, K.M. et al. (2015). *Modelling of coffee extraction during brewing using multiscale methods.* Chemical Engineering Science.
+- Wang, X. & Lim, L.-T. (2014). *Investigation of coffee extraction kinetics using a simplified extraction model.* Journal of Food Engineering.
+- Patricelli, A. et al. (1975). *Surface and diffusion phenomena in the coffee extraction process.* Journal of Food Science.
 - Gagné, J. (2021). *The Physics of Filter Coffee.* Scott's Digital Alchemy.
 
 ## License

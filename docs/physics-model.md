@@ -253,6 +253,149 @@ pre-bimodal model. No WASM changes are required.
 
 ---
 
+## Two-Phase Extraction Kinetics (Surface Wash + Diffusion)
+
+Real coffee extraction proceeds in two distinct kinetic phases, first identified by
+Spiro & Selwood (1984) and formalized as a "double porosity" model by Moroney et al. (2015, 2016):
+
+1. **Surface wash** — Solubles from broken cell fragments dissolve on contact with water.
+   Near-instantaneous (τ ≈ 5–15s). Contributes ~30% of total extractable mass.
+2. **Internal diffusion** — Solubles trapped inside intact cell walls diffuse out through
+   the pore network. Slow, Fickian transport (τ ≈ 60–300s). Contributes ~70% of total mass.
+
+### Model Equation
+
+The extraction yield at time $t$ is the sum of two independent first-order pools, both
+subject to the same Nernst-Brunner saturation limit:
+
+$$E(t) = \phi_s \cdot Y_{eq} \cdot (1 - e^{-k_{fast,obs} \cdot t})
+       + (1 - \phi_s) \cdot Y_{eq} \cdot (1 - e^{-k_{slow,obs} \cdot t})$$
+
+where:
+- $\phi_s$ is the surface solubles fraction (see below)
+- $Y_{eq} = E_{max} / (1 + \alpha / ratio)$ — the shared equilibrium yield
+- $k_{fast,obs} = k_{fast} \cdot (1 + \alpha / ratio)$
+- $k_{slow,obs} = k_{slow} \cdot (1 + \alpha / ratio)$
+
+### Rate Constants and Activation Energies
+
+The two rate constants follow the Arrhenius temperature dependence but differ in both
+grind scaling and activation energy:
+
+| Constant | Grind Scaling | Activation Energy | Physical Basis | Pre-exponential |
+|----------|---------------|-------------------|----------------|-----------------|
+| $k_{slow}$ | $(600/d)^2$ (quadratic) | $E_A = 50{,}000\,\text{J/mol}$ | Fickian diffusion — hindered by pore tortuosity | $A = 65{,}000$ |
+| $k_{fast}$ | $600/d$ (linear) | $E_{A,fast} = 25{,}000\,\text{J/mol}$ | Boundary-layer mass transfer — modest thermal barrier | $A_{fast} = 500.0$ (calibrated at T_ref=93°C) |
+
+#### Why Separate Activation Energies?
+
+The surface wash phase is fundamentally a **boundary-layer dissolution** process: solubles
+already exposed at broken cell surfaces dissolve into the surrounding water. This process
+tracks liquid diffusivity and viscosity, which have modest temperature dependence.
+
+The diffusion phase is an **effective intra-particle transport barrier** that bundles pore
+tortuosity, wetting, adsorption/desorption, and matrix hindrance — all of which are strongly
+thermally activated.
+
+Research finding (Patricelli model): "Washing Rate (k₁) is relatively stable; primarily
+dependent on physical surface exposure rather than thermal activation. Activation Energy
+is high for intra-bean diffusion, indicating a severely hindered process."
+
+| Temperature Change | k_fast change (E_A = 25 kJ/mol) | k_slow change (E_A = 50 kJ/mol) |
+|-------------------|--------------------------------|--------------------------------|
+| 85°C → 96°C | +28% | +65% |
+| 93°C → 20°C (cold brew) | 16× slower | 244× slower |
+
+This means cold brew extracts the fast-dissolving surface compounds relatively efficiently
+but barely touches the slow-diffusing compounds — matching the well-known characteristic
+of cold brew being smooth and low-acid.
+
+### Moroney ε Timescale Ratio (Validation)
+
+The dimensionless timescale ratio ε = k_slow / k_fast quantifies the separation between
+the two kinetic phases. From Moroney et al. (2015, 2016):
+
+$$\varepsilon = \frac{\tau_{fast}}{\tau_{slow}} = \frac{k_{slow}}{k_{fast}}$$
+
+| Grind Profile | ε | Interpretation |
+|:---|:---|:---|
+| JK Drip (Fine) | 0.028 | Strong separation — distinct phases |
+| Cimbali #20 (Coarse) | 0.071 | Moderate separation |
+| **Simulator target** | **0.03–0.07** | **Validated range** |
+
+### Surface Solubles Fraction ($\phi_s$)
+
+The fraction of solubles accessible at broken cell surfaces is auto-derived from grind size:
+
+$$\phi_s = \text{clamp}\left(\phi_{ref} \times \frac{d_{ref}}{d}, \; 0, \; 1\right)$$
+
+where $\phi_{ref} = 0.30$ at $d_{ref} = 600\mu m$ (calibrated from Spiro & Selwood 1984).
+
+| Grind Size | $\phi_s$ | Interpretation |
+|-----------|---------|----------------|
+| 300μm (fine V60) | 0.60 | Many broken cells — steep initial curve |
+| 500μm (medium V60) | 0.36 | Moderate surface exposure |
+| 600μm (reference) | 0.30 | Calibration point |
+| 850μm (coarse V60) | 0.21 | Fewer broken cells — gentler start |
+| 1000μm (very coarse) | 0.18 | Minimal surface solubles |
+
+**Physical reasoning**: Finer grinding produces more broken cells (proportional to
+surface area / volume ∝ 1/d), exposing more solubles for rapid dissolution.
+
+### Piecewise Integration (V60 Multi-Pour)
+
+For multi-pour V60 brewing, each timestep integrates both pools independently:
+
+$$E_{fast}(t) = \phi_s Y_{eq} - (\phi_s Y_{eq} - E_{fast,prev}) \cdot e^{-k_{fast,obs} \cdot \Delta t}$$
+$$E_{slow}(t) = (1-\phi_s) Y_{eq} - ((1-\phi_s) Y_{eq} - E_{slow,prev}) \cdot e^{-k_{slow,obs} \cdot \Delta t}$$
+$$E_{total}(t) = E_{fast}(t) + E_{slow}(t)$$
+
+Both $E_{fast,prev}$ and $E_{slow,prev}$ carry forward continuously across pour
+boundaries. When a new pour changes the water ratio, $Y_{eq}$ shifts for both pools
+simultaneously, but extraction never resets.
+
+### Interaction with Bimodal PSD
+
+The effective grind size $d_{32}$ (Sauter mean from bimodal PSD) feeds into both
+$k_{fast}$ and $k_{slow}$ rate constant calculations. However, $\phi_s$ is derived
+from the **raw** grind size setting (not $d_{32}$), because it represents the grinder's
+cell-breaking behavior rather than the particle size distribution.
+
+### Interaction with CO₂ Bloom
+
+During the bloom phase, CO₂ inhibition applies equally to both rate constants:
+$k_{fast,eff} = k_{fast} \cdot f_{CO_2}(t)$ and $k_{slow,eff} = k_{slow} \cdot f_{CO_2}(t)$.
+The gas barrier physically blocks both surface dissolution and pore diffusion.
+
+### Scope
+
+Two-phase extraction is currently enabled only for V60 pour-over with a pour schedule
+(`supportsTwoPhase: true` in MethodConfig). Other methods and V60 without a pour
+schedule use the original single-phase model. This can be extended to other methods
+in future updates.
+
+### Scientific References (Two-Phase Kinetics)
+
+1. **Spiro, M. & Selwood, R.M.** (1984) — The kinetics and mechanism of caffeine
+   infusion from coffee: The effect of particle size. *J. Sci. Food Agric.*, 35(8),
+   915–924. DOI: [10.1002/jsfa.2740350817](https://doi.org/10.1002/jsfa.2740350817)
+
+2. **Moroney, K.M. et al.** (2015) — Modelling of coffee extraction during brewing
+   using multiscale methods. *Chemical Engineering Science*, 137, 216–234.
+   DOI: [10.1016/j.ces.2015.06.003](https://doi.org/10.1016/j.ces.2015.06.003)
+
+3. **Moroney, K.M. et al.** (2016) — Coffee extraction kinetics in a well mixed system.
+   *J. Mathematics in Industry*, 7, Article 2.
+   DOI: [10.1186/s13362-016-0024-6](https://doi.org/10.1186/s13362-016-0024-6)
+
+4. **Wang, X. & Lim, L.T.** (2021) — Empirical kinetic models for coffee extraction.
+   (Weibull, pseudo-first-order validation of two-phase behavior)
+
+5. **Patricelli, A. et al.** — Double-exponential model for biphasic solid-liquid extraction.
+   (Foundational two-phase kinetics framework)
+
+---
+
 ## Extended References
 
 *(Extending prior references — Spiro & Selwood 1984 and Nernst-Brunner already listed above)*
@@ -291,6 +434,11 @@ The Brewmulator physics engine uses a simplified extraction model. These assumpt
 
 ### Calibrated Template Values
 9. **Model-calibrated grind sizes**: V60 recipe template grind sizes are calibrated to produce realistic extraction yields within this simplified model. They may not correspond to literal grinder settings. For example, a template value of 500μm produces the same extraction yield in the simulator that the real-world recipe produces with its actual (typically coarser) grind setting — because real-world brewing benefits from effects (fines, compaction, channeling) that partially compensate for coarser grinds.
+
+### Two-Phase Kinetics Model
+10. **Two-phase extraction is V60 piecewise only.** The legacy single-pour path and non-V60 methods use the original single-phase model. This is an intentional scope limitation — the two-phase model was validated against V60 Hoffmann-schedule data.
+11. **Surface solubles fraction (φ_s) is auto-derived from grind size.** Roast level effects on cell breakage are not modeled. In reality, lighter roasts have harder beans that break differently than dark roasts.
+12. **The two rate constants use separate activation energies**: E_A_FAST = 25,000 J/mol for surface wash, E_A = 50,000 J/mol for diffusion. Both values are empirical approximations — exact values depend on bean variety and roast profile.
 
 ### What This Means for Users
 - Use the simulator to understand **relative** effects: finer grind → faster extraction, higher temperature → faster extraction, etc.
