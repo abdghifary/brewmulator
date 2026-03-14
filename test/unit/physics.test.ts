@@ -221,6 +221,90 @@ describe('Physics Engine - Extraction Kinetics', () => {
     })
   })
 
+  describe('calculateFastRateConstant', () => {
+    it('should return higher k for higher temperature', () => {
+      const grind = 500
+      const roast = 1.0
+      const method = 0
+
+      const lowTempK = wasmModule.calculateFastRateConstant(85, grind, roast, method)
+      const highTempK = wasmModule.calculateFastRateConstant(95, grind, roast, method)
+
+      expect(highTempK).toBeGreaterThan(lowTempK)
+    })
+
+    it('should return higher k for finer grind', () => {
+      const temp = 93
+      const roast = 1.0
+      const method = 0
+
+      const coarseK = wasmModule.calculateFastRateConstant(temp, 800, roast, method)
+      const fineK = wasmModule.calculateFastRateConstant(temp, 400, roast, method)
+
+      expect(fineK).toBeGreaterThan(coarseK)
+    })
+
+    it('should return higher k for darker roast', () => {
+      const temp = 93
+      const grind = 500
+      const method = 0
+
+      const lightK = wasmModule.calculateFastRateConstant(temp, grind, 0.8, method)
+      const darkK = wasmModule.calculateFastRateConstant(temp, grind, 1.2, method)
+
+      expect(darkK).toBeGreaterThan(lightK)
+    })
+
+    it('k_fast should be greater than k_slow at same conditions', () => {
+      const kFast = wasmModule.calculateFastRateConstant(93, 500, 1.0, 0)
+      const kSlow = wasmModule.calculateRateConstant(93, 500, 1.0, 0)
+
+      expect(kFast).toBeGreaterThan(kSlow)
+    })
+
+    it('should exhibit linear grind scaling (not quadratic)', () => {
+      const k300 = wasmModule.calculateFastRateConstant(93, 300, 1.0, 0)
+      const k600 = wasmModule.calculateFastRateConstant(93, 600, 1.0, 0)
+      const ratio = k300 / k600
+
+      expect(ratio).toBeCloseTo(2.0, 1)
+    })
+
+    it('k_fast should be less temperature-sensitive than k_slow', () => {
+      const kFast85 = wasmModule.calculateFastRateConstant(85, 600, 1.0, 0)
+      const kFast96 = wasmModule.calculateFastRateConstant(96, 600, 1.0, 0)
+      const kSlow85 = wasmModule.calculateRateConstant(85, 600, 1.0, 0)
+      const kSlow96 = wasmModule.calculateRateConstant(96, 600, 1.0, 0)
+
+      const fastRatio = kFast96 / kFast85
+      const slowRatio = kSlow96 / kSlow85
+
+      expect(fastRatio).toBeLessThan(slowRatio)
+    })
+
+    it('temperature sensitivity ratio confirms separate activation energies', () => {
+      const kFast85 = wasmModule.calculateFastRateConstant(85, 600, 1.0, 0)
+      const kFast96 = wasmModule.calculateFastRateConstant(96, 600, 1.0, 0)
+      const kSlow85 = wasmModule.calculateRateConstant(85, 600, 1.0, 0)
+      const kSlow96 = wasmModule.calculateRateConstant(96, 600, 1.0, 0)
+
+      const fastRatio = kFast96 / kFast85
+      const slowRatio = kSlow96 / kSlow85
+      const ratio = slowRatio / fastRatio
+
+      expect(ratio).toBeCloseTo(1.29, 0)
+    })
+
+    it('k_slow/k_fast ratio at reference conditions falls within Moroney ε range', () => {
+      const kFast = wasmModule.calculateFastRateConstant(93, 600, 1.0, 0)
+      const kSlow = wasmModule.calculateRateConstant(93, 600, 1.0, 0)
+      const epsilon = kSlow / kFast
+
+      expect(epsilon).toBeGreaterThanOrEqual(0.025)
+      expect(epsilon).toBeLessThanOrEqual(0.08)
+    })
+  })
+
   describe('getExtractionZone', () => {
     it('should return 0 (under-extracted) for yield < 18%', () => {
       const extractionYield = 15.0
