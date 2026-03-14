@@ -24,6 +24,10 @@ export const FINES_GRIND_SIZE = 100 // μm, fixed fines bin grind size
 export const DEFAULT_FINES_FRACTION = 0.15 // typical mid-range grinder (Gagné 2023)
 export const MAX_FINES_FRACTION = 0.40 // upper bound — blade grinder territory
 
+// Two-phase extraction kinetics — surface wash parameters (Spiro & Selwood 1984)
+export const PHI_SURFACE_REF = 0.30
+export const D_REF_SURFACE = 600
+
 export const v60Templates: V60RecipeTemplate[] = [
   {
     name: 'Tetsu Kasuya 4:6',
