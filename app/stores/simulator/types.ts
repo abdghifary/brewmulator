@@ -80,6 +80,12 @@ export interface WasmModule {
     roast: number,
     method: number
   ): number
+  calculateFastRateConstant(
+    temp: number,
+    grind: number,
+    roast: number,
+    method: number
+  ): number
   readonly E_MAX: { readonly value: number }
   readonly ALPHA: { readonly value: number }
 }
