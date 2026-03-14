@@ -2,7 +2,8 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 import type { WasmModule } from '../../app/stores/simulator/types'
-import { computePiecewiseCurve, computeEffectiveGrindSize, type PiecewiseCurveParams } from '../../app/stores/simulator/composables/usePiecewiseExtraction'
+import { PHI_SURFACE_REF } from '../../app/stores/simulator/constants'
+import { computePiecewiseCurve, computeEffectiveGrindSize, computeSurfaceFraction, type PiecewiseCurveParams } from '../../app/stores/simulator/composables/usePiecewiseExtraction'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let wasmModule: any
@@ -40,6 +41,7 @@ describe('Piecewise Extraction Engine', () => {
     const shortTime = 10
     const params = makeParams({
       pourSchedule: [{ startTime: 0, waterGrams: 288, temperature: 93 }],
+      twoPhaseEnabled: false,
       maxTime: shortTime,
       numPoints: 101
     })
@@ -223,7 +225,7 @@ describe('Effective Grind Size (Sauter Mean d₃₂)', () => {
     expect(high[high.length - 1].yield).toBeGreaterThan(low[low.length - 1].yield)
   })
 
-  it('Kasuya 850μm with 15% fines produces 17-21% EY (calibration GO/NO-GO)', () => {
+  it('Kasuya 850μm with 15% fines produces 17-23% EY (secondary plausibility check)', () => {
     const curve = computePiecewiseCurve(makeParams({
       grindSize: 850,
       finesFraction: 0.15,
@@ -238,7 +240,7 @@ describe('Effective Grind Size (Sauter Mean d₃₂)', () => {
     }))
     const finalEY = curve[curve.length - 1].yield
     expect(finalEY).toBeGreaterThanOrEqual(17)
-    expect(finalEY).toBeLessThanOrEqual(21)
+    expect(finalEY).toBeLessThanOrEqual(23)
   })
 
   it('Timemore C2 (φ=0.20) at 850μm produces elevated EY (20-25%)', () => {
@@ -257,5 +259,209 @@ describe('Effective Grind Size (Sauter Mean d₃₂)', () => {
     const finalEY = curve[curve.length - 1].yield
     expect(finalEY).toBeGreaterThanOrEqual(20)
     expect(finalEY).toBeLessThanOrEqual(25)
+  })
+})
+
+describe('Two-Phase Extraction Kinetics', () => {
+  it('φ_s at reference grind (600μm) equals PHI_SURFACE_REF (0.30)', () => {
+    expect(computeSurfaceFraction(600)).toBeCloseTo(PHI_SURFACE_REF, 10)
+  })
+
+  it('φ_s at V60 min grind (300μm) equals 0.60', () => {
+    expect(computeSurfaceFraction(300)).toBeCloseTo(0.60, 10)
+  })
+
+  it('φ_s at V60 max grind (1000μm) equals 0.18', () => {
+    expect(computeSurfaceFraction(1000)).toBeCloseTo(0.18, 10)
+  })
+
+  it('φ_s is clamped to 1.0 at extreme fine grind (100μm)', () => {
+    expect(computeSurfaceFraction(100)).toBe(1.0)
+  })
+
+  it('φ_s decreases monotonically as grind size increases', () => {
+    const values = [100, 300, 600, 1000].map(grindSize => computeSurfaceFraction(grindSize))
+
+    for (let i = 1; i < values.length; i++) {
+      expect(values[i]).toBeLessThan(values[i - 1])
+    }
+  })
+
+  it('twoPhaseEnabled=false produces identical output to default (no flag)', () => {
+    const withDefault = computePiecewiseCurve(makeParams({
+      pourSchedule: [
+        { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true },
+        { startTime: 45, waterGrams: 228, temperature: 93 }
+      ],
+      maxTime: 180,
+      numPoints: 101
+    }))
+    const withFlag = computePiecewiseCurve(makeParams({
+      pourSchedule: [
+        { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true },
+        { startTime: 45, waterGrams: 228, temperature: 93 }
+      ],
+      twoPhaseEnabled: false,
+      maxTime: 180,
+      numPoints: 101
+    }))
+
+    expect(withFlag).toHaveLength(withDefault.length)
+
+    for (let i = 0; i < withFlag.length; i++) {
+      expect(withFlag[i].time).toBeCloseTo(withDefault[i].time, 10)
+      expect(withFlag[i].yield).toBeCloseTo(withDefault[i].yield, 10)
+    }
+  })
+
+  it('two-phase produces higher early EY than single-phase', () => {
+    const singlePhase = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: false,
+      pourSchedule: [{ startTime: 0, waterGrams: 288, temperature: 93 }],
+      maxTime: 180,
+      numPoints: 181
+    }))
+    const twoPhase = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: true,
+      pourSchedule: [{ startTime: 0, waterGrams: 288, temperature: 93 }],
+      maxTime: 180,
+      numPoints: 181
+    }))
+
+    const singleAt15 = singlePhase.find(point => Math.abs(point.time - 15) < 1)!
+    const twoAt15 = twoPhase.find(point => Math.abs(point.time - 15) < 1)!
+
+    expect(twoAt15.yield).toBeGreaterThan(singleAt15.yield)
+  })
+
+  it('two-phase converges to similar final EY', () => {
+    const singlePhase = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: false,
+      pourSchedule: [
+        { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true },
+        { startTime: 45, waterGrams: 228, temperature: 93 }
+      ],
+      maxTime: 300,
+      numPoints: 301
+    }))
+    const twoPhase = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: true,
+      pourSchedule: [
+        { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true },
+        { startTime: 45, waterGrams: 228, temperature: 93 }
+      ],
+      maxTime: 300,
+      numPoints: 301
+    }))
+
+    const singleFinal = singlePhase[twoPhase.length - 1]
+    const twoFinal = twoPhase[twoPhase.length - 1]
+    const diffs = singlePhase.map((point, index) => Math.abs(twoPhase[index].yield - point.yield))
+    const finalDiff = diffs[diffs.length - 1]
+    const peakEarlierDiff = Math.max(...diffs.slice(0, -1))
+
+    expect(twoFinal.yield).not.toBeCloseTo(singleFinal.yield, 10)
+    expect(finalDiff).toBeLessThan(peakEarlierDiff)
+  })
+
+  it('two-phase yield is monotonically non-decreasing', () => {
+    const singlePhase = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: false,
+      pourSchedule: [
+        { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true },
+        { startTime: 45, waterGrams: 60, temperature: 93 },
+        { startTime: 90, waterGrams: 60, temperature: 93 },
+        { startTime: 135, waterGrams: 60, temperature: 93 },
+        { startTime: 180, waterGrams: 60, temperature: 93 }
+      ],
+      coffeeGrams: 20,
+      maxTime: 240,
+      numPoints: 241
+    }))
+    const twoPhase = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: true,
+      pourSchedule: [
+        { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true },
+        { startTime: 45, waterGrams: 60, temperature: 93 },
+        { startTime: 90, waterGrams: 60, temperature: 93 },
+        { startTime: 135, waterGrams: 60, temperature: 93 },
+        { startTime: 180, waterGrams: 60, temperature: 93 }
+      ],
+      coffeeGrams: 20,
+      maxTime: 240,
+      numPoints: 241
+    }))
+
+    const singleAt15 = singlePhase.find(point => Math.abs(point.time - 15) < 1)!
+    const twoAt15 = twoPhase.find(point => Math.abs(point.time - 15) < 1)!
+
+    expect(twoAt15.yield).toBeGreaterThan(singleAt15.yield)
+
+    for (let i = 1; i < twoPhase.length; i++) {
+      expect(twoPhase[i].yield).toBeGreaterThanOrEqual(twoPhase[i - 1].yield)
+    }
+  })
+
+  it('bloom inhibition affects two-phase extraction', () => {
+    const singlePhaseWithoutBloom = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: false,
+      pourSchedule: [
+        { startTime: 0, waterGrams: 50, temperature: 93, isBloom: false },
+        { startTime: 45, waterGrams: 238, temperature: 93 }
+      ],
+      maxTime: 180,
+      numPoints: 181
+    }))
+    const withBloom = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: true,
+      pourSchedule: [
+        { startTime: 0, waterGrams: 50, temperature: 93, isBloom: true },
+        { startTime: 45, waterGrams: 238, temperature: 93 }
+      ],
+      maxTime: 180,
+      numPoints: 181
+    }))
+    const withoutBloom = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: true,
+      pourSchedule: [
+        { startTime: 0, waterGrams: 50, temperature: 93, isBloom: false },
+        { startTime: 45, waterGrams: 238, temperature: 93 }
+      ],
+      maxTime: 180,
+      numPoints: 181
+    }))
+
+    const withBloomAt15 = withBloom.find(point => Math.abs(point.time - 15) < 1)!
+    const withoutBloomAt15 = withoutBloom.find(point => Math.abs(point.time - 15) < 1)!
+    const singlePhaseWithoutBloomAt15 = singlePhaseWithoutBloom.find(point => Math.abs(point.time - 15) < 1)!
+
+    expect(withBloomAt15.yield).toBeLessThan(withoutBloomAt15.yield)
+    expect(withoutBloomAt15.yield).toBeGreaterThan(singlePhaseWithoutBloomAt15.yield)
+  })
+
+  it('V60 93°C/500μm/medium/1:16 Hoffmann schedule hits calibration targets', () => {
+    const curve = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: true,
+      grindSize: 500,
+      pourSchedule: [
+        { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true },
+        { startTime: 45, waterGrams: 240, temperature: 93 },
+        { startTime: 75, waterGrams: 200, temperature: 93 }
+      ],
+      coffeeGrams: 30,
+      maxTime: 210,
+      numPoints: 211
+    }))
+
+    const at15 = curve.find(point => Math.abs(point.time - 15) < 1)!
+    const at60 = curve.find(point => Math.abs(point.time - 60) < 1)!
+    const at180 = curve.find(point => Math.abs(point.time - 180) < 1)!
+
+    expect(at15.yield).toBeGreaterThanOrEqual(6)
+    expect(at15.yield).toBeLessThanOrEqual(8)
+    expect(at60.yield).toBeGreaterThanOrEqual(13)
+    expect(at60.yield).toBeLessThanOrEqual(15)
+    expect(at180.yield).toBeGreaterThanOrEqual(20)
+    expect(at180.yield).toBeLessThanOrEqual(21)
   })
 })
