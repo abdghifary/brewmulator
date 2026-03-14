@@ -38,6 +38,7 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 |--------|------|----------|------|
 | `useSimulatorStore` | Store | `app/stores/simulator/index.ts` | Main state & WASM bridge |
 | `calculateExtractionYield` | Function | `assembly/index.ts` | Core physics calculation |
+| `calculateFastRateConstant` | Function | `assembly/index.ts` | Surface-wash rate constant for two-phase kinetics (E_A_FAST = 25 kJ/mol) |
 | `ExtractionChart` | Component | `app/components/simulator/` | ApexCharts visualization |
 | `computePiecewiseCurve` | Function | `app/stores/simulator/composables/usePiecewiseExtraction.ts` | V60 multi-pour extraction curve |
 | `PourSchedule` | Component | `app/components/simulator/PourSchedule.vue` | V60 pour schedule UI |
@@ -58,7 +59,7 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 - **WASM Bridge**: NEVER call WASM directly from components. Use `app/stores/simulator` actions.
 - **Component Naming**: Domain components use prefix (e.g., `SimulatorExtractionChart`).
 - **Reactivity**: Recipe changes automatically trigger `computeCurve()` via a deep watcher — no manual calls needed from components.
-- **Testing**: Unit tests in `test/unit/` run in Node. (UI tests in `test/nuxt/` are configured but directory is currently missing).
+- **Testing**: Unit tests in `test/unit/` run in Node. Physics tests must validate against published data or known physical constraints with explicit numeric tolerances. (UI tests in `test/nuxt/` are configured but directory is currently missing).
 - **MethodConfig**: All method-specific parameters (limits, thresholds, time steps) live in the MethodConfig registry. Never hardcode method-specific values in components or composables.
 - **Method Isolation**: Method-specific logic lives in dedicated composables (e.g., useV60PourSchedule). The main store composes them. New brew method features should follow this pattern.
 
@@ -77,3 +78,4 @@ pnpm lint            # Lint code
 - **Reactivity**: The WASM module is loaded async. Ensure `store.initialize()` is called before accessing physics functions.
 - **CI Gaps**: CI currently lacks `pnpm build` and `pnpm test` steps. WASM artifacts are not verified against source in CI.
 - **Bimodal PSD**: V60 uses a Sauter mean diameter (d₃₂) effective grind size to model fines. Controlled by `finesFraction` on `BrewRecipe`. See `docs/physics-model.md` for physics details.
+- **Two-Phase Kinetics**: V60 piecewise extraction uses a two-phase model (fast surface-wash k_fast + slow Fickian diffusion k_slow). Key constants: `A = 65000`, `A_FAST = 500`, `E_A_FAST = 25000 J/mol`. Calibrated at T_ref=93°C; ε = k_slow/k_fast ≈ 0.035. Do NOT alter these constants without re-running the full calibration suite (`pnpm test:unit`).
