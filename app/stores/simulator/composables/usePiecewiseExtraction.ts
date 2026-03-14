@@ -1,7 +1,7 @@
 import type { PourSchedule, ExtractionPoint, WasmModule } from '../types'
 import {
   T_AMBIENT, H_COOL, K_DEGAS, BLOOM_INHIBITION,
-  FINES_GRIND_SIZE
+  FINES_GRIND_SIZE, PHI_SURFACE_REF, D_REF_SURFACE
 } from '../constants'
 
 export interface PiecewiseCurveParams {
@@ -15,6 +15,7 @@ export interface PiecewiseCurveParams {
   wasmModule: WasmModule
   globalTemp?: number
   finesFraction?: number // 0.0-0.40, fraction of mass that is fines
+  twoPhaseEnabled?: boolean
 }
 
 /**
@@ -42,8 +43,31 @@ export function computeEffectiveGrindSize(
   return 1 / (phi / FINES_GRIND_SIZE + (1 - phi) / grindSize)
 }
 
+/**
+ * Compute surface solubles fraction from grind size.
+ *
+ * φ_s represents the fraction of total extractable solubles that sit on
+ * broken cell surfaces (created during grinding). Finer grinding breaks
+ * more cells, exposing more surface solubles.
+ *
+ * Scaling: φ_s ∝ 1/d — surface-area-to-volume ratio of broken fragments.
+ * Clamped to [0, 1] to prevent physically impossible values at extreme grind sizes.
+ *
+ * Reference: Spiro & Selwood (1984) — φ_s ≈ 0.30 at ~600μm for caffeine.
+ *
+ * TODO: Scale φ_s by roast level (darker = more brittle = higher φ_s).
+ * Dark roasts undergo more cellulose pyrolysis, making cell walls fragile.
+ * The same grinder setting shatters more cells on a dark roast, increasing
+ * the surface solubles fraction. Approximate scaling: φ_s *= roastFactor
+ * where roastFactor ≈ 0.85 (light), 1.0 (medium), 1.15 (dark).
+ */
+export function computeSurfaceFraction(grindSize: number): number {
+  // TODO: accept roastLevel parameter and scale phiS by roast brittleness
+  return Math.max(0, Math.min(1, PHI_SURFACE_REF * (D_REF_SURFACE / grindSize)))
+}
+
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {
-  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method, maxTime, numPoints, wasmModule, globalTemp = 93 } = params
+  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method, maxTime, numPoints, wasmModule, globalTemp = 93, twoPhaseEnabled = false } = params
 
   if (pourSchedule.length === 0) return []
 
@@ -58,6 +82,9 @@ export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionP
     : -1
 
   let ePrev = 0
+  let eFastPrev = 0
+  let eSlowPrev = 0
+  const phiS = twoPhaseEnabled ? computeSurfaceFraction(grindSize) : 0
 
   for (let i = 0; i < numPoints; i++) {
     const t = i * dtStep
@@ -79,22 +106,48 @@ export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionP
 
     const effectiveGrindSize = computeEffectiveGrindSize(grindSize, params.finesFraction ?? 0)
 
-    let k = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, method)
-
-    if (bloomPour && t >= bloomPour.startTime && t < bloomEndTime) {
-      const bloomDt = t - bloomPour.startTime
-      const fCo2 = 1 - BLOOM_INHIBITION * Math.exp(-K_DEGAS * bloomDt)
-      k *= fCo2
-    }
-
     const eMax = wasmModule.E_MAX.value
     const alpha = wasmModule.ALPHA.value
     const yieldEq = eMax / (1 + alpha / ratio)
-    const kObs = k * (1 + alpha / ratio)
+    const saturationFactor = 1 + alpha / ratio
 
-    const e = i === 0 ? 0 : yieldEq - (yieldEq - ePrev) * Math.exp(-kObs * dt)
+    let e = 0
 
-    ePrev = e
+    if (twoPhaseEnabled) {
+      let kFast = wasmModule.calculateFastRateConstant(currentTemp, effectiveGrindSize, roastLevel, method)
+      let kSlow = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, method)
+
+      if (bloomPour && t >= bloomPour.startTime && t < bloomEndTime) {
+        const bloomDt = t - bloomPour.startTime
+        const fCo2 = 1 - BLOOM_INHIBITION * Math.exp(-K_DEGAS * bloomDt)
+        kFast *= fCo2
+        kSlow *= fCo2
+      }
+
+      const kFastObs = kFast * saturationFactor
+      const kSlowObs = kSlow * saturationFactor
+      const poolFastEq = phiS * yieldEq
+      const poolSlowEq = (1 - phiS) * yieldEq
+      const eFast = i === 0 ? 0 : poolFastEq - (poolFastEq - eFastPrev) * Math.exp(-kFastObs * dt)
+      const eSlow = i === 0 ? 0 : poolSlowEq - (poolSlowEq - eSlowPrev) * Math.exp(-kSlowObs * dt)
+
+      e = eFast + eSlow
+      eFastPrev = eFast
+      eSlowPrev = eSlow
+    } else {
+      let k = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, method)
+
+      if (bloomPour && t >= bloomPour.startTime && t < bloomEndTime) {
+        const bloomDt = t - bloomPour.startTime
+        const fCo2 = 1 - BLOOM_INHIBITION * Math.exp(-K_DEGAS * bloomDt)
+        k *= fCo2
+      }
+
+      const kObs = k * saturationFactor
+      e = i === 0 ? 0 : yieldEq - (yieldEq - ePrev) * Math.exp(-kObs * dt)
+      ePrev = e
+    }
+
     results.push({ time: t, yield: Math.max(0, e) })
   }
 
