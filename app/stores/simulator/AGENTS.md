@@ -31,7 +31,7 @@ The Simulator Store acts as the **mandatory bridge** between the Vue frontend an
 | **Physics Loop** | `computeCurve()` | `index.ts` |
 | **State Definition** | `BrewRecipe` | `types.ts` |
 | **Presets** | `setPreset()` | `index.ts` |
-| **Piecewise Extraction** | `computePiecewiseCurve()` | `composables/usePiecewiseExtraction.ts` |
+| **Piecewise Extraction** | `computePiecewiseCurve()` | `composables/usePiecewiseExtraction.ts`, two-phase model: k_fast (surface wash) + k_slow (Fickian diffusion). φ_s surface fraction splits extraction between phases. |
 | **Brew Math** | `useBrewMath()` | `composables/useBrewMath.ts` |
 | **Dose/Water Limits** | `useBrewLimits()` | `composables/useBrewLimits.ts` |
 | **Pour Actions** | `addPourStep()`, `removePourStep()`, `updatePourStep()`, `loadTemplate()`, `clearPourSchedule()` | `composables/useV60PourSchedule.ts` |
@@ -57,3 +57,5 @@ The Simulator Store acts as the **mandatory bridge** between the Vue frontend an
 - **Reactivity Pattern**: Components mutate `store.recipe` properties directly (via `v-model` or assignment). This is intentional — the store's deep watcher on `recipe` automatically triggers `computeCurve()`. Do NOT add manual `computeCurve()` calls from components.
 - **Sync WASM Calls**: Do NOT assume WASM is loaded; always check `isLoading`.
 - **Heavy Logic in Components**: Move all simulation logic to this store; components should only be generic UI.
+- **Collapsing Two-Phase Model**: Do NOT simplify `computePiecewiseCurve()` to use a single rate constant. The k_fast/k_slow split (ε ≈ 0.035 at 93°C) is calibrated physics. Any change requires re-running `pnpm test:unit` against Hoffmann calibration targets.
+- **Feature-gating discontinuity**: When expanding a feature flag (e.g., flipping `supportsTwoPhase` from V60-only to universal), add unit tests asserting: (a) monotonicity in grind size vs. extraction for newly-enabled methods, (b) continuity within tolerance at parameter boundaries, (c) existing method curves remain within calibrated ranges. Feature expansions without continuity tests will silently break other methods.
