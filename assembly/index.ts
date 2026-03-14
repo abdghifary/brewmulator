@@ -3,8 +3,16 @@
 
 export const E_MAX: f64 = 28.0
 export const ALPHA: f64 = 1.1
-const A: f64 = 5e4
+const A: f64 = 65000.0 // Calibrated slow-phase ceiling; keeps cold brew EY within regression bounds.
 const E_A: f64 = 50000.0
+const E_A_FAST: f64 = 25000.0 // Activation energy for surface wash phase (J/mol)
+// Lower than E_A (50000) — boundary-layer mass transfer
+// has modest thermal dependence (Patricelli research).
+// At 85→96°C: k_fast changes +28% vs k_slow +65%.
+const A_FAST: f64 = 500.0 // Calibrated surface wash pre-exponential factor.
+// Final Task 4 calibration at T_ref=93°C (366.15K): ε=k_slow/k_fast≈0.035.
+// This gives k_fast/k_slow≈28× at reference conditions for the two-phase wash.
+// Safe upper bound for slow phase remains A≤66000; cold brew breaks at A≥67000.
 const R: f64 = 8.314
 
 /**
@@ -13,7 +21,7 @@ const R: f64 = 8.314
  * @param grind - Grind size in microns
  * @param roast - Roast level (0.8 = light, 1.0 = medium, 1.2 = dark)
  * @param method - Brew method (0 = v60, 1 = french press, 2 = espresso, 3 = aeropress, 4 = cold brew)
- * @returns Rate constant k
+ * @returns Rate constant k (s⁻¹)
  */
 export function calculateRateConstant(
   temp: f64,
@@ -33,6 +41,47 @@ export function calculateRateConstant(
   }
 
   return A * arrhenius * grindFactor * roast * methodModifier
+}
+
+/**
+ * Calculate FAST rate constant for surface wash phase.
+ * Uses:
+ *   - Separate activation energy E_A_FAST = 25000 J/mol (boundary-layer transfer)
+ *     vs E_A = 50000 J/mol for diffusion (Fickian intra-particle transport)
+ *   - Linear grind scaling (1/d) instead of quadratic (1/d²),
+ *     reflecting boundary-layer mass transfer kinetics.
+ *
+ * The lower E_A_FAST means k_fast is less temperature-sensitive than k_slow:
+ *   85→96°C: k_fast +28%, k_slow +65%
+ * This matches real brewing: initial saturation looks similar across temps,
+ * but total extraction changes significantly with temperature.
+ *
+ * @param temp - Temperature in Celsius
+ * @param grind - Grind size in microns
+ * @param roast - Roast level (0.8 = light, 1.0 = medium, 1.2 = dark)
+ * @param method - Brew method (0 = v60, 1 = french press, 2 = espresso, 3 = aeropress, 4 = cold brew)
+ * @returns Rate constant k_fast (s⁻¹)
+ *
+ * References: Moroney et al. (2016), Spiro & Selwood (1984), Patricelli model
+ */
+export function calculateFastRateConstant(
+  temp: f64,
+  grind: f64,
+  roast: f64,
+  method: i32
+): f64 {
+  const tempK = temp + 273.15
+  const arrhenius = Math.exp(-E_A_FAST / (R * tempK))
+  const grindFactor = 600.0 / grind
+
+  let methodModifier: f64 = 1.0
+  if (method === 2) {
+    methodModifier = 7.0
+  } else if (method === 1 || method === 4) {
+    methodModifier = 0.85
+  }
+
+  return A_FAST * arrhenius * grindFactor * roast * methodModifier
 }
 
 /**
