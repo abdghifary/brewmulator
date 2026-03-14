@@ -57,7 +57,8 @@ export const useSimulatorStore = defineStore('simulator', () => {
         numPoints: 101,
         wasmModule: wasmModule.value,
         globalTemp: recipe.value.temperature,
-        finesFraction: getMethodConfig(recipe.value.method).supportsFineFraction ? clampFinesFraction(recipe.value.finesFraction ?? DEFAULT_FINES_FRACTION) : undefined
+        finesFraction: getMethodConfig(recipe.value.method).supportsFineFraction ? clampFinesFraction(recipe.value.finesFraction ?? DEFAULT_FINES_FRACTION) : undefined,
+        twoPhaseEnabled: getMethodConfig(recipe.value.method).supportsTwoPhase
       })
       return
     }
