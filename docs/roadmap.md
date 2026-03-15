@@ -17,16 +17,18 @@ The current implementation includes the following features:
 - Bimodal PSD via Sauter mean $d_{32}$, currently for V60 only.
 - Support for five brew methods: V60, French Press, Espresso, AeroPress, and Cold Brew.
 
-## Phase 0: Merge Two-Phase Kinetics
+## Phase 0: Two-Phase Kinetics ✅
 
-The `feat/two-phase-kinetics` branch adds a two-phase extraction model (fast surface washing and slow diffusion) based on the Moroney et al. interpretation of Spiro and Selwood. This work includes 581 lines across 9 files.
+**Status: Merged into `main`.**
 
-### Technical Details
+Two-phase extraction model (fast surface washing + slow Fickian diffusion) based on the Moroney et al. interpretation of Spiro and Selwood. Enabled for V60 piecewise extraction.
 
-- WASM implementation: `calculateFastRateConstant()` with $E_{A,fast} = 25$ kJ/mol (compared to 50 kJ/mol for diffusion), linear grind scaling ($1/d$ vs $1/d^2$), $A_{fast} = 500$, and $A$ recalibrated to 65,000.
-- Piecewise engine: Two independent extraction pools (`eFastPrev` and `eSlowPrev`) carrying forward across pour boundaries.
-- Surface fraction auto-derivation: $\varphi_s = \varphi_{s,ref} \times (d_{ref} / d_{grind})$, clamped [0, 1]. Reference value is 0.30 at 600μm.
-- Gating: Controlled via the `supportsTwoPhase` flag in `MethodConfig`, initially enabled for V60 only.
+### What Was Implemented
+
+- WASM: `calculateFastRateConstant()` with $E_{A,fast} = 25$ kJ/mol (vs 50 kJ/mol for diffusion), linear grind scaling ($1/d$ vs $1/d^2$), $A_{fast} = 500$, $A$ recalibrated to 65,000.
+- Piecewise engine: Two independent extraction pools (`eFastPrev`, `eSlowPrev`) carrying forward across pour boundaries.
+- Surface fraction auto-derivation: $\varphi_s = \varphi_{s,ref} \times (d_{ref} / d_{grind})$, clamped [0, 1]. Reference: 0.30 at 600μm.
+- Gating: `supportsTwoPhase` flag in `MethodConfig`, enabled for V60 only.
 
 ### Formulas
 
@@ -41,7 +43,7 @@ $$E(t) = \varphi_s \cdot E_{max,fast}(1 - e^{-k_{fast}t}) + (1-\varphi_s) \cdot 
 
 ### Validation
 
-Tests include physics tests for Moroney $\epsilon$ validation (0.025 to 0.08) and temperature sensitivity. Piecewise tests cover calibration targets, monotonicity, and bloom interaction. Two open tasks remain: scaling $\varphi_s$ by roast level.
+Tests cover Moroney $\epsilon$ range (0.025–0.08), temperature sensitivity, calibration targets, monotonicity, and bloom interaction. Remaining open task: scaling $\varphi_s$ by roast level (see Phase 1.4).
 
 ## Phase 1: Universal Extraction Core
 
@@ -247,7 +249,7 @@ Parameterize all noise sources by skill level. Progression from expert to novice
 ## Dependency Graph
 
 ```
-Phase 0: Merge Two-Phase Branch
+Phase 0: Two-Phase Kinetics ✅
     │
     ▼
 Phase 1: Universal Extraction Core
@@ -272,7 +274,7 @@ Phase 2: Stochastic   Phase 3: Method-Specific
 (2.5 → 2.6 → 2.7)
 ```
 
-- Phase 0 must complete before any Phase 1 work.
+- Phase 0 is complete (merged). Phase 1 work can begin.
 - 1.1 and 1.2 can run in parallel (both "enable universally" tasks).
 - 1.3 and 1.4 can run in parallel (both roast-related).
 - 1.5 must precede 1.7 because freshness modifies wetting parameters.
