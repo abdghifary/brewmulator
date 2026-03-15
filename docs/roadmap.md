@@ -295,7 +295,7 @@ Phase 2: Stochastic   Phase 3: Method-Specific
 
 - **Liang, C. et al.** (2021). Coffee extraction and its physicochemical model. *Scientific Reports*, 11, 5535. DOI: [10.1038/s41598-021-85787-1](https://doi.org/10.1038/s41598-021-85787-1)
 
-- **Wang, X. & Lim, L. T.** (2021). Weibull extraction kinetics for coffee brewing.
+- **Wang, X. & Lim, L.-T.** (2021). Modeling study of coffee extraction at different temperature and grind size conditions to better understand the cold and hot brewing process. *Journal of Food Process Engineering*, 44(8), e13748. DOI: [10.1111/jfpe.13748](https://doi.org/10.1111/jfpe.13748)
 
 - **Lee, W. T. et al.** (2023). Dissolution flow instabilities in coffee extraction.
 

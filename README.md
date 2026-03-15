@@ -110,7 +110,7 @@ For the full mathematical treatment, see [`docs/physics-model.md`](docs/physics-
 
 - Spiro, M. & Selwood, R. M. (1984). *The kinetics of coffee brewing.* Z. Lebensm. Unters. Forsch.
 - Moroney, K.M. et al. (2015). *Modelling of coffee extraction during brewing using multiscale methods.* Chemical Engineering Science.
-- Wang, X. & Lim, L.-T. (2014). *Investigation of coffee extraction kinetics using a simplified extraction model.* Journal of Food Engineering.
+- Wang, X. & Lim, L.-T. (2021). *Modeling study of coffee extraction at different temperature and grind size conditions to better understand the cold and hot brewing process.* Journal of Food Process Engineering. DOI: [10.1111/jfpe.13748](https://doi.org/10.1111/jfpe.13748)
 - Patricelli, A. et al. (1975). *Surface and diffusion phenomena in the coffee extraction process.* Journal of Food Science.
 - Gagné, J. (2021). *The Physics of Filter Coffee.* Scott's Digital Alchemy.
 

@@ -388,7 +388,7 @@ in future updates.
    *J. Mathematics in Industry*, 7, Article 2.
    DOI: [10.1186/s13362-016-0024-6](https://doi.org/10.1186/s13362-016-0024-6)
 
-4. **Wang, X. & Lim, L.T.** (2021) — Empirical kinetic models for coffee extraction.
+4. **Wang, X. & Lim, L.-T.** (2021) — Modeling study of coffee extraction at different temperature and grind size conditions to better understand the cold and hot brewing process. *Journal of Food Process Engineering*, 44(8), e13748. DOI: [10.1111/jfpe.13748](https://doi.org/10.1111/jfpe.13748)
    (Weibull, pseudo-first-order validation of two-phase behavior)
 
 5. **Patricelli, A. et al.** — Double-exponential model for biphasic solid-liquid extraction.
