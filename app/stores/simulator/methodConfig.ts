@@ -18,6 +18,8 @@ export interface MethodConfig {
   percolationMultiplier: number
   supportsDripperGeometry: boolean
   supportsTwoPhase: boolean
+  methodModifierFast: number
+  methodModifierSlow: number
 }
 
 export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
@@ -36,7 +38,9 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: true,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: true
+    supportsTwoPhase: true,
+    methodModifierFast: 1.0,
+    methodModifierSlow: 1.0
   },
   frenchPress: {
     id: 'frenchPress',
@@ -53,7 +57,9 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: false
+    supportsTwoPhase: true,
+    methodModifierFast: 0.75,
+    methodModifierSlow: 0.90
   },
   espresso: {
     id: 'espresso',
@@ -70,7 +76,9 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: false
+    supportsTwoPhase: true,
+    methodModifierFast: 12.0,
+    methodModifierSlow: 4.0
   },
   aeropress: {
     id: 'aeropress',
@@ -87,7 +95,9 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: false
+    supportsTwoPhase: true,
+    methodModifierFast: 1.0,
+    methodModifierSlow: 1.0
   },
   coldBrew: {
     id: 'coldBrew',
@@ -104,7 +114,9 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: false
+    supportsTwoPhase: true,
+    methodModifierFast: 0.80,
+    methodModifierSlow: 0.90
   }
 }
 
