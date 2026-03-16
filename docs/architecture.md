@@ -35,13 +35,15 @@ The registry includes flags to toggle advanced physics features:
 - `percolationMultiplier`: Scales extraction for drip vs immersion.
 - `supportsDripperGeometry`: Toggle for filter shape effects.
 
-## V60 Isolation Model
+## Piecewise Extraction Architecture
 
-V60-specific logic is isolated in dedicated composables:
-- `useV60PourSchedule`: Manages the multi-step pour sequence.
-- `usePiecewiseExtraction`: Implements the piecewise model described in `docs/physics-model.md` and the detailed pages under `docs/physics-model/`.
+The piecewise extraction engine (`usePiecewiseExtraction`) is universal — all 5 brew methods route through `computePiecewiseCurve()`:
+- V60 uses the real pour schedule from `useV60PourSchedule`.
+- All other methods use a synthetic single-pour schedule from `generateSyntheticSchedule()`.
 
-This isolation ensures that adding V60 features doesn't clutter the main store or impact other brew methods like Espresso or French Press.
+V60-specific isolation applies only to the **pour schedule UI**: `useV60PourSchedule` manages the multi-step pour sequence, templates, and step editing. The extraction engine itself is shared.
+
+See [Per-Method Behavior](./physics-model/per-method-behavior.md) for modifier values and physical rationale.
 
 ## Store Composition Pattern
 

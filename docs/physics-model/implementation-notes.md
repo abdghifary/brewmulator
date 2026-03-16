@@ -4,7 +4,7 @@ The physics engine is split between a high-performance WebAssembly (WASM) module
 
 ## Piecewise Integration
 
-For V60 brewing with a pour schedule, the simulator performs piecewise integration. Extraction yield carries forward across segments as the equilibrium shifts when new water arrives.
+For all brew methods, the simulator performs piecewise integration via `computePiecewiseCurve()`. V60 uses the user-defined pour schedule; all other methods use a synthetic single-pour schedule (see `generateSyntheticSchedule()`). Extraction yield carries forward across segments as the equilibrium shifts when new water arrives.
 
 For each time segment between pour events, the yield evolves as:
 
