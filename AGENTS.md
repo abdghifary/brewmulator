@@ -40,12 +40,15 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 | `calculateExtractionYield` | Function | `assembly/index.ts` | Core physics calculation |
 | `calculateFastRateConstant` | Function | `assembly/index.ts` | Surface-wash rate constant for two-phase kinetics (E_A_FAST = 25 kJ/mol) |
 | `ExtractionChart` | Component | `app/components/simulator/` | ApexCharts visualization |
-| `computePiecewiseCurve` | Function | `app/stores/simulator/composables/usePiecewiseExtraction.ts` | V60 multi-pour extraction curve |
+| `computePiecewiseCurve` | Function | `app/stores/simulator/composables/usePiecewiseExtraction.ts` | Multi-pour and synthetic-schedule extraction curve (all methods) |
+| `generateSyntheticSchedule` | Function | `app/stores/simulator/composables/usePiecewiseExtraction.ts` | Generates single-pour schedule for non-V60 methods |
 | `PourSchedule` | Component | `app/components/simulator/PourSchedule.vue` | V60 pour schedule UI |
 | `clampPourStep` | Function | `app/stores/simulator/validation.ts` | Pour step validation & clamping |
 | `v60Templates` | Constant | `app/stores/simulator/constants.ts` | V60 recipe templates (Hoffmann, Rao, etc.) |
 | `useBrewMath` | Composable | `app/stores/simulator/composables/useBrewMath.ts` | Brew ratio, EY, TDS calculations |
 | `getMethodConfig` | Function | `app/stores/simulator/methodConfig.ts` | Method-specific config registry |
+| `methodModifierFast` | Field | `app/stores/simulator/methodConfig.ts` | Per-method fast-phase rate multiplier (TS single source of truth; always pass method=0 to WASM) |
+| `methodModifierSlow` | Field | `app/stores/simulator/methodConfig.ts` | Per-method slow-phase rate multiplier (TS single source of truth; always pass method=0 to WASM) |
 | `useV60PourSchedule` | Composable | `app/stores/simulator/composables/useV60PourSchedule.ts` | V60 pour schedule state & actions |
 | `formatTimeCompact` | Function | `app/stores/simulator/utils.ts` | Chart axis time formatting |
 | `formatTimeFull` | Function | `app/stores/simulator/utils.ts` | Form label time formatting |
@@ -62,6 +65,8 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 - **Testing**: Unit tests in `test/unit/` run in Node. Physics tests must validate against published data or known physical constraints with explicit numeric tolerances. (UI tests in `test/nuxt/` are configured but directory is currently missing).
 - **MethodConfig**: All method-specific parameters (limits, thresholds, time steps) live in the MethodConfig registry. Never hardcode method-specific values in components or composables.
 - **Method Isolation**: Method-specific logic lives in dedicated composables (e.g., useV60PourSchedule). The main store composes them. New brew method features should follow this pattern.
+- **Unified Piecewise Dispatch**: All 5 brew methods route through `computePiecewiseCurve()`. V60 uses the real pour schedule; all other methods use `generateSyntheticSchedule()` (single pour at t=0, no per-step temperature).
+- **WASM Modifier Neutralization**: Always pass `method=0` (V60/neutral) to WASM rate constant calls inside `computePiecewiseCurve()`. TS `MethodConfig.methodModifierFast`/`methodModifierSlow` are the sole per-method multipliers.
 
 ## COMMANDS
 ```bash
@@ -78,4 +83,4 @@ pnpm lint            # Lint code
 - **Reactivity**: The WASM module is loaded async. Ensure `store.initialize()` is called before accessing physics functions.
 - **CI Gaps**: CI currently lacks `pnpm build` and `pnpm test` steps. WASM artifacts are not verified against source in CI.
 - **Bimodal PSD**: V60 uses a Sauter mean diameter (d₃₂) effective grind size to model fines. Controlled by `finesFraction` on `BrewRecipe`. Start at `docs/physics-model.md` and see the detailed pages under `docs/physics-model/` for physics details.
-- **Two-Phase Kinetics**: V60 piecewise extraction uses a two-phase model (fast surface-wash k_fast + slow Fickian diffusion k_slow). Key constants: `A = 65000`, `A_FAST = 500`, `E_A_FAST = 25000 J/mol`. Calibrated at T_ref=93°C; ε = k_slow/k_fast ≈ 0.035. Do NOT alter these constants without re-running the full calibration suite (`pnpm test:unit`).
+- **Two-Phase Kinetics**: All 5 brew methods use a two-phase piecewise extraction model (fast surface-wash k_fast + slow Fickian diffusion k_slow). Per-method behavior is controlled by `methodModifierFast`/`methodModifierSlow` in MethodConfig. Key constants: `A = 65000`, `A_FAST = 500`, `E_A_FAST = 25000 J/mol`. Calibrated at T_ref=93°C; ε = k_slow/k_fast ≈ 0.035. Do NOT alter these constants without re-running the full calibration suite (`pnpm test:unit`).

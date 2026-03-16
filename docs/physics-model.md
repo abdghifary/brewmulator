@@ -17,7 +17,7 @@ Brewmulator has transitioned from a simplified "Infinite Sink" model to a more r
 The foundational mathematical framework. Covers reversible kinetics, equilibrium yield formulas, and the base rate constant calculation using the Arrhenius equation.
 
 ### 2. [Advanced Kinetics](./physics-model/advanced-kinetics.md)
-Complex physical models for V60 brewing. Includes the two-phase extraction model (separating surface wash from internal diffusion) and the bimodal particle size distribution (Sauter mean $d_{32}$) that accounts for the effect of fines.
+Two-phase extraction model (surface wash + Fickian diffusion), now universal across all 5 brew methods. Also covers bimodal particle size distribution (Sauter mean $d_{32}$) for fines modeling (currently V60).
 
 ### 3. [Thermal and Pour Dynamics](./physics-model/thermal-and-pour-dynamics.md)
 How the simulator handles multi-step pour schedules. Covers Newton cooling between pours, thermal equilibration when adding new water, and the inhibition effect of CO₂ during the bloom phase.
@@ -30,6 +30,9 @@ A guide to the simplifications made in the model. Essential reading for understa
 
 ### 6. [References](./physics-model/references.md)
 A centralized list of the scientific literature and research papers used to calibrate and validate the Brewmulator physics engine.
+
+### 7. [Per-Method Behavior](./physics-model/per-method-behavior.md)
+Unified two-phase dispatch across all 5 brew methods. Covers per-method rate modifiers (`methodModifierFast`/`methodModifierSlow`), WASM modifier neutralization, synthetic single-pour schedules for non-V60 methods, and cold brew temperature handling.
 
 ## Suggested Reading Order
 

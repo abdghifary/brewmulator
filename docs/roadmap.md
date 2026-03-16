@@ -47,7 +47,7 @@ Tests cover Moroney $\epsilon$ range (0.025–0.08), temperature sensitivity, ca
 
 ## Phase 1: Universal Extraction Core
 
-### 1.1 Extend Two-Phase to All Methods
+### 1.1 Extend Two-Phase to All Methods ✅
 
 Currently gated to V60. We will enable `supportsTwoPhase` universally and wire the non-piecewise code path for immersion and espresso methods. Spiro and Selwood originally studied immersion brewing, so two-phase kinetics are fundamentally universal.
 
@@ -289,6 +289,7 @@ where $\lambda$ is the drain coefficient (high for V60, low for Kalita). The ins
 - $k_{slow}$ drops approximately 244 times at 20°C compared to 93°C (Arrhenius).
 - Time-dependent equilibrium cap.
 - Modeling for extended contact times of 12 to 24 hours.
+- **Temperature profile**: `computePiecewiseCurve()` uses `globalTemp` as a static starting temperature with Newton cooling. Future heated cold brew or variable-temperature immersion would need a `ThermalProfile` concept or per-method `minTemperature` in MethodConfig rather than modifying the `clampPourStep()` 80°C floor.
 
 ### 3.5 AeroPress
 
@@ -372,3 +373,4 @@ Phase 2: Stochastic   Phase 3: Method-Specific
 - **Testing**: Every phase item requires corresponding physics unit tests validating the new math against published data or known physical constraints.
 - **Feature-gating continuity**: When enabling a feature universally (e.g., flipping `supportsTwoPhase` from V60-only to all methods), the extraction curves for previously-unsupported methods will change discontinuously. Each gating expansion must include unit tests asserting: (a) monotonicity in grind size vs. extraction, (b) continuity within reasonable tolerance at parameter boundaries, and (c) that existing method curves remain within calibrated ranges.
 - **Validation targets**: For each major model addition, document which published dataset, figure, or metric range the implementation must match. Examples: Moroney $\epsilon$ range 0.025-0.08 for two-phase, Arrhenius temperature sensitivity from Sano et al., extraction vs. time curve shapes from Liang et al. for immersion. Test assertions should encode these as numeric tolerances that fail CI on drift.
+- **Per-method temperature validation**: `clampPourStep()` enforces an 80°C minimum designed for the V60 pour schedule UI. When extending piecewise extraction to non-V60 methods, synthetic schedules must omit per-step temperature to fall back to `globalTemp`, bypassing this floor. Future dynamic temperature profiles should introduce `MethodConfig.minTemperature` per method or a `ThermalProfile` concept rather than modifying the `clampPourStep()` guard.
