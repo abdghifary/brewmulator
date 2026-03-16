@@ -8,6 +8,11 @@ import { computePiecewiseCurve, computeEffectiveGrindSize, computeSurfaceFractio
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let wasmModule: any
 
+type PiecewiseCurveParamsWithModifiers = PiecewiseCurveParams & {
+  methodModifierFast?: number
+  methodModifierSlow?: number
+}
+
 beforeAll(async () => {
   const wasmPath = join(process.cwd(), 'build', 'release.wasm')
   const wasmBuffer = await readFile(wasmPath)
@@ -463,5 +468,83 @@ describe('Two-Phase Extraction Kinetics', () => {
     expect(at60.yield).toBeLessThanOrEqual(15)
     expect(at180.yield).toBeGreaterThanOrEqual(20)
     expect(at180.yield).toBeLessThanOrEqual(21)
+  })
+})
+
+describe('Per-method modifier overrides', () => {
+  function makeTwoPhaseHoffmannParams(overrides: Partial<PiecewiseCurveParamsWithModifiers> = {}): PiecewiseCurveParamsWithModifiers {
+    return makeParams({
+      twoPhaseEnabled: true,
+      grindSize: 500,
+      pourSchedule: [
+        { startTime: 0, waterGrams: 60, temperature: 93, isBloom: true },
+        { startTime: 45, waterGrams: 240, temperature: 93 },
+        { startTime: 75, waterGrams: 200, temperature: 93 }
+      ],
+      coffeeGrams: 30,
+      maxTime: 210,
+      numPoints: 211,
+      ...overrides
+    })
+  }
+
+  function getYieldAt(curve: ReturnType<typeof computePiecewiseCurve>, time: number): number {
+    return curve.find(point => Math.abs(point.time - time) < 1)!.yield
+  }
+
+  it('explicit identity modifiers preserve V60 Hoffmann calibration and match omitted modifiers', () => {
+    const baseline = computePiecewiseCurve(makeTwoPhaseHoffmannParams())
+    const withExplicitIdentity = computePiecewiseCurve(makeTwoPhaseHoffmannParams({
+      methodModifierFast: 1.0,
+      methodModifierSlow: 1.0
+    }))
+
+    expect(getYieldAt(baseline, 15)).toBeCloseTo(6.49, 2)
+    expect(getYieldAt(baseline, 60)).toBeCloseTo(13.35, 2)
+    expect(getYieldAt(baseline, 180)).toBeCloseTo(20.46, 2)
+
+    expect(getYieldAt(withExplicitIdentity, 15)).toBeCloseTo(getYieldAt(baseline, 15), 10)
+    expect(getYieldAt(withExplicitIdentity, 60)).toBeCloseTo(getYieldAt(baseline, 60), 10)
+    expect(getYieldAt(withExplicitIdentity, 180)).toBeCloseTo(getYieldAt(baseline, 180), 10)
+  })
+
+  it('higher fast and slow modifiers increase EY at 60 seconds', () => {
+    const baseline = computePiecewiseCurve(makeTwoPhaseHoffmannParams({
+      methodModifierFast: 1.0,
+      methodModifierSlow: 1.0
+    }))
+    const boosted = computePiecewiseCurve(makeTwoPhaseHoffmannParams({
+      methodModifierFast: 2.0,
+      methodModifierSlow: 2.0
+    }))
+
+    expect(getYieldAt(boosted, 60)).toBeGreaterThan(getYieldAt(baseline, 60))
+  })
+
+  it('lower fast and slow modifiers decrease EY at 60 seconds', () => {
+    const baseline = computePiecewiseCurve(makeTwoPhaseHoffmannParams({
+      methodModifierFast: 1.0,
+      methodModifierSlow: 1.0
+    }))
+    const reduced = computePiecewiseCurve(makeTwoPhaseHoffmannParams({
+      methodModifierFast: 0.5,
+      methodModifierSlow: 0.5
+    }))
+
+    expect(getYieldAt(reduced, 60)).toBeLessThan(getYieldAt(baseline, 60))
+  })
+
+  it('fast and slow modifiers affect the curve independently', () => {
+    const fastHeavy = computePiecewiseCurve(makeTwoPhaseHoffmannParams({
+      methodModifierFast: 3.0,
+      methodModifierSlow: 0.5
+    }))
+    const slowHeavy = computePiecewiseCurve(makeTwoPhaseHoffmannParams({
+      methodModifierFast: 0.5,
+      methodModifierSlow: 3.0
+    }))
+
+    expect(getYieldAt(fastHeavy, 15)).not.toBeCloseTo(getYieldAt(slowHeavy, 15), 3)
+    expect(getYieldAt(fastHeavy, 180)).not.toBeCloseTo(getYieldAt(slowHeavy, 180), 3)
   })
 })
