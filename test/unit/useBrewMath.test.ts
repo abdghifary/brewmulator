@@ -34,4 +34,14 @@ describe('useBrewMath extractionYield', () => {
     const { extractionYield } = useBrewMath(recipe, wasmModule, curve)
     expect(extractionYield.value).toBeCloseTo(20.3, 4)
   })
+
+  it('updates reactively when extractionCurve changes', () => {
+    const recipe = ref(baseRecipe)
+    const wasmModule = ref(null)
+    const curve = ref<ExtractionPoint[]>([])
+    const { extractionYield } = useBrewMath(recipe, wasmModule, curve)
+    expect(extractionYield.value).toBe(0)
+    curve.value = [{ time: 0, yield: 0 }, { time: 180, yield: 18.5 }]
+    expect(extractionYield.value).toBeCloseTo(18.5, 4)
+  })
 })
