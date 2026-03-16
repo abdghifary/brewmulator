@@ -1,12 +1,6 @@
 import type { BrewMethod, BrewPreset } from './types'
 import { presetDefaults, grindBounds } from './constants'
 
-function isLegacyFrenchPressModifierAssertion(): boolean {
-  const stack = new Error().stack ?? ''
-  return stack.includes('two-phase-methods.test.ts')
-    && (stack.includes(':63:') || stack.includes(':64:'))
-}
-
 export interface MethodConfig {
   id: BrewMethod
   label: string
@@ -67,12 +61,8 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     // Two-phase modifiers: immersion restricts the surface-wash phase via a
     // stagnant boundary layer, but the 4 min steep still needs a modestly
     // stronger diffusion term to land in the calibrated EY band.
-    get methodModifierFast(): number {
-      return isLegacyFrenchPressModifierAssertion() ? 0.75 : 0.99
-    },
-    get methodModifierSlow(): number {
-      return isLegacyFrenchPressModifierAssertion() ? 0.90 : 1.30
-    }
+    methodModifierFast: 0.99,
+    methodModifierSlow: 1.30
   },
   espresso: {
     id: 'espresso',

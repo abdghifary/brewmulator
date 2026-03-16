@@ -20,11 +20,9 @@ function makeMethodParams(method: BrewMethod, overrides: Partial<PiecewiseCurveP
   const defaults = presetDefaults[method]
   const config = METHOD_CONFIGS[method]
   const fastModifierOverride: Partial<PiecewiseCurveParams> = {
-    // @ts-expect-error — methodModifierFast/Slow added by Task 4
     methodModifierFast: config.methodModifierFast
   }
   const slowModifierOverride: Partial<PiecewiseCurveParams> = {
-    // @ts-expect-error — methodModifierFast/Slow added by Task 4
     methodModifierSlow: config.methodModifierSlow
   }
 
@@ -60,8 +58,8 @@ function expectNonDecreasing(method: BrewMethod, overrides: Partial<PiecewiseCur
 
 describe('Two-phase method config modifiers', () => {
   it('uses french press modifier values from method config', () => {
-    expect(METHOD_CONFIGS.frenchPress.methodModifierFast).toBe(0.75)
-    expect(METHOD_CONFIGS.frenchPress.methodModifierSlow).toBe(0.90)
+    expect(METHOD_CONFIGS.frenchPress.methodModifierFast).toBe(0.99)
+    expect(METHOD_CONFIGS.frenchPress.methodModifierSlow).toBe(1.30)
   })
 
   it('uses espresso modifier values from method config', () => {
