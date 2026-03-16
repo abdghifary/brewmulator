@@ -39,8 +39,8 @@ The calibrated values satisfy these physical constraints:
 The AssemblyScript WASM engine has its own internal per-method modifiers (e.g., espresso×7.0, French Press/Cold Brew×0.85). To prevent these from stacking with the TypeScript-side MethodConfig modifiers, `computePiecewiseCurve()` always passes `method=0` (V60/neutral) to both `calculateRateConstant()` and `calculateFastRateConstant()`:
 
 ```typescript
-const kSlow = wasmModule.calculateRateConstant(grindSize, 0, roastLevel, temp)
-const kFast = wasmModule.calculateFastRateConstant(grindSize, 0, roastLevel, temp)
+const kSlow = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, 0)
+const kFast = wasmModule.calculateFastRateConstant(currentTemp, effectiveGrindSize, roastLevel, 0)
 ```
 
 This ensures `MethodConfig.methodModifierFast` and `MethodConfig.methodModifierSlow` are the **sole** source of per-method rate adjustments in piecewise mode.
@@ -50,7 +50,7 @@ This ensures `MethodConfig.methodModifierFast` and `MethodConfig.methodModifierS
 `generateSyntheticSchedule(recipe)` creates a single-element pour schedule:
 
 ```typescript
-[{ time: 0, volume: recipe.totalWater }]
+[{ startTime: 0, waterGrams: recipe.waterGrams }]
 ```
 
 No `temperature` field is set on synthetic pours. This is intentional — see Cold Brew Temperature Handling below.
@@ -59,7 +59,7 @@ No `temperature` field is set on synthetic pours. This is intentional — see Co
 
 `clampPourStep()` enforces an 80°C minimum temperature on pour steps — a guard designed for the V60 pour schedule UI where users enter temperatures manually. Synthetic pours must bypass this floor for cold brew (typically 20°C).
 
-By omitting `temperature` from synthetic pours, `computePiecewiseCurve()` falls back to `globalTemp` for each step (line: `lastPour.temperature ?? globalTemp`). The `recipe.globalTemp` field stores the actual brew temperature (e.g., 20°C for cold brew), so no 80°C clamping occurs.
+By omitting `temperature` from synthetic pours, `computePiecewiseCurve()` falls back to `globalTemp` for each step (line: `lastPour.temperature ?? globalTemp`). The `recipe.temperature` field is passed as `globalTemp` when building the params, so cold brew's 20°C is used directly without 80°C clamping.
 
 ## References
 
