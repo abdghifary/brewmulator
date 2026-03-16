@@ -210,6 +210,57 @@ Parameterize all noise sources by skill level. Progression from expert to novice
 
 ### 3.1 V60 Pour-Over
 
+#### 3.1a Percolation Driving Force Multiplier
+
+A scalar rate-constant multiplier modeling how gravity-driven flow through the coffee bed enhances extraction compared to immersion. Fresh water continually contacts grounds, and micro-turbulence at particle surfaces thins the diffusion boundary layer — analogous to continuous stirring.
+
+$$k_{eff} = k \cdot m_{perc}$$
+
+where $m_{perc}$ is calibrated per method ($\approx 1.2$–$1.3$ for V60, $1.0$ for all others). Applied in the TypeScript piecewise ODE stepper after Arrhenius, grind, and bloom corrections — zero WASM changes. The `MethodConfig.percolationMultiplier` extension point already exists at `1.0`.
+
+- Complexity: Small
+- Impact: Low-Medium (calibration knob, not new physics)
+- Depends on: Phase 0 ✅, Plans 1–2 ✅
+- Conditional: Executes only if Plan 2's GO/NO-GO gate returned GO (see `.sisyphus/evidence/plan2-gate-result.md`)
+
+#### 3.1b Dripper Geometry — Water Holdup Model
+
+Model how different drippers (V60, Kalita Wave, Chemex, Origami) affect extraction through **water residence time**, not rate-constant scaling. Drippers differ in drain rate — a Kalita holds water in contact with grounds longer, producing more total extraction at the same extraction rate per second.
+
+> ⚠️ **Physics note**: An earlier proposal used `k *= flowRestriction` per dripper. This is **physically wrong** — rate constants ($k$) are intrinsic to bean/roast/temperature (Arrhenius), not the dripper. The correct mechanism is hydraulic: drippers control how long water stays in the bed, not how fast extraction occurs per second of contact.
+
+**Core model — dynamic water-in-bed tracking:**
+
+$$\frac{dW_{bed}}{dt} = Q_{pour}(t) - Q_{drain}(t)$$
+
+where $Q_{drain}$ is governed by dripper geometry and a drain coefficient. The simplest form uses exponential decay:
+
+$$W_{bed}(t + dt) = W_{bed}(t) + (Q_{pour} - \lambda \cdot W_{bed}(t)) \cdot dt$$
+
+where $\lambda$ is the drain coefficient (high for V60, low for Kalita). The instantaneous effective brew ratio becomes $W_{bed}(t) / m_{coffee}$, feeding into the equilibrium yield calculation at each ODE time step.
+
+**Dripper parameters** (minimum viable):
+
+| Parameter | V60 | Kalita Wave | Chemex | Purpose |
+| :--- | :--- | :--- | :--- | :--- |
+| `drainCoefficient` ($\lambda$) | High | Low | Medium | Controls drain rate / residence time |
+| `geometryType` | conical | flat-bottom | conical | Determines $V \to h$ relationship |
+
+**Full-fidelity extension** (future): Geometry-specific hydrostatic head ($h \propto V^{1/3}$ for cones, $h \propto V$ for flat-bottom), Darcy-derived $Q_{drain}$ with $R_{bed} + R_{dripper}$, and bypass flow modeling (Gagné 2021).
+
+**Architecture implications**:
+- Adds `waterInBed` state variable to the ODE inner loop
+- Dynamic brew ratio replaces fixed cumulative water per pour segment
+- Backward-compatible: undefined `drainCoefficient` falls back to `waterInBed = cumulativeWater` (legacy V60 behavior)
+- Requires recalibration of `A` and `A_FAST` constants after integration (dynamic $W_{bed}$ is always ≤ cumulative water, shifting curves downward)
+
+- Complexity: Large
+- Impact: High (transforms V60 from "generic pour-over" to "dripper-aware")
+- Depends on: Phase 0 ✅, Plans 1–2 ✅. Plan 3 (3.1a) is NOT required.
+- Includes: Dripper selector UI (V60 only), `DripperConfig` data model, `useDripperProfile` composable
+
+#### 3.1c Advanced V60 Bed Physics (Future)
+
 - Darcy's law and Kozeny-Carman for flow resistance through the packed bed.
 - Fines migration where small particles move and clog the filter.
 - Bed compaction under water weight.
@@ -269,9 +320,9 @@ Phase 1: Universal Extraction Core
     ▼                    ▼
 Phase 2: Stochastic   Phase 3: Method-Specific
 (2.1 → 2.3 → 2.5)    (3.1─3.5 independent)
-(2.2 parallel)
-(2.4 parallel)
-(2.5 → 2.6 → 2.7)
+(2.2 parallel)         3.1a Percolation multiplier ←── Phase 0 (early-start)
+(2.4 parallel)         3.1b Water holdup model ←─────── Phase 0 (early-start)
+(2.5 → 2.6 → 2.7)     3.1c Advanced bed physics ←──── 3.1b
 ```
 
 - Phase 0 is complete (merged). Phase 1 work can begin.
@@ -280,6 +331,7 @@ Phase 2: Stochastic   Phase 3: Method-Specific
 - 1.5 must precede 1.7 because freshness modifies wetting parameters.
 - 1.6 and 1.8 are independent of other Phase 1 items.
 - Phase 2 and Phase 3 can run in parallel once Phase 1 is complete.
+- **Early-start exception**: 3.1a and 3.1b depend only on Phase 0 (complete) and Plans 1–2 (complete). They can execute in parallel with Phase 1 work without waiting for Phase 1 completion. 3.1a is conditional on the Plan 2 GO/NO-GO gate. 3.1b is independent of 3.1a.
 
 ## Scientific References
 

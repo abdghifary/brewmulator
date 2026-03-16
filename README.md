@@ -104,7 +104,7 @@ The extraction engine implements **Spiro & Selwood pseudo-first-order reversible
 
 V60 piecewise extraction extends this with per-pour segments, thermal decay, and CO₂ bloom inhibition.
 
-For the full mathematical treatment, see [`docs/physics-model.md`](docs/physics-model.md).
+For the physics model overview and navigation to the detailed documentation set, see [`docs/physics-model.md`](docs/physics-model.md). The detailed pages live under [`docs/physics-model/`](docs/physics-model/).
 
 ### References
 

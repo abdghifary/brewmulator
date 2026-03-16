@@ -31,7 +31,7 @@ Brewmulator is a physics-based coffee extraction simulator. It combines a **Nuxt
 | **State/Bridge** | `app/stores/simulator/` | Bridge between Vue and WASM |
 | **Theme/Styles** | `app/app.config.ts` | Colors & global config |
 | **Build Config** | `asconfig.json` | AssemblyScript compiler settings |
-| **Physics Docs** | `docs/physics-model.md` | Extraction math reference & model documentation |
+| **Physics Docs** | `docs/physics-model.md` | Hub page for the modular physics model documentation set |
 
 ## CODE MAP
 | Symbol | Type | Location | Role |
@@ -77,5 +77,5 @@ pnpm lint            # Lint code
 - **WASM Artifacts**: WASM artifacts are built automatically on `pnpm install` (via `prepare` script) and during production builds.
 - **Reactivity**: The WASM module is loaded async. Ensure `store.initialize()` is called before accessing physics functions.
 - **CI Gaps**: CI currently lacks `pnpm build` and `pnpm test` steps. WASM artifacts are not verified against source in CI.
-- **Bimodal PSD**: V60 uses a Sauter mean diameter (d₃₂) effective grind size to model fines. Controlled by `finesFraction` on `BrewRecipe`. See `docs/physics-model.md` for physics details.
+- **Bimodal PSD**: V60 uses a Sauter mean diameter (d₃₂) effective grind size to model fines. Controlled by `finesFraction` on `BrewRecipe`. Start at `docs/physics-model.md` and see the detailed pages under `docs/physics-model/` for physics details.
 - **Two-Phase Kinetics**: V60 piecewise extraction uses a two-phase model (fast surface-wash k_fast + slow Fickian diffusion k_slow). Key constants: `A = 65000`, `A_FAST = 500`, `E_A_FAST = 25000 J/mol`. Calibrated at T_ref=93°C; ε = k_slow/k_fast ≈ 0.035. Do NOT alter these constants without re-running the full calibration suite (`pnpm test:unit`).

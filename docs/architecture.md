@@ -39,7 +39,7 @@ The registry includes flags to toggle advanced physics features:
 
 V60-specific logic is isolated in dedicated composables:
 - `useV60PourSchedule`: Manages the multi-step pour sequence.
-- `usePiecewiseExtraction`: Implements the piecewise model described in `docs/physics-model.md`.
+- `usePiecewiseExtraction`: Implements the piecewise model described in `docs/physics-model.md` and the detailed pages under `docs/physics-model/`.
 
 This isolation ensures that adding V60 features doesn't clutter the main store or impact other brew methods like Espresso or French Press.
 
@@ -64,7 +64,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
 
 Extraction kinetics are implemented in AssemblyScript for performance. The frontend handles high-level coordination and zone classification using `MethodConfig.sweetSpot`.
 
-For detailed extraction formulas and the saturation-aware model, see [Physics Model Documentation](./physics-model.md).
+For the physics model overview and links to the detailed extraction formulas, see [Physics Model Documentation](./physics-model.md).
 
 ## Related Documentation
 
