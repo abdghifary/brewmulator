@@ -1,4 +1,4 @@
-import type { PourSchedule, ExtractionPoint, WasmModule } from '../types'
+import type { PourSchedule, ExtractionPoint, WasmModule, BrewRecipe, PourStep } from '../types'
 import {
   T_AMBIENT, H_COOL, K_DEGAS, BLOOM_INHIBITION,
   FINES_GRIND_SIZE, PHI_SURFACE_REF, D_REF_SURFACE
@@ -62,8 +62,12 @@ export function computeEffectiveGrindSize(
  * where roastFactor ≈ 0.85 (light), 1.0 (medium), 1.15 (dark).
  */
 export function computeSurfaceFraction(grindSize: number): number {
-  // TODO: accept roastLevel parameter and scale phiS by roast brittleness
-  return Math.max(0, Math.min(1, PHI_SURFACE_REF * (D_REF_SURFACE / grindSize)))
+   // TODO: accept roastLevel parameter and scale phiS by roast brittleness
+   return Math.max(0, Math.min(1, PHI_SURFACE_REF * (D_REF_SURFACE / grindSize)))
+}
+
+export function generateSyntheticSchedule(recipe: BrewRecipe): PourStep[] {
+  return [{ startTime: 0, waterGrams: recipe.waterGrams }]
 }
 
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {
