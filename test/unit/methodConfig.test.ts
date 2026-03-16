@@ -72,4 +72,20 @@ describe('MethodConfig', () => {
       expect(config.supportsDripperGeometry).toBe(false)
     }
   })
+
+  it('all methods support two-phase extraction', () => {
+    for (const method of ALL_METHODS) {
+      expect(METHOD_CONFIGS[method].supportsTwoPhase).toBe(true)
+    }
+  })
+
+  it('all methods have valid methodModifierFast and methodModifierSlow', () => {
+    for (const method of ALL_METHODS) {
+      const config = METHOD_CONFIGS[method]
+      expect(config.methodModifierFast).toBeTypeOf('number')
+      expect(config.methodModifierFast).toBeGreaterThan(0)
+      expect(config.methodModifierSlow).toBeTypeOf('number')
+      expect(config.methodModifierSlow).toBeGreaterThan(0)
+    }
+  })
 })
