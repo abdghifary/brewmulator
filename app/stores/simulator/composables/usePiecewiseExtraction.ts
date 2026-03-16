@@ -16,6 +16,8 @@ export interface PiecewiseCurveParams {
   globalTemp?: number
   finesFraction?: number // 0.0-0.40, fraction of mass that is fines
   twoPhaseEnabled?: boolean
+  methodModifierFast?: number // multiplied onto kFast after WASM call, default 1.0
+  methodModifierSlow?: number // multiplied onto kSlow after WASM call, default 1.0
 }
 
 /**
@@ -127,6 +129,9 @@ export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionP
         kFast *= fCo2
         kSlow *= fCo2
       }
+
+      kFast *= (params.methodModifierFast ?? 1.0)
+      kSlow *= (params.methodModifierSlow ?? 1.0)
 
       const kFastObs = kFast * saturationFactor
       const kSlowObs = kSlow * saturationFactor
