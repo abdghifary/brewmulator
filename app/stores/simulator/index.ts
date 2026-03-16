@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import type { BrewMethod, BrewRecipe, ExtractionPoint, WasmModule } from './types'
-import { presetDefaults, methodToNumber, roastToNumber, DEFAULT_FINES_FRACTION } from './constants'
+import { presetDefaults, roastToNumber, DEFAULT_FINES_FRACTION } from './constants'
 import { clampFinesFraction } from './validation'
 import { getMethodConfig } from './methodConfig'
 import { useBrewMath } from './composables/useBrewMath'
 import { useBrewLimits } from './composables/useBrewLimits'
 import { useV60PourSchedule } from './composables/useV60PourSchedule'
-import { computePiecewiseCurve } from './composables/usePiecewiseExtraction'
+import { generateSyntheticSchedule } from './composables/usePiecewiseExtraction'
+import * as piecewiseExtraction from './composables/usePiecewiseExtraction'
 
 export * from './types'
 export * from './constants'
@@ -45,51 +46,29 @@ export const useSimulatorStore = defineStore('simulator', () => {
       return
     }
 
-    // Piecewise path for V60 with pour schedule
-    if (v60Pour.hasPourSchedule.value) {
-      extractionCurve.value = computePiecewiseCurve({
-        pourSchedule: v60Pour.pourSchedule.value,
-        coffeeGrams: recipe.value.coffeeGrams,
-        grindSize: recipe.value.grindSize,
-        roastLevel: roastToNumber(recipe.value.roastLevel),
-        method: methodToNumber(recipe.value.method),
-        maxTime: recipe.value.brewTime,
-        numPoints: 101,
-        wasmModule: wasmModule.value,
-        globalTemp: recipe.value.temperature,
-        finesFraction: getMethodConfig(recipe.value.method).supportsFineFraction ? clampFinesFraction(recipe.value.finesFraction ?? DEFAULT_FINES_FRACTION) : undefined,
-        twoPhaseEnabled: getMethodConfig(recipe.value.method).supportsTwoPhase
-      })
-      return
-    }
+    const config = getMethodConfig(recipe.value.method)
 
-    // Legacy path — single-pour methods
-    const { method, temperature, grindSize, roastLevel, waterGrams, coffeeGrams } = recipe.value
-    const preset = presetDefaults[method]
-    const maxTime = preset.maxTime
-    const numPoints = 100
+    const pourSchedule = v60Pour.hasPourSchedule.value
+      ? v60Pour.pourSchedule.value
+      : generateSyntheticSchedule(recipe.value)
 
-    // Optimization: Pre-calculate numeric values to avoid lookups in the loop
-    const methodNum = methodToNumber(method)
-    const roastNum = roastToNumber(roastLevel)
-
-    const points: ExtractionPoint[] = []
-
-    for (let i = 0; i <= numPoints; i++) {
-      const t = (i / numPoints) * maxTime
-      const y = wasmModule.value.calculateExtractionYield(
-        t,
-        temperature,
-        grindSize,
-        roastNum,
-        methodNum,
-        waterGrams,
-        coffeeGrams
-      )
-      points.push({ time: t, yield: y })
-    }
-
-    extractionCurve.value = points
+    extractionCurve.value = piecewiseExtraction.computePiecewiseCurve({
+      pourSchedule,
+      coffeeGrams: recipe.value.coffeeGrams,
+      grindSize: recipe.value.grindSize,
+      roastLevel: roastToNumber(recipe.value.roastLevel),
+      method: 0,
+      maxTime: recipe.value.brewTime,
+      numPoints: 101,
+      wasmModule: wasmModule.value,
+      globalTemp: recipe.value.temperature,
+      finesFraction: config.supportsFineFraction
+        ? clampFinesFraction(recipe.value.finesFraction ?? DEFAULT_FINES_FRACTION)
+        : undefined,
+      twoPhaseEnabled: config.supportsTwoPhase,
+      methodModifierFast: config.methodModifierFast,
+      methodModifierSlow: config.methodModifierSlow,
+    })
   }
 
   // Watch for deep changes in recipe to trigger re-computation
