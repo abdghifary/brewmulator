@@ -120,8 +120,8 @@ export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionP
     let e = 0
 
     if (twoPhaseEnabled) {
-      let kFast = wasmModule.calculateFastRateConstant(currentTemp, effectiveGrindSize, roastLevel, method)
-      let kSlow = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, method)
+      let kFast = wasmModule.calculateFastRateConstant(currentTemp, effectiveGrindSize, roastLevel, 0)
+      let kSlow = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, 0)
 
       if (bloomPour && t >= bloomPour.startTime && t < bloomEndTime) {
         const bloomDt = t - bloomPour.startTime
@@ -144,7 +144,7 @@ export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionP
       eFastPrev = eFast
       eSlowPrev = eSlow
     } else {
-      let k = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, method)
+      let k = wasmModule.calculateRateConstant(currentTemp, effectiveGrindSize, roastLevel, 0)
 
       if (bloomPour && t >= bloomPour.startTime && t < bloomEndTime) {
         const bloomDt = t - bloomPour.startTime

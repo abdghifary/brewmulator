@@ -1,12 +1,10 @@
 import { computed, type Ref } from 'vue'
 import type { BrewRecipe, ExtractionPoint, WasmModule } from '../types'
-import { methodToNumber, roastToNumber } from '../constants'
 import { getMethodConfig } from '../methodConfig'
 
 export function useBrewMath(
   recipe: Ref<BrewRecipe>,
   wasmModule: Ref<WasmModule | null>,
-  hasPourSchedule: Ref<boolean>,
   extractionCurve: Ref<ExtractionPoint[]>
 ) {
   const brewRatio = computed(() => {
@@ -15,19 +13,8 @@ export function useBrewMath(
   })
 
   const extractionYield = computed(() => {
-    if (hasPourSchedule.value && extractionCurve.value.length > 0) {
-      return extractionCurve.value[extractionCurve.value.length - 1]!.yield
-    }
-    if (!wasmModule.value) return 0
-    return wasmModule.value.calculateExtractionYield(
-      recipe.value.brewTime,
-      recipe.value.temperature,
-      recipe.value.grindSize,
-      roastToNumber(recipe.value.roastLevel),
-      methodToNumber(recipe.value.method),
-      recipe.value.waterGrams,
-      recipe.value.coffeeGrams
-    )
+    if (extractionCurve.value.length === 0) return 0
+    return extractionCurve.value[extractionCurve.value.length - 1]!.yield
   })
 
   const beverageWeight = computed(() => {

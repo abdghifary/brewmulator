@@ -548,3 +548,35 @@ describe('Per-method modifier overrides', () => {
     expect(getYieldAt(fastHeavy, 180)).not.toBeCloseTo(getYieldAt(slowHeavy, 180), 3)
   })
 })
+
+describe('WASM modifier neutralization', () => {
+  it('ignores PiecewiseCurveParams.method unless TS-side modifiers are provided', () => {
+    const neutralMethod = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: true,
+      method: 0,
+      grindSize: 180,
+      coffeeGrams: 18,
+      pourSchedule: [{ startTime: 0, waterGrams: 36, temperature: 93 }],
+      maxTime: 10,
+      numPoints: 21
+    }))
+
+    const espressoMethod = computePiecewiseCurve(makeParams({
+      twoPhaseEnabled: true,
+      method: 2,
+      grindSize: 180,
+      coffeeGrams: 18,
+      pourSchedule: [{ startTime: 0, waterGrams: 36, temperature: 93 }],
+      maxTime: 10,
+      numPoints: 21
+    }))
+
+    const neutralAt5 = neutralMethod.find(point => Math.abs(point.time - 5) < 0.3)!.yield
+    const espressoAt5 = espressoMethod.find(point => Math.abs(point.time - 5) < 0.3)!.yield
+    const neutralAt10 = neutralMethod[neutralMethod.length - 1]!.yield
+    const espressoAt10 = espressoMethod[espressoMethod.length - 1]!.yield
+
+    expect(espressoAt5).toBeCloseTo(neutralAt5, 10)
+    expect(espressoAt10).toBeCloseTo(neutralAt10, 10)
+  })
+})

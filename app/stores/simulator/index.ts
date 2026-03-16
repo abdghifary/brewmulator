@@ -35,7 +35,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
 
   // Domain Composables
   const v60Pour = useV60PourSchedule(recipe)
-  const { brewRatio, beverageWeight, extractionYield, tds, extractionZone } = useBrewMath(recipe, wasmModule, v60Pour.hasPourSchedule, extractionCurve)
+  const { brewRatio, beverageWeight, extractionYield, tds, extractionZone } = useBrewMath(recipe, wasmModule, extractionCurve)
   const limits = useBrewLimits(recipe)
 
   // Actions
