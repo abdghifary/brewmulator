@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { BrewRecipe } from '../../app/stores/simulator/types'
-import { presetDefaults, methodToNumber, roastToNumber } from '../../app/stores/simulator/constants'
+import { presetDefaults } from '../../app/stores/simulator/constants'
 import { generateSyntheticSchedule } from '../../app/stores/simulator/composables/usePiecewiseExtraction'
 
 describe('generateSyntheticSchedule', () => {

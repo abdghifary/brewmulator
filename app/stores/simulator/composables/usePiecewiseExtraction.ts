@@ -57,15 +57,14 @@ export function computeEffectiveGrindSize(
  *
  * Reference: Spiro & Selwood (1984) — φ_s ≈ 0.30 at ~600μm for caffeine.
  *
- * TODO: Scale φ_s by roast level (darker = more brittle = higher φ_s).
+ * Potential extension: Scale φ_s by roast level (darker = more brittle = higher φ_s).
  * Dark roasts undergo more cellulose pyrolysis, making cell walls fragile.
  * The same grinder setting shatters more cells on a dark roast, increasing
  * the surface solubles fraction. Approximate scaling: φ_s *= roastFactor
  * where roastFactor ≈ 0.85 (light), 1.0 (medium), 1.15 (dark).
  */
 export function computeSurfaceFraction(grindSize: number): number {
-   // TODO: accept roastLevel parameter and scale phiS by roast brittleness
-   return Math.max(0, Math.min(1, PHI_SURFACE_REF * (D_REF_SURFACE / grindSize)))
+  return Math.max(0, Math.min(1, PHI_SURFACE_REF * (D_REF_SURFACE / grindSize)))
 }
 
 export function generateSyntheticSchedule(recipe: BrewRecipe): PourStep[] {
@@ -73,7 +72,7 @@ export function generateSyntheticSchedule(recipe: BrewRecipe): PourStep[] {
 }
 
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {
-  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method, maxTime, numPoints, wasmModule, globalTemp = 93, twoPhaseEnabled = false } = params
+  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method: _method, maxTime, numPoints, wasmModule, globalTemp = 93, twoPhaseEnabled = false } = params
 
   if (pourSchedule.length === 0) return []
 

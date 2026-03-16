@@ -67,7 +67,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
         : undefined,
       twoPhaseEnabled: config.supportsTwoPhase,
       methodModifierFast: config.methodModifierFast,
-      methodModifierSlow: config.methodModifierSlow,
+      methodModifierSlow: config.methodModifierSlow
     })
   }
 
