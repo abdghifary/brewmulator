@@ -17,7 +17,6 @@ export interface MethodConfig {
   supportsFineFraction: boolean
   percolationMultiplier: number
   supportsDripperGeometry: boolean
-  supportsTwoPhase: boolean
   methodModifierFast: number
   methodModifierSlow: number
 }
@@ -38,7 +37,6 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: true,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: true,
     methodModifierFast: 1.0,
     methodModifierSlow: 1.0
   },
@@ -57,7 +55,6 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: true,
     // Two-phase modifiers: immersion restricts the surface-wash phase via a
     // stagnant boundary layer, but the 4 min steep still needs a modestly
     // stronger diffusion term to land in the calibrated EY band.
@@ -79,7 +76,6 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: true,
     methodModifierFast: 12.0,
     methodModifierSlow: 4.0
   },
@@ -98,7 +94,6 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: true,
     // Two-phase modifiers: gentle pressure and agitation make AeroPress a bit
     // faster than neutral pour-over scaling without approaching espresso.
     methodModifierFast: 1.35,
@@ -119,7 +114,6 @@ export const METHOD_CONFIGS: Record<BrewMethod, MethodConfig> = {
     supportsFineFraction: false,
     percolationMultiplier: 1.0,
     supportsDripperGeometry: false,
-    supportsTwoPhase: true,
     // Two-phase modifiers: cold, static immersion suppresses both wash and
     // diffusion phases; the slow phase is reduced most aggressively to keep
     // 12 h extraction within the calibrated cold-brew band.

@@ -65,7 +65,7 @@ export const useSimulatorStore = defineStore('simulator', () => {
       finesFraction: config.supportsFineFraction
         ? clampFinesFraction(recipe.value.finesFraction ?? DEFAULT_FINES_FRACTION)
         : undefined,
-      twoPhaseEnabled: config.supportsTwoPhase,
+      twoPhaseEnabled: true,
       methodModifierFast: config.methodModifierFast,
       methodModifierSlow: config.methodModifierSlow
     })
