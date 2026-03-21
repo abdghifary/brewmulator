@@ -72,7 +72,7 @@ export function generateSyntheticSchedule(recipe: BrewRecipe): PourStep[] {
 }
 
 export function computePiecewiseCurve(params: PiecewiseCurveParams): ExtractionPoint[] {
-  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method: _method, maxTime, numPoints, wasmModule, globalTemp = 93, twoPhaseEnabled = false } = params
+  const { pourSchedule, coffeeGrams, grindSize, roastLevel, method: _method, maxTime, numPoints, wasmModule, globalTemp = 93, twoPhaseEnabled = true } = params
 
   if (pourSchedule.length === 0) return []
 
